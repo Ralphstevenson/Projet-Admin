@@ -1,15 +1,131 @@
-<div id="login-overlay" class="auth-overlay">
-    <div class="login-box">
-        <img src="https://i.postimg.cc/vTtVtB8P/20260205-163353-removebg-preview.png" alt="Logo">
-        <h2>Aksè Admin</h2>
-        
-        <input type="email" id="admin-email" placeholder="Email Admin">
-        <input type="password" id="admin-pass" placeholder="Modpas">
-        
-        <button id="btn-login">Konekte <i class="fa fa-sign-in-alt"></i></button>
-        
-        <p id="auth-error" style="color:red; margin-top:10px;"></p>
-    </div>
-</div>
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echanj Plus | Admin Panel</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
 
-<script type="module" src="admin.js"></script>
+    <div id="login-overlay" class="auth-overlay">
+        <div class="login-box">
+            <img src="https://i.postimg.cc/vTtVtB8P/20260205-163353-removebg-preview.png" alt="Logo">
+            <h2>Aksè Admin</h2>
+            <p>Antre idantifyan Ralph yo pou debloke sistèm nan.</p>
+            
+            <input type="email" id="admin-email" placeholder="Email Admin" autocomplete="on">
+            <input type="password" id="admin-pass" placeholder="Modpas Sekrè">
+            
+            <button id="btn-login">Konekte <i class="fa fa-sign-in-alt"></i></button>
+            <p id="auth-error" class="error-msg hidden"></p>
+        </div>
+    </div>
+
+    <div id="main-admin-panel" class="admin-wrapper hidden">
+        
+        <aside class="sidebar">
+            <div class="brand">ECHANJ PLUS</div>
+            <nav>
+                <a href="#" class="active" onclick="switchTab('dashboard')">
+                    <i class="fa fa-chart-line"></i> <span>Dashboard</span>
+                </a>
+                <a href="#" onclick="switchTab('transactions')">
+                    <i class="fa fa-exchange-alt"></i> <span>Tranzaksyon</span>
+                </a>
+                <a href="#" onclick="switchTab('users')">
+                    <i class="fa fa-users"></i> <span>Kliyan</span>
+                </a>
+                <a href="#" onclick="switchTab('settings')">
+                    <i class="fa fa-cog"></i> <span>Anviwònman</span>
+                </a>
+                <a href="#" onclick="switchTab('logs')">
+                    <i class="fa fa-shield-halved"></i> <span>Sekirite Logs</span>
+                </a>
+            </nav>
+            <button id="btn-logout" class="logout-link">
+                <i class="fa fa-power-off"></i> <span>Sòti</span>
+            </button>
+        </aside>
+
+        <main class="main-content">
+            
+            <header>
+                <div class="header-title">
+                    <h1 id="page-title">Dashboard & Statistik</h1>
+                    <small>Byenvini ankò, Admin.</small>
+                </div>
+                <div class="status-indicator">
+                    <i class="fa fa-circle" style="font-size: 8px;"></i> Online
+                </div>
+            </header>
+
+            <div id="section-dashboard" class="tab-content">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="icon-box blue"><i class="fa fa-wallet"></i></div>
+                        <div class="info">
+                            <small>Balans Kès (Total)</small>
+                            <h2 id="total-balance">0.00 HTG</h2>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon-box green"><i class="fa fa-arrow-trend-up"></i></div>
+                        <div class="info">
+                            <small>Antre Jodi a</small>
+                            <h2 id="today-in">0.00 HTG</h2>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="icon-box gold"><i class="fa fa-hand-holding-dollar"></i></div>
+                        <div class="info">
+                            <small>Benefis (Frè 0.5%)</small>
+                            <h2 id="total-profit">0.00 HTG</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="placeholder-section">
+                    <i class="fa fa-info-circle"></i>
+                    <p>Tout done sa yo ap mete ajou an tan reyèl depi yon kliyan fè yon aksyon.</p>
+                </div>
+            </div>
+
+            <div id="section-transactions" class="tab-content hidden">
+                <div class="placeholder-section">
+                    <i class="fa fa-exchange-alt"></i>
+                    <h3>Lis Tranzaksyon</h3>
+                    <p>Seksyon sa a ap gen tout depo ak retrè yo pita.</p>
+                </div>
+            </div>
+
+            <div id="section-users" class="tab-content hidden">
+                <div class="placeholder-section">
+                    <i class="fa fa-users"></i>
+                    <h3>Lis Kliyan</h3>
+                    <p>Isit la nou pral jere balans chak kliyan.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script type="module" src="admin.js"></script>
+
+    <script>
+        function switchTab(tabName) {
+            // Kache tout seksyon
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            // Louvri seksyon ki klike a
+            document.getElementById('section-' + tabName).classList.remove('hidden');
+            // Chanje tit la
+            document.getElementById('page-title').innerText = tabName.charAt(0).toUpperCase() + tabName.slice(1);
+        }
+    </script>
+</body>
+    </html>
+    
