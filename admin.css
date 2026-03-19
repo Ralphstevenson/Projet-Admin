@@ -1,1 +1,291 @@
+/* ==========================================
+   DESIGN SYSTEM: ECHANJ PLUS ADMIN v2.5
+   ========================================== */
 
+:root {
+    --primary: #0052cc;      /* Ble pwofesyonèl */
+    --dark: #091e42;         /* Nwa pou sidebar */
+    --bg: #f4f7fe;           /* Fond klè */
+    --white: #ffffff;
+    --success: #36b37e;      /* Vèt pou pwofi */
+    --warning: #ffab00;      /* Orange */
+    --danger: #ff5630;       /* Wouj pou erè */
+    --text-main: #172b4d;
+    --text-muted: #6b778c;
+    --shadow: 0 8px 30px rgba(9, 30, 66, 0.08);
+    --radius: 16px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, sans-serif;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text-main);
+    overflow-x: hidden;
+}
+
+.hidden { display: none !important; }
+
+/* ==========================================
+   1. LOGIN OVERLAY (AUTH STRIK)
+   ========================================== */
+.auth-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, var(--dark) 0%, #002152 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.login-box {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 28px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: fadeInScale 0.4s ease-out;
+}
+
+.login-box img {
+    width: 80px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+
+.login-box h2 {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.login-box p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 2px solid #ebecf0;
+    border-radius: 12px;
+    font-size: 16px;
+    background: #f4f5f7;
+    transition: 0.3s;
+}
+
+.login-box input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: white;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 16px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login-box button:hover {
+    background: #0747a6;
+    transform: translateY(-2px);
+}
+
+.error-msg {
+    color: var(--danger);
+    font-size: 13px;
+    margin-top: 15px;
+    font-weight: 600;
+    background: #ffebe6;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* ==========================================
+   2. MAIN LAYOUT (SIDEBAR + CONTENT)
+   ========================================== */
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 260px;
+    background: var(--dark);
+    color: white;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+}
+
+.brand {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 40px;
+    color: white;
+    letter-spacing: 1px;
+}
+
+.sidebar nav {
+    flex: 1;
+}
+
+.sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #a5adba;
+    padding: 14px 18px;
+    text-decoration: none;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: 0.3s;
+}
+
+.sidebar nav a:hover {
+    background: rgba(255,255,255,0.05);
+    color: white;
+}
+
+.sidebar nav a.active {
+    background: var(--primary);
+    color: white;
+}
+
+.sidebar nav a.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.logout-link {
+    background: rgba(255, 86, 48, 0.1);
+    color: #ff8f73;
+    border: 1px solid rgba(255, 86, 48, 0.2);
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: auto;
+}
+
+/* ==========================================
+   3. CONTENT AREA (DASHBOARD)
+   ========================================== */
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    padding: 40px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+}
+
+.status-indicator {
+    background: #e3fcef;
+    color: var(--success);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* STATS GRID */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.stat-card {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    box-shadow: var(--shadow);
+    transition: 0.3s;
+}
+
+.stat-card:hover { transform: translateY(-5px); }
+
+.icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-right: 20px;
+}
+
+.blue { background: #e6f0ff; color: var(--primary); }
+.green { background: #e3fcef; color: var(--success); }
+.gold { background: #fff9e6; color: var(--warning); }
+
+.info small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.info h2 {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+/* PLACEHOLDER SECTION */
+.placeholder-section {
+    margin-top: 40px;
+    padding: 80px;
+    background: white;
+    border: 2px dashed #dfe1e6;
+    border-radius: 24px;
+    text-align: center;
+    color: #97a0af;
+}
+
+.placeholder-section i {
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+/* ANIMATIONS */
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .sidebar { width: 80px; padding: 20px 10px; }
+    .sidebar span, .brand { display: none; }
+    .main-content { margin-left: 80px; padding: 20px; }
+}
