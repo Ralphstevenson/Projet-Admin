@@ -1,126 +1,167 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getDatabase, ref, onValue, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+// NOU AJOUTE "push" NAN LIY ANBA SA A
+import { getDatabase, ref, onValue, update, get, serverTimestamp, runTransaction, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// 1. Konfigirasyon Firebase ou bay la
+// 1. KONFIGIRASYON
 const firebaseConfig = {
-  apiKey: "AIzaSyB1VTPakleoggsbLdpm_HS7nSb3A7A99Qw",
-  authDomain: "echanj-plus-778cd.firebaseapp.com",
-  databaseURL: "https://echanj-plus-778cd-default-rtdb.firebaseio.com",
-  projectId: "echanj-plus-778cd",
-  storageBucket: "echanj-plus-778cd.firebasestorage.app",
-  messagingSenderId: "111144762929",
-  appId: "1:111144762929:web:e64ce9a6da65781c289f10",
-  measurementId: "G-J1BQRF32ZW"
+    apiKey: "AIzaSyB1VTPakleoggsbLdpm_HS7nSb3A7A99Qw",
+    authDomain: "echanj-plus-778cd.firebaseapp.com",
+    databaseURL: "https://echanj-plus-778cd-default-rtdb.firebaseio.com",
+    projectId: "echanj-plus-778cd",
+    storageBucket: "echanj-plus-778cd.firebasestorage.app",
+    messagingSenderId: "111144762929",
+    appId: "1:111144762929:web:e64ce9a6da65781c289f10"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
-
-// SEKIRITE: Sèl UID ki gen dwa antre
 const MASTER_UID = "GcWF8Iv8GqaAhSDRVteZajzMvG23";
 
-// 2. GADYEN AKSÈ (onAuthStateChanged)
+// --- 2. LOGIN FONKSYON ---
+window.handleLogin = () => {
+    const email = document.getElementById('admin-email').value;
+    const pass = document.getElementById('admin-pass').value;
+    signInWithEmailAndPassword(auth, email, pass).catch(err => alert("Erè: " + err.message));
+};
+
+// --- 3. GADYEN AKSÈ ---
 onAuthStateChanged(auth, (user) => {
-    const loginOverlay = document.getElementById('login-overlay');
-    const adminPanel = document.getElementById('main-admin-panel');
-
     if (user && user.uid === MASTER_UID) {
-        // Si se ou menm: Louvri pòt la
-        loginOverlay.classList.add('hidden');
-        adminPanel.classList.remove('hidden');
-        
-        // Lojik 2: Mete Admin Online
-        update(ref(db, 'status/admin'), { 
-            state: "online", 
-            last_changed: serverTimestamp() 
-        });
-
-        lanseStatistikYo();
+        document.getElementById('login-overlay').classList.add('hidden');
+        document.getElementById('main-admin-panel').classList.remove('hidden');
+        lanseSistèmKontwòl();
     } else {
-        // Si se pa ou: Fèmen pòt la
-        if (user) signOut(auth); 
-        loginOverlay.classList.remove('hidden');
-        adminPanel.classList.add('hidden');
+        if (user) signOut(auth);
+        document.getElementById('login-overlay').classList.remove('hidden');
     }
 });
 
-// 3. LOJIK BOUTON KONEKTE
-document.getElementById('btn-login').onclick = async () => {
-    const email = document.getElementById('admin-email').value.trim();
-    const pass = document.getElementById('admin-pass').value.trim();
-    const btn = document.getElementById('btn-login');
-    const errorMsg = document.getElementById('auth-error');
-
-    if (!email || !pass) {
-        errorMsg.innerText = "Ranpli tout chan yo!";
-        errorMsg.classList.remove('hidden');
-        return;
-    }
-
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Verifikasyon...';
-
-    try {
-        await signInWithEmailAndPassword(auth, email, pass);
-    } catch (error) {
-        btn.disabled = false;
-        btn.innerHTML = 'Konekte <i class="fa fa-sign-in-alt"></i>';
-        errorMsg.innerText = "Email oswa Modpas enkòrèk!";
-        errorMsg.classList.remove('hidden');
-    }
-};
-
-// 4. LOJIK STATISTIK (Lojik 3 & 12)
-function lanseStatistikYo() {
-    const dbRef = ref(db, '/');
-    
-    onValue(dbRef, (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-
+// --- 4. LOJIK STATISTIK & TRANZAKSYON ---
+function lanseSistèmKontwòl() {
+    onValue(ref(db, '/'), (snapshot) => {
+        const data = snapshot.val() || {};
         const users = data.users || {};
         const transactions = data.transactions || {};
-
-        let balansKès = 0;
-        let antreJodi = 0;
-        let pwofiTotal = 0;
-
-        // Jwenn dat jodi a (DD/MM/YYYY)
         const jodiA = new Date().toDateString();
 
-        // A. Kalkile Balans Kliyan (Lojik 3)
-        Object.values(users).forEach(u => {
-            balansKès += Number(u.balance || 0);
-        });
+        let kèsTotal = 0, pwofiTotal = 0, antreJodi = 0, pwofiJodi = 0;
 
-        // B. Kalkile Tranzaksyon Validé (Lojik 12)
-        Object.values(transactions).forEach(t => {
-            if (t.status === "Validé") {
-                const montan = Number(t.amount || 0);
-                
-                // Pwofi = 0.5% sou chak tranzaksyon validé
-                pwofiTotal += montan * 0.005;
+        const listEchanj = document.getElementById('list-pending-echanj');
+        const listRetre = document.getElementById('list-pending-retre');
+        const listHistory = document.getElementById('list-history');
+        const listUsers = document.getElementById('list-users');
+        
+        if(listEchanj) listEchanj.innerHTML = "";
+        if(listRetre) listRetre.innerHTML = "";
+        if(listHistory) listHistory.innerHTML = "";
+        if(listUsers) listUsers.innerHTML = "";
 
-                // Si depo a fèt jodi a
-                const datTrans = new Date(t.timestamp || Date.now()).toDateString();
-                if (t.type === "Depo" && datTrans === jodiA) {
-                    antreJodi += montan;
-                }
+        // KLIYAN YO
+        Object.keys(users).forEach(uid => {
+            const u = users[uid];
+            kèsTotal += Number(u.balance || 0);
+            if(listUsers) {
+                listUsers.innerHTML += `
+                <tr>
+                    <td>${u.arsID || '---'}</td>
+                    <td><b>${Number(u.balance).toFixed(2)}</b></td>
+                    <td><span class="badge ${u.status}">${u.status}</span></td>
+                    <td><button onclick="window.ajisteBalans('${uid}', ${u.balance})">Edit</button></td>
+                </tr>`;
             }
         });
 
-        // C. Mete yo nan HTML la
-        document.getElementById('total-balance').innerText = balansKès.toLocaleString() + " HTG";
+        // TRANZAKSYON YO
+        Object.keys(transactions).reverse().forEach(tid => {
+            const t = transactions[tid];
+            const tDate = new Date(t.timestamp).toDateString();
+            const montan = parseFloat(t.amount || 0);
+
+            if (t.status === "En attente") {
+                // Tcheke si se echanj oswa retrè (nou tcheke tou de fason pou sekirite)
+                if (t.type === "Echanj") {
+                    if(listEchanj) listEchanj.innerHTML += kreyeLiyTablo(t, tid, "echanj");
+                } else if (t.type === "Retrè" || t.type === "Retrait") {
+                    if(listRetre) listRetre.innerHTML += kreyeLiyTablo(t, tid, "retre");
+                }
+            } else if (t.status === "Validé") {
+                const benef = montan * 0.005;
+                pwofiTotal += benef;
+                if (tDate === jodiA) {
+                    pwofiJodi += benef;
+                    if (t.type === "Echanj") antreJodi += montan;
+                }
+                if(listHistory) listHistory.innerHTML += `<tr><td>${tDate}</td><td>${t.type}</td><td>${montan}</td><td>${t.status}</td></tr>`;
+            }
+        });
+
+        document.getElementById('total-balance').innerText = kèsTotal.toLocaleString() + " HTG";
         document.getElementById('today-in').innerText = antreJodi.toLocaleString() + " HTG";
-        document.getElementById('total-profit').innerText = pwofiTotal.toLocaleString() + " HTG";
+        document.getElementById('total-profit').innerText = Math.floor(pwofiTotal).toLocaleString() + " HTG";
     });
 }
 
-// 5. LOJIK LOGOUT
-document.getElementById('btn-logout').onclick = () => {
-    update(ref(db, 'status/admin'), { state: "offline" });
-    signOut(auth);
+function kreyeLiyTablo(t, tid, kategori) {
+    let detay = (kategori === "retre") 
+        ? `<small>Voye bay: ${t.receiver || '---'}<br>Tel: ${t.phone || '---'} (${t.method})</small>` 
+        : `<small>Rezo: ${t.rezo || 'Digicel'}</small>`;
+
+    return `
+        <tr>
+            <td>${t.arsID || '---'}</td>
+            <td>${detay}</td>
+            <td><b>${t.amount}</b></td>
+            <td>
+                <button class="btn-v" onclick="finalize('${tid}', '${t.uid}', ${t.amount}, '${t.type}', 'Validé')">V</button>
+                <button class="btn-x" onclick="finalize('${tid}', '${t.uid}', ${t.amount}, '${t.type}', 'Refusé')">X</button>
+            </td>
+        </tr>`;
+}
+
+// --- 5. FINALIZE (KI KORIJÈ) ---
+window.finalize = async (tid, uid, amt, type, status) => {
+    if (!confirm(`Èske ou vle ${status} tranzaksyon sa a?`)) return;
+
+    try {
+        const userRef = ref(db, `users/${uid}/balance`);
+
+        // Si se echanj, ajoute kòb la
+        if (type === "Echanj" && status === "Validé") {
+            await runTransaction(userRef, (current) => (current || 0) + Number(amt));
+        }
+
+        // Si se retrè epi w refize l, remete kòb la (Refund)
+        if ((type === "Retrè" || type === "Retrait") && status === "Refusé") {
+            await runTransaction(userRef, (current) => (current || 0) + Number(amt));
+        }
+
+        // Mizajou tranzaksyon an
+        await update(ref(db, `transactions/${tid}`), {
+            status: status,
+            processedAt: serverTimestamp()
+        });
+
+        // VOYE NOTIFIKASYON (Kounye a push ap mache!)
+        const notifRef = push(ref(db, `users/${uid}/notifications/transak`));
+        await update(notifRef, {
+            msg: `Tranzaksyon ${type} ou a ${status}! ${status === 'Validé' ? '✅' : '❌'}`,
+            timestamp: Date.now()
+        });
+
+        alert("Siksè!");
+    } catch (e) {
+        console.error(e);
+        alert("Erè: " + e.message);
+    }
 };
-      
+
+window.handleLogout = () => signOut(auth);
+
+window.switchTab = (tab, el) => {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+    document.getElementById('section-' + tab).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if(el) el.classList.add('active');
+};
