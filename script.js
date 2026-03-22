@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-// NOU AJOUTE "push" NAN LIY ANBA SA A
-import { getDatabase, ref, onValue, update, get, serverTimestamp, runTransaction, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, onValue, update, serverTimestamp, runTransaction, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // 1. KONFIGIRASYON
 const firebaseConfig = {
@@ -23,18 +22,25 @@ const MASTER_UID = "GcWF8Iv8GqaAhSDRVteZajzMvG23";
 window.handleLogin = () => {
     const email = document.getElementById('admin-email').value;
     const pass = document.getElementById('admin-pass').value;
+    if(!email || !pass) return alert("Ranpli tout bwat yo!");
     signInWithEmailAndPassword(auth, email, pass).catch(err => alert("Erè: " + err.message));
 };
 
+window.handleLogout = () => signOut(auth);
+
 // --- 3. GADYEN AKSÈ ---
 onAuthStateChanged(auth, (user) => {
+    const overlay = document.getElementById('login-overlay');
+    const panel = document.getElementById('main-admin-panel');
+    
     if (user && user.uid === MASTER_UID) {
-        document.getElementById('login-overlay').classList.add('hidden');
-        document.getElementById('main-admin-panel').classList.remove('hidden');
+        overlay.classList.add('hidden');
+        panel.classList.remove('hidden');
         lanseSistèmKontwòl();
     } else {
         if (user) signOut(auth);
-        document.getElementById('login-overlay').classList.remove('hidden');
+        overlay.classList.remove('hidden');
+        panel.classList.add('hidden');
     }
 });
 
@@ -46,7 +52,7 @@ function lanseSistèmKontwòl() {
         const transactions = data.transactions || {};
         const jodiA = new Date().toDateString();
 
-        let kèsTotal = 0, pwofiTotal = 0, antreJodi = 0, pwofiJodi = 0;
+        let kèsTotal = 0, pwofiTotal = 0, antreJodi = 0;
 
         const listEchanj = document.getElementById('list-pending-echanj');
         const listRetre = document.getElementById('list-pending-retre');
@@ -58,45 +64,47 @@ function lanseSistèmKontwòl() {
         if(listHistory) listHistory.innerHTML = "";
         if(listUsers) listUsers.innerHTML = "";
 
-        // KLIYAN YO
+        // A. KLIYAN YO
         Object.keys(users).forEach(uid => {
             const u = users[uid];
-            kèsTotal += Number(u.balance || 0);
+            const bal = Number(u.balance || 0);
+            kèsTotal += bal;
+            
             if(listUsers) {
                 listUsers.innerHTML += `
                 <tr>
-                    <td>${u.arsID || '---'}</td>
-                    <td><b>${Number(u.balance).toFixed(2)}</b></td>
-                    <td><span class="badge ${u.status}">${u.status}</span></td>
-                    <td><button onclick="window.ajisteBalans('${uid}', ${u.balance})">Edit</button></td>
+                    <td>${u.arsID || '---'}<br><small>${u.fullname || ''}</small></td>
+                    <td><b>${bal.toFixed(2)}</b></td>
+                    <td><span class="badge ${u.status || 'active'}">${u.status || 'active'}</span></td>
+                    <td><button class="btn-v" style="background:#0052cc" onclick="ajisteBalans('${uid}', ${bal}, '${u.status}')"><i class="fa fa-edit"></i></button></td>
                 </tr>`;
             }
         });
 
-        // TRANZAKSYON YO
+        // B. TRANZAKSYON YO
         Object.keys(transactions).reverse().forEach(tid => {
             const t = transactions[tid];
             const tDate = new Date(t.timestamp).toDateString();
             const montan = parseFloat(t.amount || 0);
 
             if (t.status === "En attente") {
-                // Tcheke si se echanj oswa retrè (nou tcheke tou de fason pou sekirite)
                 if (t.type === "Echanj") {
                     if(listEchanj) listEchanj.innerHTML += kreyeLiyTablo(t, tid, "echanj");
-                } else if (t.type === "Retrè" || t.type === "Retrait") {
+                } else {
                     if(listRetre) listRetre.innerHTML += kreyeLiyTablo(t, tid, "retre");
                 }
             } else if (t.status === "Validé") {
-                const benef = montan * 0.005;
-                pwofiTotal += benef;
+                pwofiTotal += (montan * 0.005);
                 if (tDate === jodiA) {
-                    pwofiJodi += benef;
                     if (t.type === "Echanj") antreJodi += montan;
                 }
-                if(listHistory) listHistory.innerHTML += `<tr><td>${tDate}</td><td>${t.type}</td><td>${montan}</td><td>${t.status}</td></tr>`;
+                if(listHistory) {
+                    listHistory.innerHTML += `<tr><td>${new Date(t.timestamp).toLocaleDateString()}</td><td>${t.type}</td><td>${montan} HTG</td><td>${t.status}</td></tr>`;
+                }
             }
         });
 
+        // C. UPDATE UI
         document.getElementById('total-balance').innerText = kèsTotal.toLocaleString() + " HTG";
         document.getElementById('today-in').innerText = antreJodi.toLocaleString() + " HTG";
         document.getElementById('total-profit').innerText = Math.floor(pwofiTotal).toLocaleString() + " HTG";
@@ -105,7 +113,7 @@ function lanseSistèmKontwòl() {
 
 function kreyeLiyTablo(t, tid, kategori) {
     let detay = (kategori === "retre") 
-        ? `<small>Voye bay: ${t.receiver || '---'}<br>Tel: ${t.phone || '---'} (${t.method})</small>` 
+        ? `<small>${t.receiver || '---'}<br>${t.phone || ''} (${t.method || ''})</small>` 
         : `<small>Rezo: ${t.rezo || 'Digicel'}</small>`;
 
     return `
@@ -120,48 +128,39 @@ function kreyeLiyTablo(t, tid, kategori) {
         </tr>`;
 }
 
-// --- 5. FINALIZE (KI KORIJÈ) ---
+// --- 5. FINALIZE (VALIDASYON) ---
 window.finalize = async (tid, uid, amt, type, status) => {
-    if (!confirm(`Èske ou vle ${status} tranzaksyon sa a?`)) return;
-
+    if (!confirm(`Vle ${status} tranzaksyon sa a?`)) return;
     try {
         const userRef = ref(db, `users/${uid}/balance`);
-
-        // Si se echanj, ajoute kòb la
         if (type === "Echanj" && status === "Validé") {
-            await runTransaction(userRef, (current) => (current || 0) + Number(amt));
+            await runTransaction(userRef, (curr) => (curr || 0) + Number(amt));
         }
-
-        // Si se retrè epi w refize l, remete kòb la (Refund)
         if ((type === "Retrè" || type === "Retrait") && status === "Refusé") {
-            await runTransaction(userRef, (current) => (current || 0) + Number(amt));
+            await runTransaction(userRef, (curr) => (curr || 0) + Number(amt));
         }
-
-        // Mizajou tranzaksyon an
-        await update(ref(db, `transactions/${tid}`), {
-            status: status,
-            processedAt: serverTimestamp()
-        });
-
-        // VOYE NOTIFIKASYON (Kounye a push ap mache!)
+        await update(ref(db, `transactions/${tid}`), { status: status, processedAt: serverTimestamp() });
+        
+        // Notifikasyon
         const notifRef = push(ref(db, `users/${uid}/notifications/transak`));
-        await update(notifRef, {
-            msg: `Tranzaksyon ${type} ou a ${status}! ${status === 'Validé' ? '✅' : '❌'}`,
-            timestamp: Date.now()
-        });
-
+        await update(notifRef, { msg: `Tranzaksyon ${type} ${status}!`, timestamp: Date.now() });
         alert("Siksè!");
-    } catch (e) {
-        console.error(e);
-        alert("Erè: " + e.message);
-    }
+    } catch (e) { alert("Erè: " + e.message); }
 };
 
-window.handleLogout = () => signOut(auth);
+// --- 6. AJISTE BALANS / BLOKE MOUN ---
+window.ajisteBalans = async (uid, balAktiyèl, status) => {
+    const nouvoBal = prompt(`Balans kounye a: ${balAktiyèl} HTG\nAntre nouvo balans lan:`, balAktiyèl);
+    if (nouvoBal === null) return;
+    
+    const nouvoStatus = confirm("Vle BLOKE kliyan sa a?") ? "blocked" : "active";
 
-window.switchTab = (tab, el) => {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-    document.getElementById('section-' + tab).classList.remove('hidden');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if(el) el.classList.add('active');
+    try {
+        await update(ref(db, `users/${uid}`), {
+            balance: Number(nouvoBal),
+            status: nouvoStatus
+        });
+        alert("Done yo ajou!");
+    } catch (e) { alert("Erè: " + e.message); }
 };
+            
