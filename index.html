@@ -3,25 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Echanj Plus | Admin Master</title>
+    <title>Echanj Plus | Admin Master 2026</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css"> </head>
+    
+    <style>
+        :root {
+            --admin-blue: #0052cc;
+            --admin-dark: #091e42;
+            --success: #00875a;
+            --danger: #de350b;
+            --warning: #ffab00;
+            --bg: #f4f5f7;
+            --white: #ffffff;
+            --text-muted: #6b778c;
+            --border: #dfe1e6;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: var(--bg);
+            margin: 0; padding: 0;
+            font-family: 'Inter', sans-serif;
+            color: var(--admin-dark);
+        }
+
+        .hidden { display: none !important; }
+
+        /* --- 1. LOGIN OVERLAY (SANTRE) --- */
+        .auth-overlay {
+            position: fixed; inset: 0;
+            background: var(--admin-dark);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; padding: 20px;
+        }
+
+        .login-box {
+            background: var(--white);
+            padding: 40px 25px;
+            border-radius: 24px;
+            text-align: center;
+            width: 100%; max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        .login-box img { width: 90px; margin-bottom: 20px; }
+        .login-box input {
+            width: 100%; padding: 15px; margin-bottom: 12px;
+            border: 2px solid var(--border); border-radius: 12px;
+            font-size: 16px; background: #fafbfc;
+        }
+
+        #btn-login {
+            width: 100%; padding: 16px;
+            background: var(--admin-blue); color: white;
+            border: none; border-radius: 12px;
+            font-weight: 700; font-size: 16px; cursor: pointer;
+        }
+
+        /* --- 2. HEADER --- */
+        .admin-header {
+            background: var(--admin-dark); color: white;
+            padding: 15px 20px; display: flex;
+            justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .brand { font-weight: 800; font-size: 18px; }
+        .brand span { color: var(--warning); }
+        .admin-status { font-size: 11px; color: #36b37e; }
+
+        /* --- 3. DASHBOARD STATS --- */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 12px; padding: 20px;
+        }
+
+        .stat-card {
+            background: var(--white); padding: 18px;
+            border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            position: relative; overflow: hidden;
+        }
+
+        .stat-card:first-child { grid-column: span 2; background: #f0f4ff; }
+        .stat-card i { position: absolute; right: -5px; bottom: -5px; font-size: 50px; opacity: 0.1; }
+        .stat-card small { display: block; color: var(--text-muted); font-size: 10px; font-weight: 700; }
+        .stat-card h2 { margin: 5px 0 0; font-size: 18px; }
+
+        /* --- 4. TABLES & FILTERS --- */
+        .section-title { padding: 20px 20px 10px; font-size: 16px; font-weight: 800; }
+        
+        .filter-container {
+            display: flex; justify-content: center; gap: 10px;
+            margin-bottom: 15px; padding: 0 20px;
+        }
+
+        .filter-btn {
+            padding: 8px 18px; border: 1px solid var(--border);
+            background: white; border-radius: 20px; font-size: 12px;
+            font-weight: 600; cursor: pointer; transition: 0.3s;
+        }
+
+        .filter-btn.active { background: var(--admin-blue); color: white; border-color: var(--admin-blue); }
+
+        .table-scroll {
+            background: var(--white); margin: 0 15px 20px;
+            border-radius: 16px; overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 400px; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; font-size: 11px; color: var(--text-muted); }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 12px; }
+
+        .btn-v { background: var(--success); color: white; border: none; padding: 8px 12px; border-radius: 8px; margin-right: 5px; }
+        .btn-x { background: var(--danger); color: white; border: none; padding: 8px 12px; border-radius: 8px; }
+
+        /* --- 5. BOTTOM NAV --- */
+        .admin-bottom-nav {
+            position: fixed; bottom: 0; width: 100%;
+            background: var(--white); display: flex;
+            justify-content: space-around; padding: 12px 5px 25px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.08);
+        }
+
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 10px; cursor: pointer; }
+        .nav-item i { font-size: 18px; margin-bottom: 4px; }
+        .nav-item.active { color: var(--admin-blue); }
+        .nav-item.logout { color: var(--danger); }
+
+        .admin-content { padding-bottom: 100px; }
+    </style>
+</head>
 <body>
 
     <div id="login-overlay" class="auth-overlay">
         <div class="login-box">
             <img src="https://i.postimg.cc/vTtVtB8P/20260205-163353-removebg-preview.png" alt="Logo">
             <h2>Ralph Admin</h2>
-            <p>Antre kòd sekrè ou pou debloke kès la.</p>
+            <p>Sistèm Sekirite Echanj Plus</p>
             <input type="email" id="admin-email" placeholder="Email Admin">
-            <input type="password" id="admin-pass" placeholder="Modpas">
+            <input type="password" id="admin-pass" placeholder="Modpas Admin">
             <button id="btn-login" onclick="handleLogin()">DEBLOKE <i class="fa fa-unlock"></i></button>
         </div>
     </div>
 
     <div id="main-admin-panel" class="admin-wrapper hidden">
-        
         <header class="admin-header">
             <div class="brand">ECHANJ PLUS <span>ADMIN</span></div>
             <div class="admin-status"><i class="fa fa-circle"></i> Online</div>
@@ -32,57 +161,44 @@
             <div id="section-dashboard" class="tab-content">
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <small>Balans nan Kès</small>
+                        <small>Balans Kliyan (Kès)</small>
                         <h2 id="total-balance">0.00 HTG</h2>
                         <i class="fa fa-vault"></i>
                     </div>
-                    <div class="stat-card green">
+                    <div class="stat-card">
                         <small>Antre Jodi a</small>
-                        <h2 id="today-in">0.00 HTG</h2>
-                        <i class="fa fa-arrow-trend-up"></i>
+                        <h2 id="today-in" style="color: var(--success);">0.00 HTG</h2>
                     </div>
-                    <div class="stat-card gold">
+                    <div class="stat-card">
                         <small>Pwofi (0.5%)</small>
-                        <h2 id="total-profit">0.00 HTG</h2>
-                        <i class="fa fa-coins"></i>
+                        <h2 id="total-profit" style="color: var(--warning);">0.00 HTG</h2>
                     </div>
-                </div>
-
-                <div class="info-banner">
-                    <i class="fa fa-info-circle"></i>
-                    <p>Tout tranzaksyon ki fèt yo ap parèt nan tab "Demann" lan pou validasyon.</p>
                 </div>
             </div>
 
             <div id="section-transactions" class="tab-content hidden">
-                <h3 class="section-title">Echanj Minit (Atant)</h3>
+                <h3 class="section-title">Echanj Atant</h3>
                 <div class="table-scroll">
                     <table>
-                        <thead>
-                            <tr><th>Kliyan</th><th>Rezo</th><th>Montan</th><th>Aksyon</th></tr>
-                        </thead>
+                        <thead><tr><th>Kliyan</th><th>Info</th><th>Montan</th><th>Aksyon</th></tr></thead>
                         <tbody id="list-pending-echanj"></tbody>
                     </table>
                 </div>
 
-                <h3 class="section-title" style="margin-top: 30px;">Demann Retrè (Atant)</h3>
+                <h3 class="section-title">Retrè Atant</h3>
                 <div class="table-scroll">
                     <table>
-                        <thead>
-                            <tr><th>Kliyan</th><th>Detay Peman</th><th>Montan</th><th>Aksyon</th></tr>
-                        </thead>
+                        <thead><tr><th>Kliyan</th><th>Info</th><th>Montan</th><th>Aksyon</th></tr></thead>
                         <tbody id="list-pending-retre"></tbody>
                     </table>
                 </div>
             </div>
 
             <div id="section-users" class="tab-content hidden">
-                <h3 class="section-title">Tout Kliyan yo</h3>
+                <h3 class="section-title">Lis Kliyan yo</h3>
                 <div class="table-scroll">
                     <table>
-                        <thead>
-                            <tr><th>ID</th><th>Balans</th><th>Status</th><th>Edit</th></tr>
-                        </thead>
+                        <thead><tr><th>ARS-ID</th><th>Balans</th><th>Status</th><th>Aksyon</th></tr></thead>
                         <tbody id="list-users"></tbody>
                     </table>
                 </div>
@@ -90,46 +206,47 @@
 
             <div id="section-history" class="tab-content hidden">
                 <h3 class="section-title">Istorik Odit</h3>
+                <div class="filter-container">
+                    <button class="filter-btn active" onclick="filtreIstorik('Tout', this)">Tout</button>
+                    <button class="filter-btn" onclick="filtreIstorik('Echanj', this)">Echanj</button>
+                    <button class="filter-btn" onclick="filtreIstorik('Retrè', this)">Retrè</button>
+                </div>
                 <div class="table-scroll">
-                    <table id="history-table">
-                        <thead>
-                            <tr><th>Dat</th><th>Tip</th><th>Montan</th><th>Status</th></tr>
-                        </thead>
+                    <table>
+                        <thead><tr><th>Dat</th><th>Tip</th><th>Montan</th><th>Status</th></tr></thead>
                         <tbody id="list-history"></tbody>
                     </table>
                 </div>
             </div>
-
         </main>
 
         <nav class="admin-bottom-nav">
-            <div class="nav-item active" onclick="switchTab('dashboard', this)">
-                <i class="fa fa-chart-pie"></i><span>Stats</span>
-            </div>
-            <div class="nav-item" onclick="switchTab('transactions', this)">
-                <i class="fa fa-bell-concierge"></i><span>Demann</span>
-            </div>
-            <div class="nav-item" onclick="switchTab('users', this)">
-                <i class="fa fa-users-gear"></i><span>Kliyan</span>
-            </div>
-            <div class="nav-item" onclick="switchTab('history', this)">
-                <i class="fa fa-clock-rotate-left"></i><span>Istorik</span>
-            </div>
-            <div class="nav-item logout" onclick="handleLogout()">
-                <i class="fa fa-power-off"></i><span>Sòti</span>
-            </div>
+            <div class="nav-item active" onclick="switchTab('dashboard', this)"><i class="fa fa-chart-pie"></i><span>Stats</span></div>
+            <div class="nav-item" onclick="switchTab('transactions', this)"><i class="fa fa-bell-concierge"></i><span>Demann</span></div>
+            <div class="nav-item" onclick="switchTab('users', this)"><i class="fa fa-users-gear"></i><span>Kliyan</span></div>
+            <div class="nav-item" onclick="switchTab('history', this)"><i class="fa fa-clock-rotate-left"></i><span>Istorik</span></div>
+            <div class="nav-item logout" onclick="handleLogout()"><i class="fa fa-power-off"></i><span>Sòti</span></div>
         </nav>
     </div>
 
     <script type="module" src="script.js"></script>
     <script>
         function switchTab(tabId, el) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
             document.getElementById('section-' + tabId).classList.remove('hidden');
-            
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
         }
+
+        window.filtreIstorik = (tip, bouton) => {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            bouton.classList.add('active');
+            const liyYo = document.querySelectorAll('#list-history tr');
+            liyYo.forEach(liy => {
+                const tipLiy = liy.cells[1].innerText;
+                liy.style.display = (tip === "Tout" || tipLiy.includes(tip)) ? "" : "none";
+            });
+        };
     </script>
 </body>
 </html>
