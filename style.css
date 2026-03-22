@@ -1,291 +1,296 @@
 /* ==========================================
-   DESIGN SYSTEM: ECHANJ PLUS ADMIN v2.5
+   I. KONFIGIRASYON JENERAL (ROOT & RESET)
    ========================================== */
-
 :root {
-    --primary: #0052cc;      /* Ble pwofesyonèl */
-    --dark: #091e42;         /* Nwa pou sidebar */
-    --bg: #f4f7fe;           /* Fond klè */
+    --admin-blue: #0052cc;
+    --admin-dark: #091e42;
+    --success: #00875a;
+    --danger: #de350b;
+    --warning: #ffab00;
+    --bg: #f4f5f7;
     --white: #ffffff;
-    --success: #36b37e;      /* Vèt pou pwofi */
-    --warning: #ffab00;      /* Orange */
-    --danger: #ff5630;       /* Wouj pou erè */
-    --text-main: #172b4d;
     --text-muted: #6b778c;
-    --shadow: 0 8px 30px rgba(9, 30, 66, 0.08);
-    --radius: 16px;
+    --border: #dfe1e6;
 }
 
 * {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', -apple-system, sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
     background: var(--bg);
-    color: var(--text-main);
-    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--admin-dark);
+    line-height: 1.6;
 }
 
 .hidden { display: none !important; }
 
 /* ==========================================
-   1. LOGIN OVERLAY (AUTH STRIK)
+   II. PAJ AUTH (LOGIN) - SANTRE AK MARGIN
    ========================================== */
 .auth-overlay {
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: linear-gradient(135deg, var(--dark) 0%, #002152 100%);
+    inset: 0;
+    background: var(--admin-dark);
     display: flex;
-    align-items: center;
     justify-content: center;
-    z-index: 9999;
+    align-items: center;
+    z-index: 2000;
+    padding: 20px; /* Margin sekirite sou kote yo */
 }
 
 .login-box {
     background: var(--white);
-    padding: 40px;
-    border-radius: 28px;
-    width: 90%;
-    max-width: 400px;
+    padding: 40px 25px;
+    border-radius: 24px;
     text-align: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-    animation: fadeInScale 0.4s ease-out;
+    width: 100%;
+    max-width: 400px; /* Lajè maksimòm pou tablèt/PC */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    animation: fadeIn 0.5s ease-out;
 }
 
 .login-box img {
-    width: 80px;
+    width: 90px;
     margin-bottom: 20px;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
 }
 
 .login-box h2 {
-    font-size: 26px;
+    margin: 0 0 10px 0;
     font-weight: 800;
-    margin-bottom: 10px;
+    font-size: 26px;
 }
 
 .login-box p {
     color: var(--text-muted);
     font-size: 14px;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
 
 .login-box input {
     width: 100%;
     padding: 15px;
-    margin-bottom: 15px;
-    border: 2px solid #ebecf0;
+    margin-bottom: 12px;
+    border: 2px solid var(--border);
     border-radius: 12px;
     font-size: 16px;
-    background: #f4f5f7;
-    transition: 0.3s;
+    background: #fafbfc;
+    transition: border-color 0.3s;
 }
 
 .login-box input:focus {
     outline: none;
-    border-color: var(--primary);
-    background: white;
+    border-color: var(--admin-blue);
 }
 
-.login-box button {
+#btn-login {
     width: 100%;
     padding: 16px;
-    background: var(--primary);
+    background: var(--admin-blue);
     color: white;
     border: none;
     border-radius: 12px;
-    font-size: 16px;
     font-weight: 700;
+    font-size: 16px;
     cursor: pointer;
-    transition: 0.3s;
-}
-
-.login-box button:hover {
-    background: #0747a6;
-    transform: translateY(-2px);
-}
-
-.error-msg {
-    color: var(--danger);
-    font-size: 13px;
-    margin-top: 15px;
-    font-weight: 600;
-    background: #ffebe6;
-    padding: 10px;
-    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
 }
 
 /* ==========================================
-   2. MAIN LAYOUT (SIDEBAR + CONTENT)
+   III. HEADER ADMIN
    ========================================== */
-.admin-wrapper {
-    display: flex;
-    min-height: 100vh;
-}
-
-.sidebar {
-    width: 260px;
-    background: var(--dark);
+.admin-header {
+    background: var(--admin-dark);
     color: white;
-    padding: 30px 20px;
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    height: 100vh;
-}
-
-.brand {
-    font-size: 22px;
-    font-weight: 800;
-    margin-bottom: 40px;
-    color: white;
-    letter-spacing: 1px;
-}
-
-.sidebar nav {
-    flex: 1;
-}
-
-.sidebar nav a {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: #a5adba;
-    padding: 14px 18px;
-    text-decoration: none;
-    border-radius: 12px;
-    margin-bottom: 8px;
-    transition: 0.3s;
-}
-
-.sidebar nav a:hover {
-    background: rgba(255,255,255,0.05);
-    color: white;
-}
-
-.sidebar nav a.active {
-    background: var(--primary);
-    color: white;
-}
-
-.sidebar nav a.disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.logout-link {
-    background: rgba(255, 86, 48, 0.1);
-    color: #ff8f73;
-    border: 1px solid rgba(255, 86, 48, 0.2);
-    padding: 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    margin-top: auto;
-}
-
-/* ==========================================
-   3. CONTENT AREA (DASHBOARD)
-   ========================================== */
-.main-content {
-    flex: 1;
-    margin-left: 260px;
-    padding: 40px;
-}
-
-header {
+    padding: 15px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 35px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.status-indicator {
-    background: #e3fcef;
-    color: var(--success);
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 700;
-}
+.brand { font-weight: 800; font-size: 18px; letter-spacing: 1px; }
+.brand span { color: var(--warning); }
+.admin-status { font-size: 11px; font-weight: 600; color: #36b37e; }
+.admin-status i { font-size: 8px; vertical-align: middle; margin-right: 5px; }
 
-/* STATS GRID */
-.stats-container {
+/* ==========================================
+   IV. STATS CARDS (DASHBOARD)
+   ========================================== */
+.stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(2, 1fr); /* 2 kolòn sou telefòn */
+    gap: 12px;
+    padding: 20px;
 }
 
 .stat-card {
     background: var(--white);
-    padding: 30px;
-    border-radius: 24px;
-    display: flex;
-    align-items: center;
-    box-shadow: var(--shadow);
-    transition: 0.3s;
+    padding: 18px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
 }
 
-.stat-card:hover { transform: translateY(-5px); }
-
-.icon-box {
-    width: 60px;
-    height: 60px;
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    margin-right: 20px;
+/* Fè kès total la pran tout lajè a (3yèm kat la) */
+.stat-card:first-child {
+    grid-column: span 2;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
 }
 
-.blue { background: #e6f0ff; color: var(--primary); }
-.green { background: #e3fcef; color: var(--success); }
-.gold { background: #fff9e6; color: var(--warning); }
+.stat-card i {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 60px;
+    opacity: 0.08;
+    color: var(--admin-blue);
+}
 
-.info small {
+.stat-card small {
     display: block;
     color: var(--text-muted);
-    font-size: 12px;
-    text-transform: uppercase;
+    font-size: 11px;
     font-weight: 700;
+    text-transform: uppercase;
     margin-bottom: 5px;
 }
 
-.info h2 {
-    font-size: 22px;
+.stat-card h2 {
+    margin: 0;
+    font-size: 20px;
     font-weight: 800;
 }
 
-/* PLACEHOLDER SECTION */
-.placeholder-section {
-    margin-top: 40px;
-    padding: 80px;
-    background: white;
-    border: 2px dashed #dfe1e6;
-    border-radius: 24px;
-    text-align: center;
-    color: #97a0af;
+.stat-card.green h2 { color: var(--success); }
+.stat-card.gold h2 { color: #856404; }
+
+/* ==========================================
+   V. TABLO AK DEMANN
+   ========================================== */
+.section-title {
+    padding: 20px 20px 10px;
+    font-size: 18px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.placeholder-section i {
-    font-size: 40px;
-    margin-bottom: 15px;
+.table-scroll {
+    background: var(--white);
+    margin: 0 15px 20px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
-/* ANIMATIONS */
-@keyframes fadeInScale {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-/* RESPONSIVE */
-@media (max-width: 900px) {
-    .sidebar { width: 80px; padding: 20px 10px; }
-    .sidebar span, .brand { display: none; }
-    .main-content { margin-left: 80px; padding: 20px; }
+th {
+    background: #f8f9fa;
+    padding: 15px;
+    text-align: left;
+    font-size: 12px;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--bg);
 }
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid var(--bg);
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.badge.active { background: #e3fcef; color: var(--success); }
+.badge.blocked { background: #ffebe6; color: var(--danger); }
+
+/* Bouton Aksyon nan Tablo */
+.btn-v { 
+    background: var(--success); color: white; border: none; 
+    width: 35px; height: 35px; border-radius: 10px; cursor: pointer;
+    margin-right: 5px;
+}
+.btn-x { 
+    background: var(--danger); color: white; border: none; 
+    width: 35px; height: 35px; border-radius: 10px; cursor: pointer;
+}
+
+/* ==========================================
+   VI. NAVIGASYON ANBA (BOTTOM NAV)
+   ========================================== */
+.admin-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--white);
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 5px 25px; /* Espas anba pou iPhone */
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.08);
+    z-index: 500;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.nav-item i {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.nav-item.active {
+    color: var(--admin-blue);
+}
+
+.nav-item.logout {
+    color: var(--danger);
+}
+
+/* ==========================================
+   VII. ANIMASYON & REPOUSE (SCROLL)
+   ========================================== */
+.admin-content {
+    padding-bottom: 100px; /* Pou kontni an pa kache dèyè nav la */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive pou PC */
+@media (min-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(3, 1fr); }
+    .stat-card:first-child { grid-column: span 1; }
+    .admin-wrapper { max-width: 900px; margin: 0 auto; }
+   }
+   
