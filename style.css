@@ -40,7 +40,7 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 2000;
-    padding: 20px; /* Margin sekirite sou kote yo */
+    padding: 20px;
 }
 
 .login-box {
@@ -49,7 +49,7 @@ body {
     border-radius: 24px;
     text-align: center;
     width: 100%;
-    max-width: 400px; /* Lajè maksimòm pou tablèt/PC */
+    max-width: 400px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.4);
     animation: fadeIn 0.5s ease-out;
 }
@@ -126,7 +126,7 @@ body {
    ========================================== */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 kolòn sou telefòn */
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     padding: 20px;
 }
@@ -140,7 +140,6 @@ body {
     overflow: hidden;
 }
 
-/* Fè kès total la pran tout lajè a (3yèm kat la) */
 .stat-card:first-child {
     grid-column: span 2;
     background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 100%);
@@ -185,6 +184,32 @@ body {
     gap: 10px;
 }
 
+/* NOUVO: Style pou bouton Filtre Istorik yo */
+.filter-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 0 20px 15px;
+}
+
+.filter-btn {
+    padding: 8px 18px;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.filter-btn.active {
+    background: var(--admin-blue);
+    color: white;
+    border-color: var(--admin-blue);
+}
+
 .table-scroll {
     background: var(--white);
     margin: 0 15px 20px;
@@ -224,7 +249,6 @@ td {
 .badge.active { background: #e3fcef; color: var(--success); }
 .badge.blocked { background: #ffebe6; color: var(--danger); }
 
-/* Bouton Aksyon nan Tablo */
 .btn-v { 
     background: var(--success); color: white; border: none; 
     width: 35px; height: 35px; border-radius: 10px; cursor: pointer;
@@ -246,7 +270,7 @@ td {
     background: var(--white);
     display: flex;
     justify-content: space-around;
-    padding: 12px 5px 25px; /* Espas anba pou iPhone */
+    padding: 12px 5px 25px;
     box-shadow: 0 -5px 20px rgba(0,0,0,0.08);
     z-index: 500;
 }
@@ -279,7 +303,7 @@ td {
    VII. ANIMASYON & REPOUSE (SCROLL)
    ========================================== */
 .admin-content {
-    padding-bottom: 100px; /* Pou kontni an pa kache dèyè nav la */
+    padding-bottom: 100px;
 }
 
 @keyframes fadeIn {
@@ -292,5 +316,5 @@ td {
     .stats-grid { grid-template-columns: repeat(3, 1fr); }
     .stat-card:first-child { grid-column: span 1; }
     .admin-wrapper { max-width: 900px; margin: 0 auto; }
-   }
+       }
    
