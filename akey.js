@@ -1,45 +1,53 @@
 // ============================================================
-// LOJIK AKÈY (SETTINGS, STATISTIK, ON/OFF SWITCHES)
+// ECHANJ PLUS - ADMIN AKEY LOGIC (akey.js)
 // ============================================================
 
-function initAkeySection() {
-    listenToSettings();
-    listenToStats();
+import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // Soumèt fòm paramèt yo
+export function initAkeySection(db) {
+    listenToSettings(db);
+    listenToStats(db);
+
     const settingsForm = document.getElementById('system-settings-form');
     if (settingsForm) {
         settingsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            await saveSettings();
+            await saveSettings(db);
         });
     }
 }
 
 // 1. KOUTE AK ANREJISTRE PARAMÈT YO NAN BAZ DE DONE A (settings/)
-function listenToSettings() {
+function listenToSettings(db) {
     const settingsRef = ref(db, 'settings');
     onValue(settingsRef, (snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
             
-            // Konfigirasyon input yo
-            if (data.rateBuy) document.getElementById('set-rate-buy').value = data.rateBuy;
-            if (data.rateSell) document.getElementById('set-rate-sell').value = data.rateSell;
-            document.getElementById('set-system-fee').value = data.systemFee !== undefined ? data.systemFee : 16.5;
+            const rateBuyElem = document.getElementById('set-rate-buy');
+            const rateSellElem = document.getElementById('set-rate-sell');
+            const systemFeeElem = document.getElementById('set-system-fee');
+            
+            if (rateBuyElem && data.rateBuy !== undefined) rateBuyElem.value = data.rateBuy;
+            if (rateSellElem && data.rateSell !== undefined) rateSellElem.value = data.rateSell;
+            if (systemFeeElem) systemFeeElem.value = data.systemFee !== undefined ? data.systemFee : 16.5;
 
-            // Switches On/Off
-            document.getElementById('switch-exchange').checked = data.exchangeActive || false;
-            document.getElementById('switch-withdraw').checked = data.withdrawActive || false;
-            document.getElementById('switch-maintenance').checked = data.maintenanceMode || false;
+            const swEx = document.getElementById('switch-exchange');
+            const swWd = document.getElementById('switch-withdraw');
+            const swMt = document.getElementById('switch-maintenance');
+
+            if (swEx) swEx.checked = data.exchangeActive || false;
+            if (swWd) swWd.checked = data.withdrawActive || false;
+            if (swMt) swMt.checked = data.maintenanceMode || false;
         }
     });
 }
 
-async function saveSettings() {
-    const rateBuy = parseFloat(document.getElementById('set-rate-buy').value);
-    const rateSell = parseFloat(document.getElementById('set-rate-sell').value);
-    const systemFee = parseFloat(document.getElementById('set-system-fee').value);
+// 2. ANREJISTRE NOUVO PARAMÈT YO
+async function saveSettings(db) {
+    const rateBuy = parseFloat(document.getElementById('set-rate-buy').value) || 0;
+    const rateSell = parseFloat(document.getElementById('set-rate-sell').value) || 0;
+    const systemFee = parseFloat(document.getElementById('set-system-fee').value) || 16.5;
     
     const exchangeActive = document.getElementById('switch-exchange').checked;
     const withdrawActive = document.getElementById('switch-withdraw').checked;
@@ -61,43 +69,44 @@ async function saveSettings() {
     }
 }
 
-// 2. KOUTE STATISTIK YO TAN REYÈL (users, transactions, withdrawals)
-function listenToStats() {
-    // Kontab Moun ki enskri yo
+// 3. KOUTE STATISTIK YO TAN REYÈL (users, transactions, withdrawals)
+function listenToStats(db) {
+    const totalUsersElem = document.getElementById('stat-total-users');
+    const totalExchangesElem = document.getElementById('stat-total-exchanges');
+    const totalProfitElem = document.getElementById('stat-total-profit');
+    const totalWithdrawalsElem = document.getElementById('stat-total-withdrawals');
+
+    // Moun ki enskri
     onValue(ref(db, 'users'), (snap) => {
-        document.getElementById('stat-total-users').innerText = snap.exists() ? Object.keys(snap.val()).length : 0;
+        if (totalUsersElem) {
+            totalUsersElem.innerText = snap.exists() ? Object.keys(snap.val()).length : 0;
+        }
     });
 
-    // Kontab Echanj ak Retrè yo
+    // Echanj ak Benifi 16.5%
     onValue(ref(db, 'transactions'), (snap) => {
         if (snap.exists()) {
             const data = snap.val();
-            const totalExchanges = Object.keys(data).length;
-            document.getElementById('stat-total-exchanges').innerText = totalExchanges;
+            if (totalExchangesElem) totalExchangesElem.innerText = Object.keys(data).length;
 
-            // Kalkile benifi total sou frè 16.5% la
             let totalProfit = 0;
             Object.values(data).forEach(tx => {
                 if (tx.status === 'success' || tx.status === 'completed') {
-                    // Kalkile frè 16.5% sou chak echanj ki reyalize
                     const feeAmount = (tx.amount || 0) * 0.165; 
                     totalProfit += feeAmount;
                 }
             });
-            document.getElementById('stat-total-profit').innerText = totalProfit.toFixed(2) + " HTG";
+            if (totalProfitElem) totalProfitElem.innerText = totalProfit.toFixed(2) + " HTG";
         } else {
-            document.getElementById('stat-total-exchanges').innerText = "0";
-            document.getElementById('stat-total-profit').innerText = "0 HTG";
+            if (totalExchangesElem) totalExchangesElem.innerText = "0";
+            if (totalProfitElem) totalProfitElem.innerText = "0 HTG";
         }
     });
 
+    // Retrè
     onValue(ref(db, 'withdrawals'), (snap) => {
-        document.getElementById('stat-total-withdrawals').innerText = snap.exists() ? Object.keys(snap.val()).length : 0;
+        if (totalWithdrawalsElem) {
+            totalWithdrawalsElem.innerText = snap.exists() ? Object.keys(snap.val()).length : 0;
+        }
     });
-}
-
-// PA BLIYE RELE FONKSYON SA A NAN initAdminApp()
-// function initAdminApp() {
-//     initAkeySection();
-// }
-      
+            }
