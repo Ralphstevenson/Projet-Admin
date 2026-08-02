@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echanj Plus - Admin Panel</title>
+    <!-- Font Awesome pou ikon yo -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+    <!-- ============================================================ -->
+    <!-- 1. EKRAN KONEKSYON (AUTH SCREEN) -->
+    <!-- ============================================================ -->
+    <div id="auth-screen" class="auth-container">
+        <div class="auth-box">
+            <div class="brand-logo">
+                <h2>Echanj <span>Plus</span></h2>
+                <small>Pòtal Administrasyon</small>
+            </div>
+            
+            <form id="admin-login-form">
+                <div class="input-group">
+                    <label><i class="fas fa-envelope"></i> Imèl Admin</label>
+                    <input type="email" id="admin-email" placeholder="antre imèl ou..." required autocomplete="off">
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fas fa-lock"></i> Modpas</label>
+                    <input type="password" id="admin-password" placeholder="••••••••" required>
+                </div>
+
+                <div id="auth-error-msg" class="error-msg hidden"></div>
+
+                <button type="submit" id="btn-login" class="btn-primary-auth">
+                    <span>Konekte</span>
+                    <i class="fas fa-sign-in-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 2. PANÈL ADMIN PRENSIPAL (L AP APARÈT LÈ ADMIN AN KONEKTE) -->
+    <!-- ============================================================ -->
+    <div id="admin-panel" class="app-container hidden">
+        
+        <!-- HEADER TOP BAR -->
+        <header class="top-header">
+            <div class="header-brand">
+                <h3>Echanj <span>Plus</span> <small>Admin</small></h3>
+            </div>
+            <button id="btn-logout" class="btn-logout-icon" title="Dekonekte">
+                <i class="fas fa-power-off"></i>
+            </button>
+        </header>
+
+        <!-- KONTENI DINAMIK APARÈY LA (MAIN VIEWPORT) -->
+        <main class="admin-main">
+            
+            <!-- SEKSYON 1: AKÈY -->
+            <section id="sec-akey" class="admin-section">
+                <!-- Lojik Akèy ap rantre la -->
+            </section>
+
+            <!-- SEKSYON 2: ECHANJ -->
+            <section id="sec-echanj" class="admin-section hidden">
+                <!-- Lojik Echanj ap rantre la -->
+            </section>
+
+            <!-- SEKSYON 3: RETRÈ -->
+            <section id="sec-retre" class="admin-section hidden">
+                <!-- Lojik Retrè ap rantre la -->
+            </section>
+
+            <!-- SEKSYON 4: ISTORIK -->
+            <section id="sec-istorik" class="admin-section hidden">
+                <!-- Lojik Istorik ap rantre la -->
+            </section>
+
+            <!-- SEKSYON 5: CHAT -->
+            <section id="sec-chat" class="admin-section hidden">
+                <!-- Lojik Chat ap rantre la -->
+            </section>
+
+        </main>
+
+        <!-- ============================================================ -->
+        <!-- 3. NAVIGASYON SOU PYE SIT LA (BOTTOM NAVIGATION BAR) -->
+        <!-- ============================================================ -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-target="sec-akey">
+                <i class="fas fa-home"></i>
+                <span>Akèy</span>
+            </button>
+            <button class="nav-item" data-target="sec-echanj">
+                <i class="fas fa-sync-alt"></i>
+                <span>Echanj</span>
+            </button>
+            <button class="nav-item" data-target="sec-retre">
+                <i class="fas fa-wallet"></i>
+                <span>Retrè</span>
+            </button>
+            <button class="nav-item" data-target="sec-istorik">
+                <i class="fas fa-history"></i>
+                <span>Istorik</span>
+            </button>
+            <button class="nav-item" data-target="sec-chat">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- SCRIPT JS PRENSIPAL LA -->
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
+    <script type="module" src="./script.js"></script>
+
+  </body>
+  
+</html>
