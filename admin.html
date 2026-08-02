@@ -1,0 +1,96 @@
+<section id="sec-akey" class="admin-section">
+    <div class="dashboard-header">
+        <h2>Paj Akèy & Kontwòl</h2>
+        <p>Jere to konvèsyon yo, pousantaj, ak aksè sistèm lan nan tan reyèl.</p>
+    </div>
+
+    <!-- CARDS STATISTIQUES (LOJIK 3) -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <span class="stat-title">Moun ki Enskri</span>
+                <h3 id="stat-total-users">0</h3>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-exchange-alt"></i></div>
+            <div class="stat-info">
+                <span class="stat-title">Echanj Ki Fèt</span>
+                <h3 id="stat-total-exchanges">0</h3>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+            <div class="stat-info">
+                <span class="stat-title">Retrè Ki Fèt</span>
+                <h3 id="stat-total-withdrawals">0</h3>
+            </div>
+        </div>
+        <div class="stat-card highlight">
+            <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-info">
+                <span class="stat-title">Beniﬁs Kominote (16.5%)</span>
+                <h3 id="stat-total-profit">0 HTG</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- PARAMÈT AK BOUTON ON/OFF (LOJIK 1 & 2) -->
+    <div class="settings-container">
+        <h3><i class="fas fa-sliders-h"></i> Paramèt Prensipal Sistèm Nan</h3>
+        
+        <form id="system-settings-form">
+            <div class="form-grid">
+                <!-- To Konvèsyon -->
+                <div class="input-group">
+                    <label>To Achte (MonCash -> HTG / USD)</label>
+                    <input type="number" step="0.01" id="set-rate-buy" placeholder="Eg: 135" required>
+                </div>
+                <div class="input-group">
+                    <label>To Vant (HTG / USD -> MonCash)</label>
+                    <input type="number" step="0.01" id="set-rate-sell" placeholder="Eg: 140" required>
+                </div>
+                
+                <!-- Pousantaj Sistèm lan (16.5%) -->
+                <div class="input-group">
+                    <label>Frè Sistèm lan (%)</label>
+                    <input type="number" step="0.1" id="set-system-fee" value="16.5" required>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- CONTROL SWITCHES (ON/OFF) -->
+            <div class="switches-grid">
+                <div class="switch-item">
+                    <span>Sèvis Echanj (On / Off)</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="switch-exchange">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="switch-item">
+                    <span>Sèvis Retrè (On / Off)</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="switch-withdraw">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="switch-item">
+                    <span>Mòd Antretyen (Maintenance)</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="switch-maintenance">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" id="btn-save-settings" class="btn-save">
+                <i class="fas fa-save"></i> Anrejistre Mizajou Yo
+            </button>
+        </form>
+    </div>
+</section>
