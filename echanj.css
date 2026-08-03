@@ -1,0 +1,219 @@
+/* ============================================================
+   STIL POU SEKSYON ECHANJ NAN ADMIN PANEL
+   ============================================================ */
+
+.admin-card-section {
+    background: #0f172a;
+    border-radius: 16px;
+    padding: 20px;
+    color: #ffffff;
+    font-family: system-ui, -apple-system, sans-serif;
+    margin-bottom: 80px; /* Pou nav bar anba a pa kouvri l */
+}
+
+.admin-section-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+}
+
+.header-icon-box {
+    width: 48px;
+    height: 48px;
+    background: #3b82f6;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #ffffff;
+}
+
+.admin-box-card {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 20px;
+}
+
+.box-sub-title {
+    font-size: 16px;
+    color: #38bdf8;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-group-admin {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 15px;
+}
+
+.form-group-admin label {
+    font-size: 13px;
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 14px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.input-with-icon input {
+    width: 100%;
+    padding: 12px 12px 12px 42px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-with-icon input:focus {
+    border-color: #3b82f6;
+}
+
+.help-text {
+    font-size: 11px;
+    color: #f59e0b;
+    margin-top: 4px;
+}
+
+/* TOGGLE SWITCH CUSTOM */
+.toggle-switch-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0f172a;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    margin-top: 10px;
+}
+
+.toggle-info span {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.toggle-info small {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.switch-btn {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.switch-btn input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #475569;
+    transition: .3s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #22c55e;
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+/* BOUTON ANREJISTREMENT */
+.btn-save-admin-pro {
+    width: 100%;
+    padding: 14px;
+    background: #16a34a;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 15px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.2s;
+}
+
+.btn-save-admin-pro:hover {
+    background: #15803d;
+}
+
+/* TABLEAU STYLES */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.admin-data-table th, 
+.admin-data-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #334155;
+}
+
+.admin-data-table th {
+    background: #0f172a;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.text-center-loading {
+    text-align: center;
+    color: #94a3b8;
+    padding: 20px;
+  }
+      
