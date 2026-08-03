@@ -2,13 +2,12 @@
 // ECHANJ PLUS - ADMIN AKEY LOGIC (akey.js)
 // ============================================================
 
-import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 export function initAkeySection(db) {
     listenToSettings(db);
     listenToStats(db);
 
-    // Koute bouton soumèt form nan
     const settingsForm = document.getElementById('system-settings-form');
     if (settingsForm) {
         settingsForm.addEventListener('submit', async (e) => {
@@ -26,7 +25,6 @@ function listenToSettings(db) {
         if (snapshot.exists()) {
             const data = snapshot.val();
             
-            // Plase Done nan Input yo
             const rateBuy = document.getElementById('set-rate-buy');
             const rateSell = document.getElementById('set-rate-sell');
             const systemFee = document.getElementById('set-system-fee');
@@ -35,7 +33,6 @@ function listenToSettings(db) {
             if (rateSell && data.rateSell !== undefined) rateSell.value = data.rateSell;
             if (systemFee) systemFee.value = data.systemFee !== undefined ? data.systemFee : 16.5;
 
-            // Plase Switch On/Off yo
             const swEx = document.getElementById('switch-exchange');
             const swWd = document.getElementById('switch-withdraw');
             const swMt = document.getElementById('switch-maintenance');
@@ -49,7 +46,7 @@ function listenToSettings(db) {
     });
 }
 
-// 2. ANREJISTRE MIZAJOU PARAMÈT YO
+// 2. ANREJISTRE PARAMÈT YO (SÈVI AK `set` POU KREYE NŒUD LA SI L PAT EGZISTE)
 async function saveSettings(db) {
     const btnSave = document.getElementById('btn-save-settings');
     const originalBtnContent = btnSave ? btnSave.innerHTML : '';
@@ -68,7 +65,8 @@ async function saveSettings(db) {
         const withdrawActive = document.getElementById('switch-withdraw').checked;
         const maintenanceMode = document.getElementById('switch-maintenance').checked;
 
-        await update(ref(db, 'settings'), {
+        // Nou itilize `set` sou 'settings' pou kreye l menm si li potko janm egziste
+        await set(ref(db, 'settings'), {
             rateBuy: rateBuy,
             rateSell: rateSell,
             systemFee: systemFee,
@@ -78,7 +76,7 @@ async function saveSettings(db) {
             lastUpdated: Date.now()
         });
 
-        alert("✅ Paramèt yo anrejistre ak siksè!");
+        alert("✅ Paramèt ak To yo anrejistre ak siksè!");
     } catch (error) {
         alert("❌ Pwoblèm nan anrejistreman: " + error.message);
     } finally {
@@ -89,37 +87,36 @@ async function saveSettings(db) {
     }
 }
 
-// 3. RALE ESTATISTIK YO REALTIME NAN FIREBASE (users, transactions, withdrawals)
+// 3. RALE ESTATISTIK YO TAN REYÈL DÈSKE ITILIZATÈ FÈ YON AKSYON
 function listenToStats(db) {
     const totalUsersElem = document.getElementById('stat-total-users');
     const totalExchangesElem = document.getElementById('stat-total-exchanges');
     const totalProfitElem = document.getElementById('stat-total-profit');
     const totalWithdrawalsElem = document.getElementById('stat-total-withdrawals');
 
-    // A. Total Moun Ki Enskri (users)
+    // A. Moun ki enskri yo
     onValue(ref(db, 'users'), (snap) => {
         if (snap.exists()) {
             const usersObj = snap.val();
-            const total = Object.keys(usersObj).length;
-            if (totalUsersElem) animateValue(totalUsersElem, total);
+            if (totalUsersElem) totalUsersElem.innerText = Object.keys(usersObj).length;
         } else {
             if (totalUsersElem) totalUsersElem.innerText = "0";
         }
     });
 
-    // B. Total Echanj Ki Fèt + Benifi 16.5% (transactions)
+    // B. Total Echanj + Kalkil Beniﬁs 16.5% Sou Echanj Ranpli Yo
     onValue(ref(db, 'transactions'), (snap) => {
         if (snap.exists()) {
             const txData = snap.val();
             const txArray = Object.values(txData);
 
-            if (totalExchangesElem) animateValue(totalExchangesElem, txArray.length);
+            if (totalExchangesElem) totalExchangesElem.innerText = txArray.length;
 
-            // Kalkile 16.5% sou echanj ki ranpli ak siksè yo
             let profit = 0;
             txArray.forEach(tx => {
+                // Tcheke tout estati siksè ki ka nan baz de done a
                 if (tx.status === 'success' || tx.status === 'completed' || tx.status === 'terfene') {
-                    const amount = parseFloat(tx.amount) || parseFloat(tx.montant) || 0;
+                    const amount = parseFloat(tx.amount) || parseFloat(tx.montant) || parseFloat(tx.htgAmount) || 0;
                     profit += (amount * 0.165);
                 }
             });
@@ -133,40 +130,13 @@ function listenToStats(db) {
         }
     });
 
-    // C. Total Retrè Ki Fèt (withdrawals)
+    // C. Total Retrè yo
     onValue(ref(db, 'withdrawals'), (snap) => {
         if (snap.exists()) {
             const wdData = snap.val();
-            const total = Object.keys(wdData).length;
-            if (totalWithdrawalsElem) animateValue(totalWithdrawalsElem, total);
+            if (totalWithdrawalsElem) totalWithdrawalsElem.innerText = Object.keys(wdData).length;
         } else {
             if (totalWithdrawalsElem) totalWithdrawalsElem.innerText = "0";
         }
     });
 }
-
-// TI ANIMASYON PWOFESYONÈL POU CHIF YO K AP MONTE
-function animateValue(element, endVal) {
-    let startVal = 0;
-    const duration = 500;
-    const stepTime = 20;
-    const steps = duration / stepTime;
-    const increment = (endVal - startVal) / steps;
-
-    if (endVal === 0) {
-        element.innerText = "0";
-        return;
-    }
-
-    let current = startVal;
-    const timer = setInterval(() => {
-        current += increment;
-        if (current >= endVal) {
-            element.innerText = Math.round(endVal);
-            clearInterval(timer);
-        } else {
-            element.innerText = Math.round(current);
-        }
-    }, stepTime);
-                }
-        
