@@ -11,8 +11,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// ENPÒTE LOJIK SEKSYON AKÈY LA
+// ENPÒTE LOJIK SEKSYON YO
 import { initAkeySection } from "./akey.js";
+import { initAdminEchanj } from "./admin-echanj.js"; // <--- ENPÒTE MODIL ECHANJ LAN KET
 
 // FIREBASE CONFIGURATION
 const firebaseConfig = {
@@ -116,6 +117,11 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
 // INITIALISATION
 function initAdminApp() {
     console.log("Sistèm Admin Echanj Plus Pare!");
-    // LOUVRI AKÈY LA PASE PÈT `db` LADDAN L
+    
+    // 1. DEMARE SEKSYON AKÈY LA
     initAkeySection(db);
-}
+    
+    // 2. DEMARE SEKSYON ECHANJ LAN
+    initAdminEchanj(db);
+        }
+                             
