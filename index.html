@@ -168,6 +168,110 @@
                                                </section>
       
 
+
+
+      SEKSYON ADMIN: GÈSTYON NAVIGATÈ ECHANJ
+     ========================================== -->
+
+      <section id="sec-echanj">
+<div id="admin-paj-echanj" class="admin-card-section">
+    
+    <div class="admin-section-header">
+        <div class="header-icon-box">
+            <i class="fa-solid fa-right-left"></i>
+        </div>
+        <div>   <!-- ==========================================
+     
+            <h3>Konfigirasyon Sèvis Echanj</h3>
+            <p>Aji sou to, frè, ak nimewo resepsyon echanj kliyan yo</p>
+        </div>
+    </div>
+
+    <!-- 1. KONTWÒL FRÈ AK MÒD SWITCH -->
+    <div class="admin-box-card">
+        <h4 class="box-sub-title"><i class="fa-solid fa-sliders"></i> Paramètres Xchange & Fees</h4>
+        
+        <div class="form-group-admin">
+            <label for="admin-system-fee">Frè Sistèm nan (%) :</label>
+            <div class="input-with-icon">
+                <i class="fa-solid fa-percent"></i>
+                <input type="number" id="admin-system-fee" step="0.1" placeholder="Ex: 16.5" value="16.5">
+            </div>
+            <small class="help-text">⚠️ Toujou sèvi ak <b>pwen (.)</b> pou desimal yo (egz: 16.5), pa mete virgul.</small>
+        </div>
+
+        <div class="toggle-switch-row">
+            <div class="toggle-info">
+                <span>Statut Sèvis Echanj (On / Off)</span>
+                <small>Dezaktive sa a si w vle kache/bloke echanj sou APK kliyan yo.</small>
+            </div>
+            <label class="switch-btn">
+                <input type="checkbox" id="admin-exchange-switch" checked>
+                <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- 2. NIMEWO RECEPTEURS POU DIALERS YO (DIGICEL & NATCOM) -->
+    <div class="admin-box-card">
+        <h4 class="box-sub-title"><i class="fa-solid fa-sim-card"></i> Nimewo Resepsyon Minit Yo</h4>
+        
+        <div class="form-group-admin">
+            <label for="admin-digicel-num">Nimewo Digicel Resepsyon (MonCash / Minit):</label>
+            <div class="input-with-icon">
+                <i class="fa-solid fa-phone"></i>
+                <input type="tel" id="admin-digicel-num" placeholder="50947XXXXXX" value="50947111123">
+            </div>
+        </div>
+
+        <div class="form-group-admin">
+            <label for="admin-natcom-num">Nimewo Natcom Resepsyon (NatCash / Minit):</label>
+            <div class="input-with-icon">
+                <i class="fa-solid fa-phone"></i>
+                <input type="tel" id="admin-natcom-num" placeholder="32XXXXXX" value="32160708">
+            </div>
+        </div>
+    </div>
+
+    <!-- BOUTON ANREJISTREMENT -->
+    <div class="admin-action-bar">
+        <button id="btn-save-echanj-settings" class="btn-save-admin-pro">
+            <i class="fa-solid fa-floppy-disk"></i> Anrejistre Konfigirasyon Echanj
+        </button>
+    </div>
+
+    <!-- 3. TABLEAU TRANZAKSYON ECHANJ YO (DIRÈK DEPI FIREBASE) -->
+    <div class="admin-box-card style-margin-top">
+        <h4 class="box-sub-title"><i class="fa-solid fa-list-check"></i> Dènye Demann Echanj Yo</h4>
+        
+        <div class="table-responsive">
+            <table class="admin-data-table">
+                <thead>
+                    <tr>
+                        <th>ID / Dat</th>
+                        <th>Kliyan</th>
+                        <th>Rezo</th>
+                        <th>Minit Voye</th>
+                        <th>Frè</th>
+                        <th>HTG pou Peye</th>
+                        <th>Statut</th>
+                        <th>Aksyon</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-echanj-table-body">
+                    <tr>
+                        <td colspan="8" class="text-center-loading">Ap chaje demann echanj yo...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+    </section>
+
+      
       
 
         <!-- KONTENI DINAMIK APARÈY LA (MAIN VIEWPORT) -->
