@@ -11,10 +11,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// ENPÒTE LOJIK SEKSYON YO
-import { initAkeySection } from "./akey.js";
-import { initAdminEchanj } from "./admin-echanj.js"; // <--- ENPÒTE MODIL ECHANJ LAN KET
-
 // FIREBASE CONFIGURATION
 const firebaseConfig = {
   apiKey: "AIzaSyB1VTPakleoggsbLdpm_HS7nSb3A7A99Qw",
@@ -40,7 +36,7 @@ const loginForm = document.getElementById('admin-login-form');
 const authErrorMsg = document.getElementById('auth-error-msg');
 const btnLogout = document.getElementById('btn-logout');
 
-// AUTH SYSTEM
+// AUTH SYSTEM - Lojik Konesyon
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const isCorrectUid = user.uid === ADMIN_UID;
@@ -50,7 +46,7 @@ onAuthStateChanged(auth, async (user) => {
             authScreen.classList.add('hidden');
             adminPanel.classList.remove('hidden');
             
-            // DEMARE SÈVIS YO
+            // DEMARE SÈVIS YO AN SEKIRITE
             initAdminApp();
         } else {
             showError("Aksè Refize! Kont sa a pa gen pèmisyon Admin.");
@@ -62,16 +58,24 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
+// SUBMIT FORM KONEKSYON
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('admin-email').value.trim();
         const password = document.getElementById('admin-password').value.trim();
         hideError();
+
+        const btnSubmit = loginForm.querySelector('button[type="submit"]');
+        if (btnSubmit) btnSubmit.disabled = true;
+
         try {
             await signInWithEmailAndPassword(auth, email, password);
         } catch (error) {
+            console.error("Erè Auth:", error);
             showError("Imèl oswa modpas la pa korèk!");
+        } finally {
+            if (btnSubmit) btnSubmit.disabled = false;
         }
     });
 }
@@ -84,18 +88,22 @@ if (btnLogout) {
 }
 
 function showAuthScreen() {
-    authScreen.classList.remove('hidden');
-    adminPanel.classList.add('hidden');
+    if (authScreen) authScreen.classList.remove('hidden');
+    if (adminPanel) adminPanel.classList.add('hidden');
 }
 
 function showError(msg) {
-    authErrorMsg.innerText = msg;
-    authErrorMsg.classList.remove('hidden');
+    if (authErrorMsg) {
+        authErrorMsg.innerText = msg;
+        authErrorMsg.classList.remove('hidden');
+    }
 }
 
 function hideError() {
-    authErrorMsg.innerText = "";
-    authErrorMsg.classList.add('hidden');
+    if (authErrorMsg) {
+        authErrorMsg.innerText = "";
+        authErrorMsg.classList.add('hidden');
+    }
 }
 
 // BOTTOM NAV LOGIC
@@ -114,14 +122,27 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
     });
 });
 
-// INITIALISATION
-function initAdminApp() {
+// INITIALISATION - Ak Dynamic Import pou evite okenn blokaj sou Auth la
+async function initAdminApp() {
     console.log("Sistèm Admin Echanj Plus Pare!");
-    
-    // 1. DEMARE SEKSYON AKÈY LA
-    initAkeySection(db);
-    
-    // 2. DEMARE SEKSYON ECHANJ LAN
-    initAdminEchanj(db);
+
+    // 1. Chaje Akèy
+    try {
+        const { initAkeySection } = await import("./akey.js");
+        if (typeof initAkeySection === "function") {
+            initAkeySection(db);
         }
-                             
+    } catch (e) {
+        console.error("Erè nan chajman akey.js:", e);
+    }
+
+    // 2. Chaje Echanj
+    try {
+        const { initAdminEchanj } = await import("./admin-echanj.js");
+        if (typeof initAdminEchanj === "function") {
+            initAdminEchanj(db);
+        }
+    } catch (e) {
+        console.error("Erè nan chajman admin-echanj.js:", e);
+    }
+                                                                                 }
