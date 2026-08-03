@@ -1,48 +1,24 @@
 /* ============================================================
-   ADMIN ECHANJ PLUS V4.6 - SCRIPT PRENSIPAL AK GÈSTYON ECHANJ
+   JS ADMIN ECHANJ - ECHANJ PLUS V4.6 (CONTROL & APPROVAL)
    ============================================================ */
-
 import { db } from './script.js';
 import { ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// ------------------------------------------------------------
-// 1. GÈSTYON NAVIGASYON SOU MENI ANBA A (TAB SWITCHING)
-// ------------------------------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
-    const navButtons = document.querySelectorAll('.bottom-nav .nav-item');
-    const sections = document.querySelectorAll('.admin-main .admin-section');
-
-    navButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const targetId = btn.getAttribute('data-target');
-
-            navButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            sections.forEach(sec => sec.classList.add('hidden'));
-
-            const targetSection = document.getElementById(targetId);
-            if (targetSection) {
-                targetSection.classList.remove('hidden');
-            }
-        });
-    });
-
-    // Inisyalize chajeman done yo lè paj la prè
+// ==========================================
+// 1. KOUTE AK SHARJE PARAMÈT SÈVIS ECHANJ
+// ==========================================
+export function initAdminEchanj() {
     initAdminEchanjSettings();
     loadAdminEchanjOrders();
-});
+}
 
-// ------------------------------------------------------------
-// 2. CHAJEMAN AK KOUTE PARAMÈT SYSTÈM YO DEPI FIREBASE
-// ------------------------------------------------------------
 function initAdminEchanjSettings() {
     const feeInput = document.getElementById('admin-system-fee');
     const switchInput = document.getElementById('admin-exchange-switch');
     const digicelInput = document.getElementById('admin-digicel-num');
     const natcomInput = document.getElementById('admin-natcom-num');
 
-    // N ap koute node settings lan
+    // Chaje paramèt yo an tan reyèl
     onValue(ref(db, 'settings'), (snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.val();
@@ -54,58 +30,51 @@ function initAdminEchanjSettings() {
     });
 }
 
-// ------------------------------------------------------------
-// 3. ANREJISTRE PARAMÈT ECHANJ YO (MODIFIKASYON AP MACHE)
-// ------------------------------------------------------------
-const btnSaveEchanj = document.getElementById('btn-save-echanj-settings');
-if (btnSaveEchanj) {
-    btnSaveEchanj.addEventListener('click', async (e) => {
+// ==========================================
+// 2. SOVE MODIFIKASYON ADMIN (ON/OFF, FRÈ, NIMEWO)
+// ==========================================
+document.addEventListener('click', async (e) => {
+    if (e.target && (e.target.id === 'btn-save-echanj-settings' || e.target.closest('#btn-save-echanj-settings'))) {
         e.preventDefault();
 
-        const feeValue = parseFloat(document.getElementById('admin-system-fee').value);
-        const exchangeActive = document.getElementById('admin-exchange-switch').checked;
-        const digicelNum = document.getElementById('admin-digicel-num').value.trim();
-        const natcomNum = document.getElementById('admin-natcom-num').value.trim();
+        const feeInput = document.getElementById('admin-system-fee');
+        const switchInput = document.getElementById('admin-exchange-switch');
+        const digicelInput = document.getElementById('admin-digicel-num');
+        const natcomInput = document.getElementById('admin-natcom-num');
 
-        if (isNaN(feeValue)) {
-            return alert("⚠️ Tanpri antre yon pousantaj frè ki valab.");
-        }
+        const feeValue = feeInput ? parseFloat(feeInput.value) : 16.5;
+        const exchangeActive = switchInput ? switchInput.checked : true;
+        const digicelNum = digicelInput ? digicelInput.value.trim() : "50947111123";
+        const natcomNum = natcomInput ? natcomInput.value.trim() : "32160708";
 
         try {
-            // Sovgard sou 2 kote pou asire l antre vre pou APK kliyan yo
             const updates = {};
             updates['settings/systemFee'] = feeValue;
             updates['settings/exchangeActive'] = exchangeActive;
             updates['settings/digicelNumber'] = digicelNum;
             updates['settings/natcomNumber'] = natcomNum;
 
-            updates['exchange_settings/systemFee'] = feeValue;
-            updates['exchange_settings/exchangeActive'] = exchangeActive;
-            updates['exchange_settings/digicelNumber'] = digicelNum;
-            updates['exchange_settings/natcomNumber'] = natcomNum;
-
             await update(ref(db), updates);
-            alert("✅ Mizajou yo anrejistre ak siksè nan Firebase!");
+            alert(`✅ Paramèt Echanj anrejistre ak siksè!\nStatut Sèvis: ${exchangeActive ? 'ACTIF (ON)' : 'BLOKÉ (OFF)'}`);
         } catch (error) {
-            console.error("Erè nan anrejistreman:", error);
-            alert("❌ Pwoblèm nan anrejistre done yo: " + error.message);
+            console.error("Erè sovgad Admin:", error);
+            alert("❌ Pwoblèm nan Firebase: " + error.message);
         }
-    });
-}
+    }
+});
 
-// ------------------------------------------------------------
-// 4. CHAJEMAN AN TAN REYÈL TABLEAU DEMANN ECHANJ YO
-// ------------------------------------------------------------
+// ==========================================
+// 3. CHAJEMAN AN TAN REYÈL TABLO TRANZAKSYON YO
+// ==========================================
 function loadAdminEchanjOrders() {
     const tableBody = document.getElementById('admin-echanj-table-body');
     if (!tableBody) return;
 
-    // N ap koute sou node `transactions` (kote anpil APK voye demann)
     onValue(ref(db, 'transactions'), (snapshot) => {
         tableBody.innerHTML = '';
 
         if (!snapshot.exists()) {
-            tableBody.innerHTML = `<tr><td colspan="8" class="text-center-loading">Pa gen okenn demann echanj pou kounye a.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">Pa gen okenn demann echanj pou kounye a.</td></tr>`;
             return;
         }
 
@@ -117,41 +86,38 @@ function loadAdminEchanjOrders() {
         sortedKeys.forEach(key => {
             const item = orders[key];
 
-            // Filtre tout sa ki gen rapò ak echanj (se fason APK yo voye l)
-            const isEchanj = (item.type && item.type.toLowerCase().includes('echanj')) || 
-                             (item.service && item.service.toLowerCase().includes('echanj')) || 
-                             item.rezo || item.amount_sent;
-
-            if (isEchanj) {
+            // Filtre sèlman demann ki se echanj
+            if (item.type === "Echanj" || item.rezo) {
                 hasEchanj = true;
                 const tr = document.createElement('tr');
 
                 let statusBadge = `<span style="color: #f59e0b; font-weight: bold;">En attente</span>`;
                 if (item.status === "Validé" || item.status === "Approuvé") {
                     statusBadge = `<span style="color: #22c55e; font-weight: bold;">Validé</span>`;
-                } else if (item.status === "Annulé" || item.status === "Echoué") {
-                    statusBadge = `<span style="color: #ef4444; font-weight: bold;">Annulé</span>`;
+                } else if (item.status === "Refusé" || item.status === "Annulé") {
+                    statusBadge = `<span style="color: #ef4444; font-weight: bold;">Refusé</span>`;
                 }
 
                 const dateStr = item.timestamp ? new Date(item.timestamp).toLocaleString('fr-FR') : '---';
+                const netHTG = item.htg_to_receive || 0;
 
                 tr.innerHTML = `
-                    <td><b>${item.transID || key}</b><br><small style="color: #94a3b8;">${dateStr}</small></td>
-                    <td><b>${item.fullname || item.userEmail || 'Kliyan'}</b><br><small style="color: #38bdf8;">${item.arsID || item.phone || ''}</small></td>
-                    <td><b style="text-transform: uppercase; color: #f59e0b;">${item.rezo || 'Digicel/Natcom'}</b></td>
-                    <td>${item.amount_sent || item.amount || 0} HTG</td>
-                    <td>${item.applied_fee_percent || 16.5}%</td>
-                    <td><b style="color: #22c55e;">${item.htg_to_receive || item.net_amount || 0} HTG</b></td>
-                    <td>${statusBadge}</td>
-                    <td>
-                        ${(!item.status || item.status === "En attente" || item.status === "pending") ? `
-                            <button class="btn-approve-order" data-id="${key}" data-uid="${item.uid}" data-amount="${item.htg_to_receive || item.net_amount || 0}" style="background: #16a34a; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin-right: 5px;">
-                                <i class="fa-solid fa-check"></i> Approver
+                    <td style="padding:12px;"><b>${key.substring(0, 10)}</b><br><small style="color: #94a3b8;">${dateStr}</small></td>
+                    <td style="padding:12px;"><b>${item.fullname || 'Kliyan'}</b><br><small style="color: #38bdf8;">${item.phone || ''}</small></td>
+                    <td style="padding:12px;"><b style="text-transform: uppercase; color: #f59e0b;">${item.rezo || '---'}</b></td>
+                    <td style="padding:12px;">${item.amount_sent || 0} HTG</td>
+                    <td style="padding:12px;">${item.applied_fee_percent || 16.5}%</td>
+                    <td style="padding:12px;"><b style="color: #22c55e;">${netHTG} HTG</b></td>
+                    <td style="padding:12px;">${statusBadge}</td>
+                    <td style="padding:12px;">
+                        ${(!item.status || item.status === "En attente") ? `
+                            <button class="btn-approve-order" data-id="${key}" data-uid="${item.uid}" data-amount="${netHTG}" style="background: #16a34a; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin-right: 5px;">
+                                <i class="fa-solid fa-check"></i> Valide
                             </button>
                             <button class="btn-cancel-order" data-id="${key}" data-uid="${item.uid}" style="background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">
-                                <i class="fa-solid fa-xmark"></i> Annuler
+                                <i class="fa-solid fa-xmark"></i> Refize
                             </button>
-                        ` : '<small style="color: #64748b;">Traitée</small>'}
+                        ` : `<small style="color: #64748b;">${item.status}</small>`}
                     </td>
                 `;
                 tableBody.appendChild(tr);
@@ -159,70 +125,78 @@ function loadAdminEchanjOrders() {
         });
 
         if (!hasEchanj) {
-            tableBody.innerHTML = `<tr><td colspan="8" class="text-center-loading">Pa gen okenn demann echanj pou kounye a.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">Pa gen okenn demann echanj pou kounye a.</td></tr>`;
         }
 
         attachOrderActionEvents();
     });
 }
 
-// ------------------------------------------------------------
-// 5. BOUTON AKSYON POU VALIDE (APPROUVER) AK ANILE (ANNULER)
-// ------------------------------------------------------------
+// ==========================================
+// 4. AKSYON VALIDE AK REFIZE
+// ==========================================
 function attachOrderActionEvents() {
-    // Bouton Valide / Approver
+    // BOUTON VALIDE
     document.querySelectorAll('.btn-approve-order').forEach(btn => {
         btn.onclick = async () => {
             const transID = btn.getAttribute('data-id');
             const uid = btn.getAttribute('data-uid');
-            const montanPouAjoite = parseFloat(btn.getAttribute('data-amount'));
+            const montanPouAjoute = parseFloat(btn.getAttribute('data-amount'));
 
-            if (!confirm(`Èske ou sèten ou vle aprouve echanj sa a epi ajoute ${montanPouAjoite} HTG sou balans kliyan an?`)) return;
+            if (!confirm(`Valide echanj sa a epi ajoute ${montanPouAjoute} HTG sou kont kliyan an?`)) return;
 
             try {
-                // Update nan Firebase
                 const updates = {};
                 updates[`transactions/${transID}/status`] = "Validé";
                 updates[`admin_orders/${transID}/status`] = "Validé";
+                if (uid) {
+                    updates[`users/${uid}/user_transactions/${transID}/status`] = "Validé";
+                }
 
                 await update(ref(db), updates);
 
-                // Ajoute kob la sou kont kliyan an si UID la egziste
+                // Recharje ak Ogmante Balans Kliyan an
                 if (uid) {
-                    const userSnap = await get(ref(db, `users/${uid}`));
+                    const userRef = ref(db, `users/${uid}`);
+                    const userSnap = await get(userRef);
                     if (userSnap.exists()) {
                         const currentBalance = parseFloat(userSnap.val().balance || 0);
-                        const newBalance = currentBalance + montanPouAjoite;
-                        await update(ref(db, `users/${uid}`), { balance: newBalance });
+                        const newBalance = currentBalance + montanPouAjoute;
+                        await update(userRef, { balance: newBalance });
                     }
                 }
 
-                alert("✅ Demann Echanj sa a aprouve ak siksè!");
+                alert("✅ Echanj Valide! Kòb la monte sou kont kliyan an ak siksè.");
             } catch (err) {
-                console.error("Erè nan validasyon:", err);
-                alert("❌ Erè pandan apwobasyon an: " + err.message);
+                console.error("Erè Validasyon:", err);
+                alert("❌ Erè pandan validasyon an: " + err.message);
             }
         };
     });
 
-    // Bouton Anile
+    // BOUTON REFIZE
     document.querySelectorAll('.btn-cancel-order').forEach(btn => {
         btn.onclick = async () => {
             const transID = btn.getAttribute('data-id');
+            const uid = btn.getAttribute('data-uid');
 
-            if (!confirm("Èske ou sèten ou vle anile demann echanj sa a?")) return;
+            if (!confirm("Èske ou sèten ou vle REFIZE demann echanj sa a?")) return;
 
             try {
                 const updates = {};
-                updates[`transactions/${transID}/status`] = "Annulé";
-                updates[`admin_orders/${transID}/status`] = "Annulé";
+                updates[`transactions/${transID}/status`] = "Refusé";
+                updates[`admin_orders/${transID}/status`] = "Refusé";
+                if (uid) {
+                    updates[`users/${uid}/user_transactions/${transID}/status`] = "Refusé";
+                }
 
                 await update(ref(db), updates);
-                alert("🚫 Demann echanj la anile.");
+                alert("🚫 Demann echanj la REFIZE kòrèkteman.");
             } catch (err) {
-                console.error("Erè nan anilasyon:", err);
-                alert("❌ Erè pandan anilasyon an.");
+                console.error("Erè Refize:", err);
+                alert("❌ Erè pandan operasyon an: " + err.message);
             }
         };
     });
-}
+                   }
+               
