@@ -1,27 +1,18 @@
 /* ============================================================
-   ECHANJ PLUS - MODULE ADMIN ECHANJ CORE (admin-echanj.js)
+   ECHANJ PLUS - ADMIN ECHANJ CORE (Spesyalman adapte pou DB ou)
    ============================================================ */
 import { ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/**
- * Inisyalize tout modil echanj nan panel admin lan
- * @param {Object} db - Instans Realtime Database Firebase la
- */
 export function initAdminEchanj(db) {
-    if (!db) {
-        console.error("❌ Erè: Firebase Database pa eziijib nan initAdminEchanj!");
-        return;
-    }
+    if (!db) return;
 
-    console.log("🚀 Modil Admin Echanj inisyalize ak siksè.");
-
-    // 1. Chaje ak koute konfigirasyon yo (Frè, Nimewo, Switch)
+    // 1. Chaje ak koute konfigirasyon yo
     loadEchanjSettings(db);
 
-    // 2. Koute epi afiche tout demann echanj yo an tan reyèl
+    // 2. Koute epi afiche tout demann echanj yo
     listenToEchanjOrders(db);
 
-    // 3. Konfigirasyon bouton pou anrejistre paramèt yo
+    // 3. Bouton sovgad paramèt yo
     const btnSave = document.getElementById('btn-save-echanj-settings');
     if (btnSave) {
         btnSave.onclick = async (e) => {
@@ -30,13 +21,17 @@ export function initAdminEchanj(db) {
         };
     }
 
-    // 4. Jere aksyon Valide / Refize sou tablo a
-    setupTableActions(db);
+    // 4. Fèmen Modal Bwat Transaksyon
+    const btnCloseModal = document.getElementById('btn-close-tx-modal');
+    if (btnCloseModal) {
+        btnCloseModal.onclick = () => {
+            const modal = document.getElementById('modal-user-transactions');
+            if (modal) modal.classList.add('hidden');
+        };
+    }
 }
 
-// ============================================================
-// 1. CHAJE PARAMÈT YO (SETTINGS)
-// ============================================================
+// 1. CHAJE PARAMÈT YO NOU NAN "settings"
 function loadEchanjSettings(db) {
     const feeInput = document.getElementById('admin-system-fee');
     const switchInput = document.getElementById('admin-exchange-switch');
@@ -51,28 +46,22 @@ function loadEchanjSettings(db) {
             if (digicelInput) digicelInput.value = data.digicelNumber || "50947111123";
             if (natcomInput) natcomInput.value = data.natcomNumber || "32160708";
         }
-    }, (error) => {
-        console.error("Erè nan chajman settings:", error);
     });
 }
 
-// ============================================================
-// 2. SOVE PARAMÈT YO NAN FIREBASE
-// ============================================================
+// 2. SOVE PARAMÈT YO NAN "settings"
 async function saveEchanjSettings(db, btnElement) {
     const feeInput = document.getElementById('admin-system-fee');
     const switchInput = document.getElementById('admin-exchange-switch');
     const digicelInput = document.getElementById('admin-digicel-num');
     const natcomInput = document.getElementById('admin-natcom-num');
 
-    // Ranplase virgul (,) pa pwen (.) pou evite erè NaN / pèmisyon
     let rawFee = feeInput ? feeInput.value.toString().replace(',', '.') : "16.5";
     const systemFee = parseFloat(rawFee) || 16.5;
     const exchangeActive = switchInput ? switchInput.checked : true;
-    const digicelNumber = digicelInput ? digicelInput.value.trim() : "50947111123";
-    const natcomNumber = natcomInput ? natcomInput.value.trim() : "32160708";
+    const digicelNumber = digicelInput ? digicelInput.value.trim() : "";
+    const natcomNumber = natcomInput ? natcomInput.value.trim() : "";
 
-    // Efè animasyon sou bouton an
     const originalContent = btnElement.innerHTML;
     btnElement.disabled = true;
     btnElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Ap anrejistre...`;
@@ -86,8 +75,6 @@ async function saveEchanjSettings(db, btnElement) {
 
         await update(ref(db), updates);
 
-        if (feeInput) feeInput.value = systemFee;
-
         btnElement.style.background = "#22c55e";
         btnElement.innerHTML = `<i class="fa-solid fa-check"></i> Anrejistre ak Siksè!`;
 
@@ -98,32 +85,35 @@ async function saveEchanjSettings(db, btnElement) {
         }, 2000);
 
     } catch (error) {
-        console.error("Erè pandan sovgad settings:", error);
         alert("❌ Erè nan sovgad: " + error.message);
         btnElement.disabled = false;
         btnElement.innerHTML = originalContent;
     }
 }
 
-// ============================================================
-// 3. RÂLE AK AFICHE TRANZAKSYON ECHANJ YO AN TAN REYÈL
-// ============================================================
+// 3. TABLO PRENSIPAL AFICHAJ ECHANJ YO
 function listenToEchanjOrders(db) {
     const tableBody = document.getElementById('admin-echanj-table-body');
     if (!tableBody) return;
 
-    onValue(ref(db, 'transactions'), (snapshot) => {
+    // Nou koute tou de "transactions" ak "users" pou nou jwenn non/arsID kliyan yo an tan reyèl
+    onValue(ref(db, 'transactions'), async (snapshot) => {
         tableBody.innerHTML = '';
 
         if (!snapshot.exists()) {
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">Pa gen okenn demann echanj pou kounye a.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">Pa gen okenn demann echanj nan baz done a.</td></tr>`;
             return;
         }
 
         const orders = snapshot.val();
+        
+        // Chaje tout enfòmasyon users pou fasilite afichaj
+        const usersSnap = await get(ref(db, 'users'));
+        const usersData = usersSnap.exists() ? usersSnap.val() : {};
+
         let hasEchanjData = false;
 
-        // Triye tout tranzaksyon yo pa dat (pi resan yo anwo)
+        // Triye transaksyon yo anba anwo (dènye yo an premye)
         const sortedKeys = Object.keys(orders).sort((a, b) => {
             const timeA = orders[a].timestamp || 0;
             const timeB = orders[b].timestamp || 0;
@@ -133,21 +123,14 @@ function listenToEchanjOrders(db) {
         sortedKeys.forEach(key => {
             const item = orders[key];
 
-            // Tcheke si kle a kòmanse ak 'ECH-' oswa si se yon tip echanj
-            const isEchanj = key.startsWith("ECH-") || 
-                             item.type === "Echanj" || 
-                             item.rezo || 
-                             item.network ||
-                             (item.description && item.description.toLowerCase().includes("echanj"));
-
-            if (isEchanj) {
+            // Nou verifye si l se yon echanj
+            if (item.type === "echanj" || key.startsWith("ECH-") || item.rezo) {
                 hasEchanjData = true;
-
                 const tr = document.createElement('tr');
 
-                // Konfigirasyon Status Badge
-                const status = item.status || "En attente";
-                let statusBadge = `<span style="color: #f59e0b; font-weight: bold; background: rgba(245, 158, 11, 0.15); padding: 4px 8px; border-radius: 4px;">En attente</span>`;
+                // Statut nan DB ou an (peding / Validé / Refusé)
+                const status = item.status || "pending";
+                let statusBadge = `<span style="color: #f59e0b; font-weight: bold; background: rgba(245, 158, 11, 0.15); padding: 4px 8px; border-radius: 4px;">Pending</span>`;
                 
                 if (status === "Validé" || status === "Approuvé") {
                     statusBadge = `<span style="color: #22c55e; font-weight: bold; background: rgba(34, 197, 94, 0.15); padding: 4px 8px; border-radius: 4px;">Validé</span>`;
@@ -155,82 +138,140 @@ function listenToEchanjOrders(db) {
                     statusBadge = `<span style="color: #ef4444; font-weight: bold; background: rgba(239, 68, 68, 0.15); padding: 4px 8px; border-radius: 4px;">Refusé</span>`;
                 }
 
-                // Extaksyon ak formatage done yo
                 const dateStr = item.timestamp ? new Date(item.timestamp).toLocaleString('fr-FR') : '---';
-                const clientName = item.fullname || item.userName || item.full_name || 'Kliyan';
-                const clientPhone = item.phone || item.userPhone || item.user_phone || '---';
-                const rezo = item.rezo || item.network || 'Digicel/Natcom';
-                const minitVoye = item.amount_sent || item.minit || item.amount || 0;
-                const feePercent = item.applied_fee_percent || item.fee_percent || 16.5;
-                const netHTG = item.htg_to_receive || item.net_amount || item.amount_received || 0;
-                const uid = item.uid || item.userId || '';
+                
+                // Done kliyan yo depi sou DB
+                const userObj = usersData[item.uid] || {};
+                const clientName = userObj.full_name || userObj.fullname || 'Kliyan ARS';
+                const arsId = userObj.arsID || userObj.ars_id || 'N/A';
+                
+                const rezo = item.rezo || 'Digicel';
+                const minitVoye = item.amount || 0;
+                const netHTG = item.to_receive || 0;
+                const uid = item.uid || '';
 
                 tr.innerHTML = `
-                    <td style="padding:12px;"><b>${key.substring(0, 12)}</b><br><small style="color: #94a3b8;">${dateStr}</small></td>
-                    <td style="padding:12px;"><b>${clientName}</b><br><small style="color: #38bdf8;">${clientPhone}</small></td>
+                    <td style="padding:12px;"><b>${key.substring(0, 14)}</b><br><small style="color: #94a3b8;">${dateStr}</small></td>
+                    <td style="padding:12px;"><b>${clientName}</b><br><small style="color: #fbbf24;">ARS ID: ${arsId}</small></td>
                     <td style="padding:12px;"><b style="text-transform: uppercase; color: #f59e0b;">${rezo}</b></td>
                     <td style="padding:12px;"><b>${minitVoye} HTG</b></td>
-                    <td style="padding:12px;">${feePercent}%</td>
+                    <td style="padding:12px;">16.5%</td>
                     <td style="padding:12px;"><b style="color: #22c55e; font-size: 1.05em;">${netHTG} HTG</b></td>
                     <td style="padding:12px;">${statusBadge}</td>
                     <td style="padding:12px;">
-                        ${(status === "En attente") ? `
-                            <button class="btn-approve-echanj" data-id="${key}" data-uid="${uid}" data-amount="${netHTG}" style="background: #16a34a; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; margin-right: 4px; font-weight: bold;">
-                                <i class="fa-solid fa-check"></i> Valide
-                            </button>
-                            <button class="btn-cancel-echanj" data-id="${key}" data-uid="${uid}" style="background: #dc2626; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: bold;">
-                                <i class="fa-solid fa-xmark"></i> Refize
-                            </button>
-                        ` : `<small style="color: #64748b; font-weight: bold;">${status}</small>`}
+                        <button class="btn-open-box" data-uid="${uid}" data-name="${clientName}" data-ars="${arsId}" style="background: #0284c7; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                            <i class="fa-solid fa-box-open"></i> Bwat Kliyan
+                        </button>
                     </td>
                 `;
                 tableBody.appendChild(tr);
             }
         });
 
+        // Koute klik sou bouton Bwat Kliyan yo
+        document.querySelectorAll('.btn-open-box').forEach(btn => {
+            btn.onclick = () => {
+                const uid = btn.getAttribute('data-uid');
+                const name = btn.getAttribute('data-name');
+                const ars = btn.getAttribute('data-ars');
+                openUserTransactionBox(db, uid, name, ars, orders);
+            };
+        });
+
         if (!hasEchanjData) {
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">Pa gen okenn demann echanj pou kounye a.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">Pa gen okenn demann echanj nan baz done a.</td></tr>`;
         }
     });
 }
 
-// ============================================================
-// 4. AKSYON VALIDE AK REFIZE
-// ============================================================
-function setupTableActions(db) {
-    const tableBody = document.getElementById('admin-echanj-table-body');
-    if (!tableBody) return;
+// 4. BWAT TRANSAKSYON KLIYAN (KLASEN AN KÒD DETAYE)
+function openUserTransactionBox(db, uid, clientName, arsId, allOrders) {
+    const modal = document.getElementById('modal-user-transactions');
+    const modalInfo = document.getElementById('modal-client-info');
+    const container = document.getElementById('user-tx-list-container');
 
-    tableBody.onclick = async (e) => {
-        const btnApprove = e.target.closest('.btn-approve-echanj');
-        const btnCancel = e.target.closest('.btn-cancel-echanj');
+    if (!modal || !container) return;
 
-        if (btnApprove) {
-            const transID = btnApprove.getAttribute('data-id');
-            const uid = btnApprove.getAttribute('data-uid');
-            const amountNet = parseFloat(btnApprove.getAttribute('data-amount')) || 0;
-            await handleValideEchanj(db, transID, uid, amountNet);
-        }
+    modalInfo.innerText = `ARS-ID: ${arsId} | Kliyan: ${clientName}`;
+    container.innerHTML = '';
 
-        if (btnCancel) {
-            const transID = btnCancel.getAttribute('data-id');
-            const uid = btnCancel.getAttribute('data-uid');
-            await handleRefuseEchanj(db, transID, uid);
-        }
-    };
+    // Filtre transaksyon kliyan sa a sèlman
+    const userOrdersKeys = Object.keys(allOrders).filter(k => allOrders[k].uid === uid);
+
+    if (userOrdersKeys.length === 0) {
+        container.innerHTML = `<p style="text-align:center; color:#94a3b8; padding:20px;">Pa gen transaksyon nan bwat sa a.</p>`;
+    } else {
+        userOrdersKeys.forEach(txKey => {
+            const tx = allOrders[txKey];
+            const dateStr = tx.timestamp ? new Date(tx.timestamp).toLocaleString('fr-FR') : '---';
+            const status = tx.status || "pending";
+            const minit = tx.amount || 0;
+            const netHTG = tx.to_receive || 0;
+            const rezo = tx.rezo || 'Digicel';
+
+            const boxCard = document.createElement('div');
+            boxCard.style.cssText = "background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 12px; margin-bottom: 10px; font-family: monospace;";
+
+            boxCard.innerHTML = `
+                <div style="display:flex; justify-content:space-between; color:#38bdf8; font-weight:bold;">
+                    <span>CODE: ${txKey}</span>
+                    <span style="color:${status === 'Validé' ? '#22c55e' : status === 'Refusé' ? '#ef4444' : '#f59e0b'}">${status}</span>
+                </div>
+                <div style="margin-top: 6px; font-size: 0.9em; color:#cbd5e1;">
+                    📌 <b>Dat:</b> ${dateStr}<br>
+                    📡 <b>Rezo:</b> ${rezo.toUpperCase()}<br>
+                    📥 <b>Minit Voye:</b> ${minit} HTG<br>
+                    💵 <b>HTG pou Peye:</b> <span style="color:#22c55e; font-weight:bold;">${netHTG} HTG</span>
+                </div>
+                ${status === 'pending' ? `
+                    <div style="margin-top: 10px; display:flex; gap: 10px;">
+                        <button class="btn-valide-tx" data-id="${txKey}" data-uid="${uid}" data-amount="${netHTG}" style="flex:1; background:#16a34a; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-weight:bold;">
+                            <i class="fa-solid fa-check"></i> Valide
+                        </button>
+                        <button class="btn-refuse-tx" data-id="${txKey}" style="flex:1; background:#dc2626; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-weight:bold;">
+                            <i class="fa-solid fa-xmark"></i> Refize
+                        </button>
+                    </div>
+                ` : ''}
+            `;
+            container.appendChild(boxCard);
+        });
+
+        // Action Valide ak Refize anndan Bwat la
+        container.querySelectorAll('.btn-valide-tx').forEach(b => {
+            b.onclick = async () => {
+                const txID = b.getAttribute('data-id');
+                const u = b.getAttribute('data-uid');
+                const amt = parseFloat(b.getAttribute('data-amount')) || 0;
+                await handleValideEchanj(db, txID, u, amt);
+                modal.classList.add('hidden');
+            };
+        });
+
+        container.querySelectorAll('.btn-refuse-tx').forEach(b => {
+            b.onclick = async () => {
+                const txID = b.getAttribute('data-id');
+                await handleRefuseEchanj(db, txID);
+                modal.classList.add('hidden');
+            };
+        });
+    }
+
+    modal.classList.remove('hidden');
 }
 
+// 5. FONKSYON MIZAJOU NAN DATABASE
 async function handleValideEchanj(db, transID, uid, montanPouAjoute) {
     if (!confirm(`Valide echanj sa a epi ajoute ${montanPouAjoute} HTG sou solde kliyan an?`)) return;
 
     try {
         const updates = {};
+        // 1. Chanje estatui transaksyon an pou l vin "Validé"
         updates[`transactions/${transID}/status`] = "Validé";
-        updates[`admin_orders/${transID}/status`] = "Validé";
 
         await update(ref(db), updates);
 
-        // Ajoute kòb la sou solde kont kliyan an nan Realtime Database
+        // 2. NOU MONTE BALANS LALAN NAN `users/$uid/balance`
         if (uid) {
             const userRef = ref(db, `users/${uid}`);
             const userSnap = await get(userRef);
@@ -241,26 +282,23 @@ async function handleValideEchanj(db, transID, uid, montanPouAjoute) {
             }
         }
 
-        alert("✅ Demann echanj sa a VALIDÉ ak siksè! Solde kliyan an monte.");
+        alert("✅ Demann echanj la VALIDÉ ak siksè!");
     } catch (err) {
-        console.error("Erè Validasyon:", err);
         alert("❌ Erè pandan validasyon an: " + err.message);
     }
 }
 
-async function handleRefuseEchanj(db, transID, uid) {
+async function handleRefuseEchanj(db, transID) {
     if (!confirm("Èske ou sèten ou vle REFIZE demann echanj sa a?")) return;
 
     try {
         const updates = {};
         updates[`transactions/${transID}/status`] = "Refusé";
-        updates[`admin_orders/${transID}/status`] = "Refusé";
 
         await update(ref(db), updates);
-        alert("🚫 Demann echanj la REFIZE kòrèkteman.");
+        alert("🚫 Demann echanj la REFIZE.");
     } catch (err) {
-        console.error("Erè Refize:", err);
         alert("❌ Erè pandan operasyon an: " + err.message);
     }
-    }
-               
+           }
+                   
