@@ -12,7 +12,7 @@ let selectedClientId = null;
 const IMAJ_AKEY_URL = "https://i.postimg.cc/qRS0rchG/1786118534528.png";
 
 export function initAdminEchanj(db) {
-    console.log("Seksyon Echanj lan aktive: Lojik Hybrid pou dekouvri tout fòma tranzaksyon yo!");
+    console.log("Seksyon Echanj aktive: Lojik Hybrid ak sipò pou tout nouvo kle Firebase yo!");
 
     const transRef = ref(db, 'transactions');
     const usersRef = ref(db, 'users');
@@ -56,7 +56,7 @@ function rannEkranAkeyImaj(bwatDwatDiv) {
 }
 
 /**
- * Pwosesis pou rasanble ak filtre tranzaksyon yo baze sou de fòma yo ki nan Firebase la
+ * Pwosesis fleksib pou rasanble tout echanj yo nèt (Ansyen ak Nouvo fòma kle yo)
  */
 function raleToutEchanjPaKliyan() {
     const mapKliyanEchanj = {};
@@ -68,30 +68,37 @@ function raleToutEchanjPaKliyan() {
         // FÒMA 1: Tranzaksyon an plase dirèkteman anba `transactions/ID_TRANSACTION`
         if (obj.uid && obj.type) {
             const tipLower = obj.type.toLowerCase();
-            // Nou tcheke si se "retré" oswa si li gen mo "echanj" nan tip la
+            
+            // Tcheke si se yon tip echanj oswa retrè
             if (tipLower.includes("echanj") || tipLower.includes("retré") || tipLower.includes("retre")) {
                 const uid = obj.uid;
                 if (!mapKliyanEchanj[uid]) {
                     mapKliyanEchanj[uid] = { uid: uid, pendingCount: 0, lislèt: [] };
                 }
                 
+                // MIZAJOU KLE: Rale montan ak valè nèt la dapre tout fòma posib yo
+                const amountToSend = parseFloat(obj.amount_sent || obj.amount || obj.montan || obj.kantite || 0);
+                const amountToReceive = parseFloat(obj.htg_to_receive || obj.received || obj.to_receive || obj.resevwa || 0);
+                const currentStatus = obj.status || "pending";
+                const statusLower = currentStatus.toLowerCase();
+
                 mapKliyanEchanj[uid].lislèt.push({
                     id: kle,
-                    amount: obj.amount || 0,
-                    to_receive: obj.received || obj.to_receive || obj.resevwa || 0,
+                    amount: amountToSend,
+                    to_receive: amountToReceive,
                     rezo: obj.method || obj.rezo || "N/A",
-                    status: obj.status || "pending",
+                    status: currentStatus,
                     timestamp: obj.timestamp || obj.date || 0
                 });
 
-                if (obj.status === "pending" || obj.status === "An atant") {
+                // Detekte si tranzaksyon sa a an atant nèt (nou enkli "en attente" kounye a)
+                if (statusLower === "pending" || statusLower === "an atant" || statusLower === "en attente") {
                     mapKliyanEchanj[uid].pendingCount += 1;
                 }
             }
         } 
         // FÒMA 2: Tranzaksyon an kache anndan yon node UID (Fòma nested: transactions/UID/ID_TRANSACTION)
         else if (typeof obj === "object" && !obj.uid) {
-            // Nan ka sa a, 'kle' se UID kliyan an li menm!
             const itilizatèUid = kle; 
             
             for (let subKle in obj) {
@@ -103,18 +110,24 @@ function raleToutEchanjPaKliyan() {
                             mapKliyanEchanj[itilizatèUid] = { uid: itilizatèUid, pendingCount: 0, lislèt: [] };
                         }
 
+                        // Menm analiz la pou fòma kache a tou
+                        const nestedAmountToSend = parseFloat(subObj.amount_sent || subObj.kantite || subObj.amount || subObj.montan || 0);
+                        const nestedAmountToReceive = parseFloat(subObj.htg_to_receive || subObj.resevwa || subObj.received || subObj.to_receive || 0);
+                        const subStatus = subObj.status || "pending";
+                        const subStatusLower = subStatus.toLowerCase();
+
                         mapKliyanEchanj[itilizatèUid].lislèt.push({
                             id: subKle,
-                            amount: subObj.amount || subObj.kantite || 0,
-                            to_receive: subObj.received || subObj.to_receive || subObj.resevwa || 0,
+                            amount: nestedAmountToSend,
+                            to_receive: nestedAmountToReceive,
                             rezo: subObj.method || subObj.rezo || subObj.tip || "N/A",
-                            status: subObj.status || "pending",
+                            status: subStatus,
                             timestamp: subObj.date || subObj.timestamp || 0,
-                            isNested: true, // Pou nou konnen ki kote pou n mete l ajou nan Firebase aprè
+                            isNested: true,
                             parentUid: itilizatèUid
                         });
 
-                        if (subObj.status === "pending" || subObj.status === "An atant") {
+                        if (subStatusLower === "pending" || subStatusLower === "an atant" || subStatusLower === "en attente") {
                             mapKliyanEchanj[itilizatèUid].pendingCount += 1;
                         }
                     }
@@ -197,7 +210,8 @@ function rannTabloTranzaksyonKliyan(db, uid) {
     let tBodyRows = "";
     tranzaksyonLiYo.forEach(t => {
         let aksyonTd = "";
-        const isPending = t.status === "pending" || t.status === "An atant";
+        const statusLower = (t.status || "").toLowerCase();
+        const isPending = statusLower === "pending" || statusLower === "an atant" || statusLower === "en attente";
         
         if (isPending) {
             aksyonTd = `
@@ -214,17 +228,16 @@ function rannTabloTranzaksyonKliyan(db, uid) {
                 </div>
             `;
         } else {
-            const klaseStati = (t.status === "Validé" || t.status === "Siksè" || t.status === "validé") ? "validé" : "anile";
+            const klaseStati = (statusLower === "validé" || statusLower === "siksè" || statusLower === "valide") ? "validé" : "anile";
             aksyonTd = `<span class="table-status-text badge-status-${klaseStati}">${t.status.toUpperCase()}</span>`;
         }
 
-        // Fòma dat pwòp
         let datTranzaksyon = 'N/A';
         if (t.timestamp) {
             if (typeof t.timestamp === 'number') {
                 datTranzaksyon = new Date(t.timestamp).toLocaleString('fr-FR');
             } else {
-                datTranzaksyon = t.timestamp; // Si se fòma string "22/02/2026..."
+                datTranzaksyon = t.timestamp;
             }
         }
 
@@ -235,7 +248,7 @@ function rannTabloTranzaksyonKliyan(db, uid) {
                 <td><span class="badge-rezo">${t.rezo.toUpperCase()}</span></td>
                 <td><strong style="color:#1e293b;">${t.amount}</strong> HTG</td>
                 <td style="color:#16a34a; font-weight:bold;">+ ${t.to_receive} HTG</td>
-                <td><span class="table-status-text badge-status-${isPending ? 'pending' : ((t.status === 'Validé' || t.status === 'Siksè' || t.status === 'validé') ? 'validé' : 'anile')}">${t.status}</span></td>
+                <td><span class="table-status-text badge-status-${isPending ? 'pending' : ((statusLower === 'validé' || statusLower === 'siksè' || statusLower === 'valide') ? 'validé' : 'anile')}">${t.status}</span></td>
                 <td>${aksyonTd}</td>
             </tr>
         `;
@@ -281,7 +294,7 @@ function ekouteBoutonAksyon(db) {
             const montanPoulResevwa = parseFloat(this.getAttribute('data-receive'));
 
             if (isNaN(montanPoulResevwa) || montanPoulResevwa <= 0) {
-                alert("Erè: Montan pou kliyan an resevwa a pa valid.");
+                alert("Erè: Montan pou kliyan an resevwa a pa valid nan sistèm lan.");
                 return;
             }
 
@@ -293,7 +306,7 @@ function ekouteBoutonAksyon(db) {
                     : `/transactions/${transId}/status`;
 
                 const updates = {};
-                updates[pathStatus] = "Validé"; // Mete l an fòma kòrèk baz la
+                updates[pathStatus] = "Validé"; 
 
                 const clientBalanceRef = ref(db, `users/${clientUid}/balance`);
                 
