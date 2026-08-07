@@ -1,0 +1,255 @@
+/* ============================================================
+   ECHANJ PLUS - INBOX ULTRA-MÈG (75px) & TABLO CSS
+   ============================================================ */
+
+/* Layout Prensipal an 2 Pati */
+.echanj-inbox-container {
+    display: flex;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    height: calc(100vh - 180px);
+    min-height: 500px;
+    overflow: hidden;
+    margin-top: 15px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* ------------------------------------------------------------
+   1. BÒ GÒCH: LIS KLIYAN (SIDEBAR TRÈ MÈG - 75px)
+   ------------------------------------------------------------ */
+.clients-sidebar {
+    width: 75px; /* Estrikti ultra-mèg pou avatar sèlman */
+    min-width: 75px;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+}
+
+.clients-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Ti Won Kliyan nan Sidebar la */
+.client-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    cursor: pointer;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    transition: all 0.2s ease-in-out;
+}
+
+.client-item:hover {
+    background: #f1f5f9;
+    transform: scale(1.05);
+    border-color: #cbd5e1;
+}
+
+.client-item.active {
+    background: #e0f2fe;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Avatar anndan ti wonn lan */
+.client-avatar {
+    width: 100%;
+    height: 100%;
+    background: #3b82f6;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    text-transform: uppercase;
+}
+
+/* Badj Absoli pou montan pending yo sou tèt ti wonn nan */
+.badge-pending {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: bold;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+    z-index: 10;
+}
+
+/* ------------------------------------------------------------
+   2. BÒ DWA: PAJ TRANZAKSYON (VIEWPORT JEYAN)
+   ------------------------------------------------------------ */
+.transactions-viewport {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+/* Veso kote kòd la ap enjekte tablo a ak entèt li */
+.transactions-list-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Entèt paj detay kliyan ki seleksyone a */
+.viewport-header {
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* TABLO TRANZAKSYON MODÈN */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+}
+
+.admin-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    padding: 14px 16px;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.admin-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.admin-table tr:hover {
+    background: #f8fafc;
+}
+
+/* Badj Rezo (MonCash, Natcash, elatriye) */
+.badge-rezo {
+    background: #f1f5f9;
+    color: #334155;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+}
+
+/* Bouton Aksyon nan Tablo a */
+.table-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-table-valide {
+    background: #10b981;
+    color: #ffffff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-table-valide:hover { 
+    background: #059669; 
+}
+
+.btn-table-valide:active {
+    transform: scale(0.95);
+}
+
+.btn-table-anile {
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-table-anile:hover { 
+    background: #dc2626; 
+}
+
+.btn-table-anile:active {
+    transform: scale(0.95);
+}
+
+/* Koulè Badj Stati yo nan Tablo a */
+.table-status-text {
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.badge-status-pending { 
+    color: #b45309; 
+    background: #fef3c7; 
+    padding: 4px 8px; 
+    border-radius: 6px; 
+}
+
+.badge-status-validé { 
+    color: #15803d; 
+    background: #dcfce7; 
+    padding: 4px 8px; 
+    border-radius: 6px; 
+}
+
+.badge-status-anile { 
+    color: #b91c1c; 
+    background: #fee2e2; 
+    padding: 4px 8px; 
+    border-radius: 6px; 
+}
+
+/* Klas pou Monospace tèks yo */
+.txt-monospace {
+    font-family: monospace;
+    font-weight: bold;
+}
