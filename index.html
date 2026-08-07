@@ -160,7 +160,8 @@
                 </div>
             </section>
 
-<!-- ============================================================ -->
+
+            <!-- ============================================================ -->
 <!-- ECHANJ PLUS - SEKSYON JESYON ECHANJ AK SIDEBAR TRÈ MÈG      -->
 <!-- ============================================================ -->
 <section id="sec-echanj" class="admin-section hidden">
@@ -176,34 +177,47 @@
         <aside class="clients-sidebar">
             <!-- Veso kote JavaScript la ap desine ti wonn kliyan yo dinamikman -->
             <div id="div-clients-list" class="clients-list">
-                <!-- Ti wonn yo ap parèt isit la -->
+                <!-- Ti wonn yo ap parèt isit la otomatikman atravè JS -->
                 <div class="loading-mini" style="font-size: 10px; color: #94a3b8; text-align: center; padding-top: 20px;">
-                    ...
+                    Chaje...
                 </div>
             </div>
         </aside>
 
         <!-- 2. BÒ DWAT: Viewport Jeyan pou afiche Istwa Tranzaksyon Kliyan ki seleksyone a -->
         <main class="transactions-viewport">
-            <!-- Veso kote JavaScript la ap depoze gwo tablo a oswa kat tranzaksyon yo -->
+            <!-- Veso kote JavaScript la ap depoze gwo tablo a oswa ekran akèy la -->
             <div id="lis-echanj-container" class="transactions-list-wrapper">
-                <div class="loading-box" style="padding: 40px; text-align: center;">
-                    <div class="spinner" style="margin: 0 auto 15px auto; width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                    <p style="color: #64748b; font-weight: 500;">Chwazi yon kliyan nan sidebar a gòch la pou wè detay echanj li yo...</p>
+                
+                <!-- Ekran Akèy pa defo ak gwo Imaj la anvan admin nan klike sou yon kliyan -->
+                <div class="no-client-selected" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; height: 100%;">
+                    <img src="https://i.postimg.cc/qRS0rchG/1786118534528.png" alt="Echanj Plus" style="max-width: 180px; margin-bottom: 20px; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.1));" />
+                    <h3 style="color: #1e293b; margin: 0 0 8px 0; font-size: 16px;">Sistèm Jesyon Echanj</h3>
+                    <p style="color: #64748b; font-size: 13px; max-width: 300px; margin: 0;">Chwazi yon kliyan nan sidebar a gòch la pou wè, valide oswa anile demann li yo.</p>
                 </div>
+
             </div>
         </main>
 
     </div>
 </section>
 
-<!-- Ti animasyon CSS rapid pou Spinner loading la si ou pa t genyen l -->
+<!-- Ti animasyon CSS rapid pou eleman loading si sa nesesè -->
 <style>
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+.spinner-mini {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e2e8f0;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
 </style>
-            
+    
             
             
             <!-- SEKSYON 3: RETRÈ -->
