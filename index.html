@@ -160,24 +160,50 @@
                 </div>
             </section>
 
+<!-- ============================================================ -->
+<!-- ECHANJ PLUS - SEKSYON JESYON ECHANJ AK SIDEBAR TRÈ MÈG      -->
+<!-- ============================================================ -->
+<section id="sec-echanj" class="admin-section hidden">
+    <div class="dashboard-header">
+        <h2>Jesyon Echanj Kliyan</h2>
+        <p>Gade, valide oswa anile tranzaksyon echanj yo an tan reyèl.</p>
+    </div>
 
-            <!-- ============================================================ -->
-            <!-- SEKSYON 2: ECHANJ (MIZAJOU SÈVIS LA)                         -->
-            <!-- ============================================================ -->
-            <section id="sec-echanj" class="admin-section hidden">
-                <div class="dashboard-header">
-                    <h2>Jesyon Echanj Kliyan</h2>
-                    <p>Gade, valide oswa anile tranzaksyon echanj yo an tan reyèl.</p>
+    <!-- Veso Prensipal la ki divize an de bò (Flexbox) -->
+    <div class="echanj-inbox-container">
+        
+        <!-- 1. BÒ GÒCH: Sidebar trè mèg (75px) pou Avatar Kliyan yo -->
+        <aside class="clients-sidebar">
+            <!-- Veso kote JavaScript la ap desine ti wonn kliyan yo dinamikman -->
+            <div id="div-clients-list" class="clients-list">
+                <!-- Ti wonn yo ap parèt isit la -->
+                <div class="loading-mini" style="font-size: 10px; color: #94a3b8; text-align: center; padding-top: 20px;">
+                    ...
                 </div>
+            </div>
+        </aside>
 
-                <!-- Veso kote JavaScript la pral depoze lis kat tranzaksyon yo -->
-                <div id="lis-echanj-container" class="lis-echanj-grid">
-                    <div class="loading-box">
-                        <div class="spinner"></div>
-                        <p>Ap tann koneksyon sekirite Admin pou chaje done yo...</p>
-                    </div>
+        <!-- 2. BÒ DWAT: Viewport Jeyan pou afiche Istwa Tranzaksyon Kliyan ki seleksyone a -->
+        <main class="transactions-viewport">
+            <!-- Veso kote JavaScript la ap depoze gwo tablo a oswa kat tranzaksyon yo -->
+            <div id="lis-echanj-container" class="transactions-list-wrapper">
+                <div class="loading-box" style="padding: 40px; text-align: center;">
+                    <div class="spinner" style="margin: 0 auto 15px auto; width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p style="color: #64748b; font-weight: 500;">Chwazi yon kliyan nan sidebar a gòch la pou wè detay echanj li yo...</p>
                 </div>
-            </section>
+            </div>
+        </main>
+
+    </div>
+</section>
+
+<!-- Ti animasyon CSS rapid pou Spinner loading la si ou pa t genyen l -->
+<style>
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+            
             
             
             <!-- SEKSYON 3: RETRÈ -->
