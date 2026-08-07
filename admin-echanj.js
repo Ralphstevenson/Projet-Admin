@@ -12,7 +12,7 @@ let selectedClientId = null;
 const IMAJ_AKEY_URL = "https://i.postimg.cc/qRS0rchG/1786118534528.png";
 
 export function initAdminEchanj(db) {
-    console.log("Seksyon Echanj aktive: Lojik Hybrid ak sipò pou tout nouvo kle Firebase yo!");
+    console.log("Seksyon Echanj aktive: Resi an Imaj & Modifikasyon Balans pare!");
 
     const transRef = ref(db, 'transactions');
     const usersRef = ref(db, 'users');
@@ -68,15 +68,12 @@ function raleToutEchanjPaKliyan() {
         // FÒMA 1: Tranzaksyon an plase dirèkteman anba `transactions/ID_TRANSACTION`
         if (obj.uid && obj.type) {
             const tipLower = obj.type.toLowerCase();
-            
-            // Tcheke si se yon tip echanj oswa retrè
             if (tipLower.includes("echanj") || tipLower.includes("retré") || tipLower.includes("retre")) {
                 const uid = obj.uid;
                 if (!mapKliyanEchanj[uid]) {
                     mapKliyanEchanj[uid] = { uid: uid, pendingCount: 0, lislèt: [] };
                 }
                 
-                // MIZAJOU KLE: Rale montan ak valè nèt la dapre tout fòma posib yo
                 const amountToSend = parseFloat(obj.amount_sent || obj.amount || obj.montan || obj.kantite || 0);
                 const amountToReceive = parseFloat(obj.htg_to_receive || obj.received || obj.to_receive || obj.resevwa || 0);
                 const currentStatus = obj.status || "pending";
@@ -91,7 +88,6 @@ function raleToutEchanjPaKliyan() {
                     timestamp: obj.timestamp || obj.date || 0
                 });
 
-                // Detekte si tranzaksyon sa a an atant nèt (nou enkli "en attente" kounye a)
                 if (statusLower === "pending" || statusLower === "an atant" || statusLower === "en attente") {
                     mapKliyanEchanj[uid].pendingCount += 1;
                 }
@@ -110,7 +106,6 @@ function raleToutEchanjPaKliyan() {
                             mapKliyanEchanj[itilizatèUid] = { uid: itilizatèUid, pendingCount: 0, lislèt: [] };
                         }
 
-                        // Menm analiz la pou fòma kache a tou
                         const nestedAmountToSend = parseFloat(subObj.amount_sent || subObj.kantite || subObj.amount || subObj.montan || 0);
                         const nestedAmountToReceive = parseFloat(subObj.htg_to_receive || subObj.resevwa || subObj.received || subObj.to_receive || 0);
                         const subStatus = subObj.status || "pending";
@@ -200,7 +195,6 @@ function rannTabloTranzaksyonKliyan(db, uid) {
     const doneKliyan = mapKliyan[uid] || { lislèt: [] };
     const tranzaksyonLiYo = doneKliyan.lislèt;
 
-    // Tliye nan lòd pi resan yo anlè nèt
     tranzaksyonLiYo.sort((a, b) => {
         const dateA = typeof a.timestamp === 'number' ? a.timestamp : new Date(a.timestamp).getTime() || 0;
         const dateB = typeof b.timestamp === 'number' ? b.timestamp : new Date(b.timestamp).getTime() || 0;
@@ -213,6 +207,15 @@ function rannTabloTranzaksyonKliyan(db, uid) {
         const statusLower = (t.status || "").toLowerCase();
         const isPending = statusLower === "pending" || statusLower === "an atant" || statusLower === "en attente";
         
+        let datTranzaksyon = 'N/A';
+        if (t.timestamp) {
+            if (typeof t.timestamp === 'number') {
+                datTranzaksyon = new Date(t.timestamp).toLocaleString('fr-FR');
+            } else {
+                datTranzaksyon = t.timestamp;
+            }
+        }
+
         if (isPending) {
             aksyonTd = `
                 <div class="table-actions">
@@ -229,16 +232,28 @@ function rannTabloTranzaksyonKliyan(db, uid) {
             `;
         } else {
             const klaseStati = (statusLower === "validé" || statusLower === "siksè" || statusLower === "valide") ? "validé" : "anile";
-            aksyonTd = `<span class="table-status-text badge-status-${klaseStati}">${t.status.toUpperCase()}</span>`;
-        }
+            
+            // Si li deja verifye (Validé/Siksè), nou ajoute bouton pou pataje resi a kòm Imaj
+            const boutonPataje = (klaseStati === "validé") ? `
+                <button class="btn-pataje-resi" 
+                    data-id="${t.id}" 
+                    data-client="${nonKliyan}" 
+                    data-date="${datTranzaksyon}" 
+                    data-rezo="${t.rezo}" 
+                    data-amount="${t.amount}" 
+                    data-receive="${t.to_receive}" 
+                    title="Pataje Resi Imaj" 
+                    style="margin-left: 8px; background: #e0f2fe; border: none; padding: 4px 8px; border-radius: 4px; color: #0369a1; cursor: pointer; font-size: 11px; font-weight: bold;">
+                    pataje 📲
+                </button>
+            ` : "";
 
-        let datTranzaksyon = 'N/A';
-        if (t.timestamp) {
-            if (typeof t.timestamp === 'number') {
-                datTranzaksyon = new Date(t.timestamp).toLocaleString('fr-FR');
-            } else {
-                datTranzaksyon = t.timestamp;
-            }
+            aksyonTd = `
+                <div style="display: flex; align-items: center;">
+                    <span class="table-status-text badge-status-${klaseStati}">${t.status.toUpperCase()}</span>
+                    ${boutonPataje}
+                </div>
+            `;
         }
 
         tBodyRows += `
@@ -255,10 +270,14 @@ function rannTabloTranzaksyonKliyan(db, uid) {
     });
 
     listeEchanjDiv.innerHTML = `
-        <div class="viewport-header" style="padding-bottom: 15px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0;">
+        <div class="viewport-header" style="padding-bottom: 15px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
             <div class="viewport-header-info">
                 <h3 style="margin:0; font-size:18px; color:#0f172a;">${nonKliyan}</h3>
-                <p style="margin:5px 0 0 0; font-size:12px; color:#64748b;">UID: ${uid} | <strong>Balans: <span style="color:#10b981;">${balansKliyan} HTG</span></strong></p>
+                <p style="margin:5px 0 0 0; font-size:12px; color:#64748b;">
+                    UID: ${uid} | 
+                    <strong>Balans: <span style="color:#10b981;" id="txt-balans-kliyan">${balansKliyan} HTG</span></strong>
+                    <button id="btn-edit-balans" data-uid="${uid}" data-current="${balansKliyan}" style="background: transparent; border: none; cursor: pointer; margin-left: 5px; font-size: 13px;" title="Modidye balans kliyan sa a">✏️</button>
+                </p>
             </div>
         </div>
         <div class="table-responsive">
@@ -285,7 +304,144 @@ function rannTabloTranzaksyonKliyan(db, uid) {
 }
 
 function ekouteBoutonAksyon(db) {
-    // Bouton Validé
+    // 2em bagay: Modifikasyon Balans Kliyan an dirèkteman
+    const btnEditBalans = document.getElementById('btn-edit-balans');
+    if (btnEditBalans) {
+        btnEditBalans.addEventListener('click', function() {
+            const clientUid = this.getAttribute('data-uid');
+            const kouranBalans = this.getAttribute('data-current');
+            
+            const nouvoBalansKliyan = prompt(`Modifikasyon Balans pou sekirite (Tranzaksyon Sispèk)\n\nBalans aktyèl: ${kouranBalans} HTG\nAntre nouvo balans lan:`, kouranBalans);
+            
+            if (nouvoBalansKliyan !== null) {
+                const valèChif = parseFloat(nouvoBalansKliyan);
+                if (isNaN(valèChif) || valèChif < 0) {
+                    alert("Erè: Ou dwe antre yon chif ki valid!");
+                    return;
+                }
+                
+                if (confirm(`Èske ou sèten ou vle chanje balans kliyan sa a pou l vin nèt: ${valèChif} HTG?`)) {
+                    const userBalanceRef = ref(db, `users/${clientUid}/balance`);
+                    update(ref(db), { [`users/${clientUid}/balance`]: valèChif })
+                    .then(() => {
+                        alert("Balans lan modifye avèk siksè!");
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Erè pandan mizajou balans lan.");
+                    });
+                }
+            }
+        });
+    }
+
+    // 1er a: Pataje resi kòm Imaj pa HTML Canvas natif
+    document.querySelectorAll('.btn-pataje-resi').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tId = this.getAttribute('data-id');
+            const tClient = this.getAttribute('data-client');
+            const tDate = this.getAttribute('data-date');
+            const tRezo = this.getAttribute('data-rezo').toUpperCase();
+            const tAmount = this.getAttribute('data-amount') + " HTG";
+            const tReceive = this.getAttribute('data-receive') + " HTG";
+
+            // Kreye Canvas an tan reyèl nan memwa kòd la
+            const canvas = document.createElement('canvas');
+            canvas.width = 500;
+            canvas.height = 650;
+            const ctx = canvas.getContext('2d');
+
+            // 1. Dèyè plan resi (Background)
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Kad / Border decoration
+            ctx.strokeStyle = "#1e3a8a";
+            ctx.lineWidth = 10;
+            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Tèt resi (Header Blue bar)
+            ctx.fillStyle = "#1e3a8a";
+            ctx.fillRect(5, 5, canvas.width - 10, 90);
+
+            // Tèks tèt la
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 26px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("ECHANJ PLUS", canvas.width / 2, 45);
+            ctx.font = "14px Arial";
+            ctx.fillText("Resi Ofisyèl Tranzaksyon", canvas.width / 2, 75);
+
+            // 3. Kontni / Detay (Body text)
+            ctx.textAlign = "left";
+            ctx.fillStyle = "#334155";
+            ctx.font = "bold 14px Arial";
+
+            let y = 150;
+            const liy = (tit, valè, isGreen = false) => {
+                ctx.fillStyle = "#64748b";
+                ctx.font = "normal 14px Arial";
+                ctx.fillText(tit, 40, y);
+                
+                ctx.fillStyle = isGreen ? "#16a34a" : "#0f172a";
+                ctx.font = "bold 15px Arial";
+                ctx.fillText(valè, 200, y);
+                
+                // Ti liy separasyon kreyòl
+                ctx.strokeStyle = "#e2e8f0";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(40, y + 12);
+                ctx.lineTo(460, y + 12);
+                ctx.stroke();
+                
+                y += 50;
+            };
+
+            liy("ID Tranzaksyon:", tId);
+            liy("Kliyan:", tClient);
+            liy("Dat / Lè:", tDate);
+            liy("Metòd / Rezo:", tRezo);
+            liy("Montan Voye:", tAmount);
+            liy("Net Resevwa:", tReceive, true);
+            liy("Stati:", "VALIDÉ / SIKSÈ");
+
+            // 4. Pye resi (Footer)
+            ctx.fillStyle = "#f8fafc";
+            ctx.fillRect(10, canvas.height - 80, canvas.width - 20, 70);
+            
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#475569";
+            ctx.font = "italic 13px Arial";
+            ctx.fillText("Mèsi paske ou chwazi Echanj Plus!", canvas.width / 2, canvas.height - 45);
+            ctx.font = "bold 11px Arial";
+            ctx.fillStyle = "#94a3b8";
+            ctx.fillText("Sistèm Otomatize - Admin Panel", canvas.width / 2, canvas.height - 25);
+
+            // Konvèti canvas an fòma File Blob pou pataje l kòm vrè imaj
+            canvas.toBlob((blob) => {
+                const file = new File([blob], `Resi-${tId}.png`, { type: 'image/png' });
+                
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({
+                        files: [file],
+                        title: `Resi Echanj Plus - ${tId}`,
+                        text: `Gade resi pou tranzaksyon ${tId} sou Echanj Plus.`
+                    })
+                    .catch(err => console.log("Pataje anile oswa gen erè", err));
+                } else {
+                    // Si navigatè a pa sipòte pataje dirèk (tankou sou PC), li telechaje l kòm altènatif
+                    const a = document.createElement('a');
+                    a.href = canvas.toDataURL('image/png');
+                    a.download = `Resi-${tId}.png`;
+                    a.click();
+                    alert("Navigatè sa a pa sipòte pataje dirèk natif, imaj resi a telechaje sou aparèy ou!");
+                }
+            }, 'image/png');
+        });
+    });
+
+    // Bouton Validé orijinal la
     document.querySelectorAll('.btn-valide').forEach(btn => {
         btn.addEventListener('click', function() {
             const transId = this.getAttribute('data-id');
@@ -328,7 +484,7 @@ function ekouteBoutonAksyon(db) {
         });
     });
 
-    // Bouton Anile
+    // Bouton Anile orijinal la
     document.querySelectorAll('.btn-anile').forEach(btn => {
         btn.addEventListener('click', function() {
             const transId = this.getAttribute('data-id');
