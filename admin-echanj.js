@@ -4,20 +4,15 @@
 
 import { ref, onValue, update, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// Done lokal pou nou evite repete apèl initil nan network la
+// Done lokal pou evite repete apèl initil
 let localTransactions = {};
 let localUsers = {};
 let selectedClientId = null;
 
-// Lyen imaj ekran akèy la lè okenn kliyan poko seleksyone
 const IMAJ_AKEY_URL = "https://i.postimg.cc/qRS0rchG/1786118534528.png";
 
-/**
- * Inisyalize seksyon Echanj la depi admin.js fin valide koneksyon an
- * @param {Database} db - Instans Firebase Realtime Database la
- */
 export function initAdminEchanj(db) {
-    console.log("Mizajou: Seksyon Echanj aktive. Tout tranzaksyon yo ap rale pa UID san manke anyen!");
+    console.log("Seksyon Echanj lan aktive: Lojik Hybrid pou dekouvri tout fòma tranzaksyon yo!");
 
     const transRef = ref(db, 'transactions');
     const usersRef = ref(db, 'users');
@@ -25,25 +20,24 @@ export function initAdminEchanj(db) {
     const sidebarDiv = document.getElementById('div-clients-list');
 
     if (!listeEchanjDiv || !sidebarDiv) {
-        console.error("Erè: Eleman yo pa egziste nan HTML la. Tcheke ID yo.");
+        console.error("Erè: Eleman yo pa egziste nan HTML la.");
         return;
     }
 
-    // Afiche ekran akèy la pa defo depi sistèm nan ap chaje
     rannEkranAkeyImaj(listeEchanjDiv);
 
-    // 1. Koute Node 'users' la an premye
+    // 1. Koute Node 'users' la
     onValue(usersRef, (userSnapshot) => {
         localUsers = userSnapshot.val() || {};
         
-        // 2. Koute Node 'transactions' yo an tan reyèl pou rale TOUT done nèt
+        // 2. Koute Node 'transactions' la
         onValue(transRef, (transSnapshot) => {
             localTransactions = transSnapshot.val() || {};
             
-            // Rann sidebar a kote baz la se itilizatè yo nèt pou anyen pa bliye
+            // Rann lis kliyan yo nan sidebar a gòch la
             rannKliyanSidebar(db);
             
-            // Si admin lan te deja chwazi yon kliyan, nou rafrechi tablo li a otomatikman san pèdi alèt yo
+            // Si admin lan te deja chwazi yon kliyan, nou rafrechi tablo li a otomatikman
             if (selectedClientId) {
                 rannTabloTranzaksyonKliyan(db, selectedClientId);
             }
@@ -51,9 +45,6 @@ export function initAdminEchanj(db) {
     });
 }
 
-/**
- * Afiche Imaj la lè okenn kliyan poko seleksyone
- */
 function rannEkranAkeyImaj(bwatDwatDiv) {
     bwatDwatDiv.innerHTML = `
         <div class="no-client-selected" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; height: 100%;">
@@ -65,37 +56,87 @@ function rannEkranAkeyImaj(bwatDwatDiv) {
 }
 
 /**
- * Filtre epi gwoupe tout tranzaksyon yo pa UID kliyan depi se yon echanj
+ * Pwosesis pou rasanble ak filtre tranzaksyon yo baze sou de fòma yo ki nan Firebase la
+ */
+function raleToutEchanjPaKliyan() {
+    const mapKliyanEchanj = {};
+
+    for (let kle in localTransactions) {
+        const obj = localTransactions[kle];
+        if (!obj) continue;
+
+        // FÒMA 1: Tranzaksyon an plase dirèkteman anba `transactions/ID_TRANSACTION`
+        if (obj.uid && obj.type) {
+            const tipLower = obj.type.toLowerCase();
+            // Nou tcheke si se "retré" oswa si li gen mo "echanj" nan tip la
+            if (tipLower.includes("echanj") || tipLower.includes("retré") || tipLower.includes("retre")) {
+                const uid = obj.uid;
+                if (!mapKliyanEchanj[uid]) {
+                    mapKliyanEchanj[uid] = { uid: uid, pendingCount: 0, lislèt: [] };
+                }
+                
+                mapKliyanEchanj[uid].lislèt.push({
+                    id: kle,
+                    amount: obj.amount || 0,
+                    to_receive: obj.received || obj.to_receive || obj.resevwa || 0,
+                    rezo: obj.method || obj.rezo || "N/A",
+                    status: obj.status || "pending",
+                    timestamp: obj.timestamp || obj.date || 0
+                });
+
+                if (obj.status === "pending" || obj.status === "An atant") {
+                    mapKliyanEchanj[uid].pendingCount += 1;
+                }
+            }
+        } 
+        // FÒMA 2: Tranzaksyon an kache anndan yon node UID (Fòma nested: transactions/UID/ID_TRANSACTION)
+        else if (typeof obj === "object" && !obj.uid) {
+            // Nan ka sa a, 'kle' se UID kliyan an li menm!
+            const itilizatèUid = kle; 
+            
+            for (let subKle in obj) {
+                const subObj = obj[subKle];
+                if (subObj && subObj.type) {
+                    const subTipLower = subObj.type.toLowerCase();
+                    if (subTipLower.includes("echanj") || subTipLower.includes("retré") || subTipLower.includes("retre")) {
+                        if (!mapKliyanEchanj[itilizatèUid]) {
+                            mapKliyanEchanj[itilizatèUid] = { uid: itilizatèUid, pendingCount: 0, lislèt: [] };
+                        }
+
+                        mapKliyanEchanj[itilizatèUid].lislèt.push({
+                            id: subKle,
+                            amount: subObj.amount || subObj.kantite || 0,
+                            to_receive: subObj.received || subObj.to_receive || subObj.resevwa || 0,
+                            rezo: subObj.method || subObj.rezo || subObj.tip || "N/A",
+                            status: subObj.status || "pending",
+                            timestamp: subObj.date || subObj.timestamp || 0,
+                            isNested: true, // Pou nou konnen ki kote pou n mete l ajou nan Firebase aprè
+                            parentUid: itilizatèUid
+                        });
+
+                        if (subObj.status === "pending" || subObj.status === "An atant") {
+                            mapKliyanEchanj[itilizatèUid].pendingCount += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return mapKliyanEchanj;
+}
+
+/**
+ * Rann ti wonn yo nan sidebar gòch la
  */
 function rannKliyanSidebar(db) {
     const sidebarDiv = document.getElementById('div-clients-list');
     if (!sidebarDiv) return;
 
-    const mapKliyanEchanj = {};
-
-    // Gid Siprèm: Nou skane TOUT tranzaksyon yo nèt san eksepsyon
-    for (let transId in localTransactions) {
-        const t = localTransactions[transId];
-        
-        // Asire nou ke tranzaksyon an gen rapò ak echanj nèt epi li gen yon UID ki valid
-        if (t && t.type === "echanj" && t.uid) {
-            if (!mapKliyanEchanj[t.uid]) {
-                mapKliyanEchanj[t.uid] = {
-                    uid: t.uid,
-                    pendingCount: 0
-                };
-            }
-            // Si estati a se pending, n ap ogmante badj la pou admin nan ka wè kantite egzak la
-            if (t.status === "pending") {
-                mapKliyanEchanj[t.uid].pendingCount += 1;
-            }
-        }
-    }
-
-    const lisKliyanMass = Object.values(mapKliyanEchanj);
+    const mapKliyan = raleToutEchanjPaKliyan();
+    const lisKliyanMass = Object.values(mapKliyan);
 
     if (lisKliyanMass.length === 0) {
-        sidebarDiv.innerHTML = "<p style='font-size:11px; text-align:center; color:#94a3b8; padding-top:20px;'>Pa gen echanj</p>";
+        sidebarDiv.innerHTML = "<p style='font-size:11px; text-align:center; color:#94a3b8; padding-top:20px;'>Vid</p>";
         return;
     }
 
@@ -103,7 +144,7 @@ function rannKliyanSidebar(db) {
 
     lisKliyanMass.forEach(ck => {
         const kontKliyan = localUsers[ck.uid];
-        const nonKliyan = kontKliyan && kontKliyan.name ? kontKliyan.name : `Kliyan (${ck.uid.substring(0, 5)})`;
+        const nonKliyan = kontKliyan && kontKliyan.name ? kontKliyan.name : (kontKliyan && kontKliyan.fullname ? kontKliyan.fullname : `Kliyan (${ck.uid.substring(0, 4)})`);
         
         const inisyal = nonKliyan.charAt(0);
         const klaseActive = selectedClientId === ck.uid ? "active" : "";
@@ -118,7 +159,6 @@ function rannKliyanSidebar(db) {
         sidebarDiv.innerHTML += itemHtml;
     });
 
-    // Koute klik yo pou louvri kliyan an pa UID
     document.querySelectorAll('.client-item').forEach(item => {
         item.addEventListener('click', function() {
             const uid = this.getAttribute('data-uid');
@@ -133,53 +173,69 @@ function rannKliyanSidebar(db) {
 }
 
 /**
- * Desine Gwo Tablo a bò dwat ak TOUT istwa tranzaksyon kliyan sa a nèt
+ * Desine gwo tablo a bò dwat pou kliyan an
  */
 function rannTabloTranzaksyonKliyan(db, uid) {
     const listeEchanjDiv = document.getElementById('lis-echanj-container');
     if (!listeEchanjDiv) return;
 
     const kontKliyan = localUsers[uid];
-    const nonKliyan = kontKliyan && kontKliyan.name ? kontKliyan.name : `Kliyan (${uid.substring(0, 6)})`;
+    const nonKliyan = kontKliyan && kontKliyan.name ? kontKliyan.name : (kontKliyan && kontKliyan.fullname ? kontKliyan.fullname : `Kliyan (${uid.substring(0, 6)})`);
     const balansKliyan = kontKliyan && kontKliyan.balance !== undefined ? kontKliyan.balance : 0;
 
-    // Rale tout tranzaksyon kliyan an nèt pa UID li
-    const tranzaksyonLiYo = [];
-    for (let id in localTransactions) {
-        const t = localTransactions[id];
-        if (t && t.uid === uid && t.type === "echanj") {
-            tranzaksyonLiYo.push({ id, ...t });
-        }
-    }
+    const mapKliyan = raleToutEchanjPaKliyan();
+    const doneKliyan = mapKliyan[uid] || { lislèt: [] };
+    const tranzaksyonLiYo = doneKliyan.lislèt;
 
-    // Tliye yo pou mete pi resan yo anlè nèt (Lòd kwonolojik desandan)
-    tranzaksyonLiYo.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    // Tliye nan lòd pi resan yo anlè nèt
+    tranzaksyonLiYo.sort((a, b) => {
+        const dateA = typeof a.timestamp === 'number' ? a.timestamp : new Date(a.timestamp).getTime() || 0;
+        const dateB = typeof b.timestamp === 'number' ? b.timestamp : new Date(b.timestamp).getTime() || 0;
+        return dateB - dateA;
+    });
 
     let tBodyRows = "";
     tranzaksyonLiYo.forEach(t => {
         let aksyonTd = "";
+        const isPending = t.status === "pending" || t.status === "An atant";
         
-        if (t.status === "pending") {
+        if (isPending) {
             aksyonTd = `
                 <div class="table-actions">
-                    <button class="btn-table-valide btn-valide" data-id="${t.id}" data-uid="${t.uid}" data-receive="${t.to_receive}">Validé</button>
-                    <button class="btn-table-anile btn-anile" data-id="${t.id}">Anile</button>
+                    <button class="btn-table-valide btn-valide" 
+                        data-id="${t.id}" 
+                        data-uid="${uid}" 
+                        data-receive="${t.to_receive}" 
+                        data-nested="${t.isNested || false}">Validé</button>
+                    <button class="btn-table-anile btn-anile" 
+                        data-id="${t.id}" 
+                        data-uid="${uid}"
+                        data-nested="${t.isNested || false}">Anile</button>
                 </div>
             `;
         } else {
-            aksyonTd = `<span class="table-status-text badge-status-${t.status}">${t.status.toUpperCase()}</span>`;
+            const klaseStati = (t.status === "Validé" || t.status === "Siksè" || t.status === "validé") ? "validé" : "anile";
+            aksyonTd = `<span class="table-status-text badge-status-${klaseStati}">${t.status.toUpperCase()}</span>`;
         }
 
-        const datTranzaksyon = t.timestamp ? new Date(t.timestamp).toLocaleString('fr-FR') : 'N/A';
+        // Fòma dat pwòp
+        let datTranzaksyon = 'N/A';
+        if (t.timestamp) {
+            if (typeof t.timestamp === 'number') {
+                datTranzaksyon = new Date(t.timestamp).toLocaleString('fr-FR');
+            } else {
+                datTranzaksyon = t.timestamp; // Si se fòma string "22/02/2026..."
+            }
+        }
 
         tBodyRows += `
             <tr>
-                <td style="font-family: monospace; font-size:12px; color:#2563eb; font-weight:bold;">${t.id}</td>
+                <td style="font-family: monospace; font-size:11px; color:#2563eb; font-weight:bold;">${t.id}</td>
                 <td style="font-size:12px; color:#64748b;">${datTranzaksyon}</td>
-                <td><span class="badge-rezo">${t.rezo ? t.rezo.toUpperCase() : 'N/A'}</span></td>
+                <td><span class="badge-rezo">${t.rezo.toUpperCase()}</span></td>
                 <td><strong style="color:#1e293b;">${t.amount}</strong> HTG</td>
                 <td style="color:#16a34a; font-weight:bold;">+ ${t.to_receive} HTG</td>
-                <td><span class="table-status-text badge-status-${t.status}">${t.status}</span></td>
+                <td><span class="table-status-text badge-status-${isPending ? 'pending' : ((t.status === 'Validé' || t.status === 'Siksè' || t.status === 'validé') ? 'validé' : 'anile')}">${t.status}</span></td>
                 <td>${aksyonTd}</td>
             </tr>
         `;
@@ -198,7 +254,7 @@ function rannTabloTranzaksyonKliyan(db, uid) {
                     <tr>
                         <th>ID Tranzaksyon</th>
                         <th>Dat / Lè</th>
-                        <th>Rezo</th>
+                        <th>Rezo / Metòd</th>
                         <th>Montan Voye</th>
                         <th>Net pou Resevwa</th>
                         <th>Stati</th>
@@ -215,15 +271,13 @@ function rannTabloTranzaksyonKliyan(db, uid) {
     ekouteBoutonAksyon(db);
 }
 
-/**
- * Lojik sekirite pou manm komite a pa fè doub klik oswa klik fwod
- */
 function ekouteBoutonAksyon(db) {
     // Bouton Validé
     document.querySelectorAll('.btn-valide').forEach(btn => {
         btn.addEventListener('click', function() {
             const transId = this.getAttribute('data-id');
             const clientUid = this.getAttribute('data-uid');
+            const isNested = this.getAttribute('data-nested') === "true";
             const montanPoulResevwa = parseFloat(this.getAttribute('data-receive'));
 
             if (isNaN(montanPoulResevwa) || montanPoulResevwa <= 0) {
@@ -233,11 +287,13 @@ function ekouteBoutonAksyon(db) {
 
             if (confirm(`Èske ou vle valide echanj ${transId} lan? \n\nKont kliyan an ap kredite de: ${montanPoulResevwa} HTG.`)) {
                 this.disabled = true;
-                const adminBtnGroup = this.parentElement;
-                if (adminBtnGroup) adminBtnGroup.style.opacity = "0.5";
                 
+                const pathStatus = isNested 
+                    ? `/transactions/${clientUid}/${transId}/status` 
+                    : `/transactions/${transId}/status`;
+
                 const updates = {};
-                updates[`/transactions/${transId}/status`] = "validé";
+                updates[pathStatus] = "Validé"; // Mete l an fòma kòrèk baz la
 
                 const clientBalanceRef = ref(db, `users/${clientUid}/balance`);
                 
@@ -254,7 +310,6 @@ function ekouteBoutonAksyon(db) {
                     console.error("Erè nan validation:", error);
                     alert("Gen yon erè ki pase. Tanpri reyezi.");
                     this.disabled = false;
-                    if (adminBtnGroup) adminBtnGroup.style.opacity = "1";
                 });
             }
         });
@@ -264,14 +319,18 @@ function ekouteBoutonAksyon(db) {
     document.querySelectorAll('.btn-anile').forEach(btn => {
         btn.addEventListener('click', function() {
             const transId = this.getAttribute('data-id');
+            const clientUid = this.getAttribute('data-uid');
+            const isNested = this.getAttribute('data-nested') === "true";
 
             if (confirm(`Èske ou sèten ou vle anile tranzaksyon ${transId} lan?`)) {
                 this.disabled = true;
-                const adminBtnGroup = this.parentElement;
-                if (adminBtnGroup) adminBtnGroup.style.opacity = "0.5";
                 
+                const pathStatus = isNested 
+                    ? `/transactions/${clientUid}/${transId}/status` 
+                    : `/transactions/${transId}/status`;
+
                 const updates = {};
-                updates[`/transactions/${transId}/status`] = "anile";
+                updates[pathStatus] = "Anile";
 
                 update(ref(db), updates)
                 .then(() => {
@@ -281,10 +340,8 @@ function ekouteBoutonAksyon(db) {
                     console.error("Erè nan anilasyon:", error);
                     alert("Erè pandan n ap anile tranzaksyon an.");
                     this.disabled = false;
-                    if (adminBtnGroup) adminBtnGroup.style.opacity = "1";
                 });
             }
         });
     });
-                }
-                    
+}
