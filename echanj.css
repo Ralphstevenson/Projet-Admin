@@ -1,5 +1,5 @@
 /* ============================================================
-   ECHANJ PLUS - INBOX ULTRA-MÈG (75px) & TABLO CSS
+   ECHANJ PLUS - INBOX ULTRA-MÈG (75px) & TABLO CSS (PRO)
    ============================================================ */
 
 /* Layout Prensipal an 2 Pati */
@@ -97,6 +97,7 @@
     justify-content: center;
     border: 2px solid #ffffff;
     z-index: 10;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
 }
 
 /* ------------------------------------------------------------
@@ -117,6 +118,24 @@
     flex-direction: column;
     padding: 20px;
     overflow-y: auto;
+}
+
+/* Lè okenn kliyan poko chwazi (Ekran Akèy Imaj) */
+.no-client-selected {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    height: 100%;
+}
+
+.no-client-selected img {
+    max-width: 180px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.1));
+    animation: fadeInImg 0.5s ease-in-out;
 }
 
 /* Entèt paj detay kliyan ki seleksyone a */
@@ -199,6 +218,14 @@
     transform: scale(0.95);
 }
 
+.btn-table-valide:disabled,
+.btn-table-anile:disabled {
+    background: #cbd5e1 !important;
+    color: #94a3b8 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
 .btn-table-anile {
     background: #ef4444;
     color: #ffffff;
@@ -252,4 +279,10 @@
 .txt-monospace {
     font-family: monospace;
     font-weight: bold;
+}
+
+/* Animasyon pou chajman dous */
+@keyframes fadeInImg {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
