@@ -304,7 +304,7 @@ function rannTabloTranzaksyonKliyan(db, uid) {
 }
 
 function ekouteBoutonAksyon(db) {
-    // 2em bagay: Modifikasyon Balans Kliyan an dirèkteman
+    // Modifikasyon Balans Kliyan an dirèkteman
     const btnEditBalans = document.getElementById('btn-edit-balans');
     if (btnEditBalans) {
         btnEditBalans.addEventListener('click', function() {
@@ -321,7 +321,6 @@ function ekouteBoutonAksyon(db) {
                 }
                 
                 if (confirm(`Èske ou sèten ou vle chanje balans kliyan sa a pou l vin nèt: ${valèChif} HTG?`)) {
-                    const userBalanceRef = ref(db, `users/${clientUid}/balance`);
                     update(ref(db), { [`users/${clientUid}/balance`]: valèChif })
                     .then(() => {
                         alert("Balans lan modifye avèk siksè!");
@@ -335,7 +334,7 @@ function ekouteBoutonAksyon(db) {
         });
     }
 
-    // 1er a: Pataje resi kòm Imaj pa HTML Canvas natif
+    // Pataje resi pa kreyasyon Modal Pop-up (Ranje pou konpatibilite WebView/Mobil 100%)
     document.querySelectorAll('.btn-pataje-resi').forEach(btn => {
         btn.addEventListener('click', function() {
             const tId = this.getAttribute('data-id');
@@ -345,7 +344,7 @@ function ekouteBoutonAksyon(db) {
             const tAmount = this.getAttribute('data-amount') + " HTG";
             const tReceive = this.getAttribute('data-receive') + " HTG";
 
-            // Kreye Canvas an tan reyèl nan memwa kòd la
+            // Kreye Canvas nan memwa
             const canvas = document.createElement('canvas');
             canvas.width = 500;
             canvas.height = 650;
@@ -355,7 +354,7 @@ function ekouteBoutonAksyon(db) {
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Kad / Border decoration
+            // Kad decoration
             ctx.strokeStyle = "#1e3a8a";
             ctx.lineWidth = 10;
             ctx.strokeRect(0, 0, canvas.width, canvas.height);
@@ -372,11 +371,10 @@ function ekouteBoutonAksyon(db) {
             ctx.font = "14px Arial";
             ctx.fillText("Resi Ofisyèl Tranzaksyon", canvas.width / 2, 75);
 
-            // 3. Kontni / Detay (Body text)
+            // 3. Kontni / Detay
             ctx.textAlign = "left";
             ctx.fillStyle = "#334155";
-            ctx.font = "bold 14px Arial";
-
+            
             let y = 150;
             const liy = (tit, valè, isGreen = false) => {
                 ctx.fillStyle = "#64748b";
@@ -387,7 +385,6 @@ function ekouteBoutonAksyon(db) {
                 ctx.font = "bold 15px Arial";
                 ctx.fillText(valè, 200, y);
                 
-                // Ti liy separasyon kreyòl
                 ctx.strokeStyle = "#e2e8f0";
                 ctx.lineWidth = 1;
                 ctx.beginPath();
@@ -418,26 +415,57 @@ function ekouteBoutonAksyon(db) {
             ctx.fillStyle = "#94a3b8";
             ctx.fillText("Sistèm Otomatize - Admin Panel", canvas.width / 2, canvas.height - 25);
 
-            // Konvèti canvas an fòma File Blob pou pataje l kòm vrè imaj
-            canvas.toBlob((blob) => {
-                const file = new File([blob], `Resi-${tId}.png`, { type: 'image/png' });
-                
-                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                    navigator.share({
-                        files: [file],
-                        title: `Resi Echanj Plus - ${tId}`,
-                        text: `Gade resi pou tranzaksyon ${tId} sou Echanj Plus.`
-                    })
-                    .catch(err => console.log("Pataje anile oswa gen erè", err));
-                } else {
-                    // Si navigatè a pa sipòte pataje dirèk (tankou sou PC), li telechaje l kòm altènatif
-                    const a = document.createElement('a');
-                    a.href = canvas.toDataURL('image/png');
-                    a.download = `Resi-${tId}.png`;
-                    a.click();
-                    alert("Navigatè sa a pa sipòte pataje dirèk natif, imaj resi a telechaje sou aparèy ou!");
-                }
-            }, 'image/png');
+            // Konvèti canvas an Base64 Image string
+            const imgDataUrl = canvas.toDataURL('image/png');
+
+            // Kreye yon bèl Modal Pop-up nan HTML la pou afiche imaj la san konte sou sistèm operasyon an
+            const modalDiv = document.createElement('div');
+            modalDiv.id = "custom-resi-modal";
+            modalDiv.style = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.8); display: flex; flex-direction: column;
+                align-items: center; justify-content: center; z-index: 10000; padding: 15px;
+                box-sizing: border-box; font-family: Arial, sans-serif;
+            `;
+
+            // Tèks pou voye sou WhatsApp kòm fòma tèks pwòp altènatif
+            const textWhatsApp = encodeURIComponent(
+                `*ECHANJ PLUS - RESI OFISYÈL*\n\n` +
+                `*ID:* ${tId}\n` +
+                `*Kliyan:* ${tClient}\n` +
+                `*Dat:* ${tDate}\n` +
+                `*Metòd:* ${tRezo}\n` +
+                `*Montan Voye:* ${tAmount}\n` +
+                `*Net Resevwa:* ${tReceive}\n` +
+                `*Stati:* VALIDÉ ✅`
+            );
+
+            modalDiv.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 20px; max-width: 95%; width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); box-sizing: border-box;">
+                    <h4 style="margin: 0 0 5px 0; color: #1e3a8a; font-size: 16px;">Resi Pare pou Pataje</h4>
+                    <p style="font-size: 12px; color: #64748b; margin: 0 0 15px 0;">Peze liy long (Hold) sou imaj la pou w ka sove oswa kopye l dirèkteman.</p>
+                    
+                    <div style="overflow-y: auto; max-height: 380px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <img src="${imgDataUrl}" style="width: 100%; height: auto; display: block;" />
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <a href="https://api.whatsapp.com/send?text=${textWhatsApp}" target="_blank" style="background: #25d366; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; text-decoration: none; font-size: 13px; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            Pataje sou WhatsApp 💬
+                        </a>
+                        <button id="btn-close-resi-modal" style="background: #ef4444; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            Fèmen
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modalDiv);
+
+            // Koute bouton fèmen modal la
+            document.getElementById('btn-close-resi-modal').addEventListener('click', () => {
+                modalDiv.remove();
+            });
         });
     });
 
@@ -476,7 +504,7 @@ function ekouteBoutonAksyon(db) {
                     alert("Siksè! Tranzaksyon validé, kont kliyan an kredite.");
                 })
                 .catch((error) => {
-                    console.error("Erè nan validation:", error);
+                    console.error("Erè na validation:", error);
                     alert("Gen yon erè ki pase. Tanpri reyezi.");
                     this.disabled = false;
                 });
