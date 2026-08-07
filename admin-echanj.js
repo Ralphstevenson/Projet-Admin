@@ -17,7 +17,7 @@ const IMAJ_AKEY_URL = "https://i.postimg.cc/qRS0rchG/1786118534528.png";
  * @param {Database} db - Instans Firebase Realtime Database la
  */
 export function initAdminEchanj(db) {
-    console.log("Seksyon Echanj lan aktive ak sekirite Badj Demann!");
+    console.log("Mizajou: Seksyon Echanj aktive. Tout tranzaksyon yo ap rale pa UID san manke anyen!");
 
     const transRef = ref(db, 'transactions');
     const usersRef = ref(db, 'users');
@@ -32,15 +32,15 @@ export function initAdminEchanj(db) {
     // Afiche ekran akèy la pa defo depi sistèm nan ap chaje
     rannEkranAkeyImaj(listeEchanjDiv);
 
-    // 1. Koute Node 'users' la an premye pou nou ka matche UID ak Non Kliyan yo
+    // 1. Koute Node 'users' la an premye
     onValue(usersRef, (userSnapshot) => {
         localUsers = userSnapshot.val() || {};
         
-        // 2. Koute Node 'transactions' yo an tan reyèl
+        // 2. Koute Node 'transactions' yo an tan reyèl pou rale TOUT done nèt
         onValue(transRef, (transSnapshot) => {
             localTransactions = transSnapshot.val() || {};
             
-            // Rann ti wonn yo nan sidebar gòch la (ak badj alèt ki pa lye ak klik la)
+            // Rann sidebar a kote baz la se itilizatè yo nèt pou anyen pa bliye
             rannKliyanSidebar(db);
             
             // Si admin lan te deja chwazi yon kliyan, nou rafrechi tablo li a otomatikman san pèdi alèt yo
@@ -65,7 +65,7 @@ function rannEkranAkeyImaj(bwatDwatDiv) {
 }
 
 /**
- * Filtre epi gwoupe tranzaksyon yo pou desine ti wonn kliyan yo bò gòch ak badj kantite demann yo
+ * Filtre epi gwoupe tout tranzaksyon yo pa UID kliyan depi se yon echanj
  */
 function rannKliyanSidebar(db) {
     const sidebarDiv = document.getElementById('div-clients-list');
@@ -73,17 +73,19 @@ function rannKliyanSidebar(db) {
 
     const mapKliyanEchanj = {};
 
-    // Gwoupe pa UID epi konte SEKSYONÈLMAN sèlman sa ki gen status 'pending' (demann aktif)
+    // Gid Siprèm: Nou skane TOUT tranzaksyon yo nèt san eksepsyon
     for (let transId in localTransactions) {
         const t = localTransactions[transId];
-        if (t.type === "echanj") {
+        
+        // Asire nou ke tranzaksyon an gen rapò ak echanj nèt epi li gen yon UID ki valid
+        if (t && t.type === "echanj" && t.uid) {
             if (!mapKliyanEchanj[t.uid]) {
                 mapKliyanEchanj[t.uid] = {
                     uid: t.uid,
                     pendingCount: 0
                 };
             }
-            // Si estati a se pending, li ogmante (si li te gen 3 demann, l ap make 3)
+            // Si estati a se pending, n ap ogmante badj la pou admin nan ka wè kantite egzak la
             if (t.status === "pending") {
                 mapKliyanEchanj[t.uid].pendingCount += 1;
             }
@@ -93,7 +95,7 @@ function rannKliyanSidebar(db) {
     const lisKliyanMass = Object.values(mapKliyanEchanj);
 
     if (lisKliyanMass.length === 0) {
-        sidebarDiv.innerHTML = "<p style='font-size:11px; text-align:center; color:#94a3b8; padding-top:20px;'>Vid</p>";
+        sidebarDiv.innerHTML = "<p style='font-size:11px; text-align:center; color:#94a3b8; padding-top:20px;'>Pa gen echanj</p>";
         return;
     }
 
@@ -101,13 +103,10 @@ function rannKliyanSidebar(db) {
 
     lisKliyanMass.forEach(ck => {
         const kontKliyan = localUsers[ck.uid];
-        const nonKliyan = kontKliyan && kontKliyan.name ? kontKliyan.name : `Kliyan (${ck.uid.substring(0, 4)})`;
+        const nonKliyan = kontKliyan && kontKliyan.name ? kontKliyan.name : `Kliyan (${ck.uid.substring(0, 5)})`;
         
         const inisyal = nonKliyan.charAt(0);
         const klaseActive = selectedClientId === ck.uid ? "active" : "";
-        
-        // Badj la ap toujou afiche kantite demann lan (1, 2, 3...) depi li siperyè a 0
-        // Li PA pral disparèt lè ou klike sou li, paske klik la pa chanje status la nan Firebase!
         const badjPending = ck.pendingCount > 0 ? `<span class="badge-pending">${ck.pendingCount}</span>` : "";
 
         const itemHtml = `
@@ -119,7 +118,7 @@ function rannKliyanSidebar(db) {
         sidebarDiv.innerHTML += itemHtml;
     });
 
-    // Koute klik sou chak ti wonn kliyan
+    // Koute klik yo pou louvri kliyan an pa UID
     document.querySelectorAll('.client-item').forEach(item => {
         item.addEventListener('click', function() {
             const uid = this.getAttribute('data-uid');
@@ -134,7 +133,7 @@ function rannKliyanSidebar(db) {
 }
 
 /**
- * Desine Gwo Tablo a bò dwat pou Kliyan ki chwazi a
+ * Desine Gwo Tablo a bò dwat ak TOUT istwa tranzaksyon kliyan sa a nèt
  */
 function rannTabloTranzaksyonKliyan(db, uid) {
     const listeEchanjDiv = document.getElementById('lis-echanj-container');
@@ -144,15 +143,16 @@ function rannTabloTranzaksyonKliyan(db, uid) {
     const nonKliyan = kontKliyan && kontKliyan.name ? kontKliyan.name : `Kliyan (${uid.substring(0, 6)})`;
     const balansKliyan = kontKliyan && kontKliyan.balance !== undefined ? kontKliyan.balance : 0;
 
+    // Rale tout tranzaksyon kliyan an nèt pa UID li
     const tranzaksyonLiYo = [];
     for (let id in localTransactions) {
         const t = localTransactions[id];
-        if (t.uid === uid && t.type === "echanj") {
+        if (t && t.uid === uid && t.type === "echanj") {
             tranzaksyonLiYo.push({ id, ...t });
         }
     }
 
-    // Tliye nan lòd pi resan yo anlè
+    // Tliye yo pou mete pi resan yo anlè nèt (Lòd kwonolojik desandan)
     tranzaksyonLiYo.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
     let tBodyRows = "";
@@ -216,7 +216,7 @@ function rannTabloTranzaksyonKliyan(db, uid) {
 }
 
 /**
- * Lojik pou jere klik sou bouton Validé ak Anile yo anndan tablo a
+ * Lojik sekirite pou manm komite a pa fè doub klik oswa klik fwod
  */
 function ekouteBoutonAksyon(db) {
     // Bouton Validé
@@ -245,7 +245,6 @@ function ekouteBoutonAksyon(db) {
                     return (currentBalance || 0) + montanPoulResevwa;
                 })
                 .then(() => {
-                    // Chanje status tranzaksyon an an validé (Lè sa a badj la ap otomatikman desann oswa disparèt depi onValue koute l)
                     return update(ref(db), updates);
                 })
                 .then(() => {
@@ -253,7 +252,7 @@ function ekouteBoutonAksyon(db) {
                 })
                 .catch((error) => {
                     console.error("Erè nan validation:", error);
-                    alert("Gen yon erè ki pase pandan n ap kredite kont kliyan an. Tanpri reyezi.");
+                    alert("Gen yon erè ki pase. Tanpri reyezi.");
                     this.disabled = false;
                     if (adminBtnGroup) adminBtnGroup.style.opacity = "1";
                 });
@@ -276,7 +275,7 @@ function ekouteBoutonAksyon(db) {
 
                 update(ref(db), updates)
                 .then(() => {
-                    alert("Tranzaksyon anile avèk siksè! Pa gen okenn kòb ki transfere.");
+                    alert("Tranzaksyon anile avèk siksè!");
                 })
                 .catch((error) => {
                     console.error("Erè nan anilasyon:", error);
@@ -287,5 +286,5 @@ function ekouteBoutonAksyon(db) {
             }
         });
     });
-}
-    
+                }
+                    
