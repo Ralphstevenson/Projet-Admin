@@ -11,55 +11,38 @@ let selectedClientId = null;
 
 const IMAJ_AKEY_URL = "https://i.postimg.cc/qRS0rchG/1786118534528.png";
 
-// Konfigirasyon OneSignal - Koulye a kle a ap soti nan Netlify Environment Variables
-const ONESIGNAL_APP_ID = "33bd79df-d49e-4dfb-9bd2-c511252d6216";
+// --- KONFIGIRASYON ONESIGNAL (MATCH AK NOUVO SDK KLIYAN AN) ---
+const ONESIGNAL_APP_ID = "53388648-9930-407e-a1be-c5a71da81b7a";
+const ONESIGNAL_REST_KEY = "os_v2_app_km4imsezgbah5in6yxtr3ka3plfzpnnuafeu3nmk4tvudggdotxrish26rryofcms5bhzgyyxixhjrabzeetaz7rnhecizgoj4onvva";
 
-// Liy sa a ap chache kle a nan Netlify otomatikman depi w fin konfigirasyon an nan panèl la
-const ONESIGNAL_REST_KEY = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ONESIGNAL_REST_KEY) 
-    || (typeof process !== 'undefined' && process.env && process.env.ONESIGNAL_REST_KEY) 
-    || ""; 
-
-/**
- * Fonksyon ti "pon" pou voye notifikasyon push via OneSignal REST API
- */
-function voyeNotifikasyonKliyan(clientUid, mesajTit, mesajKò) {
-    if (!ONESIGNAL_REST_KEY) {
-        console.error("Erè: Kle OneSignal REST API a manke nan Netlify. Notifikasyon an pa ka voye.");
-        return;
+// Fonksyon pou voye notifikasyon push bay kliyan an via OneSignal API
+async function voyeNotifikasyonKliyan(clientUid, mesaj) {
+    try {
+        const response = await fetch("https://onesignal.com/api/v1/notifications", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                "Authorization": `Basic ${ONESIGNAL_REST_KEY}`
+            },
+            body: JSON.stringify({
+                app_id: ONESIGNAL_APP_ID,
+                target_channel: "push",
+                include_aliases: {
+                    external_id: [clientUid]
+                },
+                headings: { en: "Echanj Plus", fr: "Echanj Plus" },
+                contents: { en: mesaj, fr: mesaj }
+            })
+        });
+        const resData = await response.json();
+        console.log("OneSignal API Repons:", resData);
+    } catch (error) {
+        console.error("Erè lè w ap kontakte sèvè OneSignal:", error);
     }
-
-    const url = "https://onesignal.com/api/v1/notifications";
-    const headers = {
-        "Content-Type": "application/json; charset=utf-8",
-        "Authorization": `Basic ${ONESIGNAL_REST_KEY}`
-    };
-
-    const data = {
-        app_id: ONESIGNAL_APP_ID,
-        include_aliases: {
-            external_id: [clientUid]
-        },
-        target_channel: "push",
-        headings: { en: mesajTit, fr: mesajTit, ht: mesajTit },
-        contents: { en: mesajKò, fr: mesajKò, ht: mesajKò }
-    };
-
-    fetch(url, {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(resData => {
-        console.log("OneSignal Repons:", resData);
-    })
-    .catch(err => {
-        console.error("Erè pandan voye notifikasyon OneSignal:", err);
-    });
 }
 
 export function initAdminEchanj(db) {
-    console.log("Seksyon Echanj aktive: Resi an Imaj & Notifikasyon OneSignal pare!");
+    console.log("Seksyon Echanj aktive: Resi an Imaj & Modifikasyon Balans pare!");
 
     const transRef = ref(db, 'transactions');
     const usersRef = ref(db, 'users');
@@ -102,6 +85,9 @@ function rannEkranAkeyImaj(bwatDwatDiv) {
     `;
 }
 
+/**
+ * Pwosesis fleksib pou rasanble tout echanj yo nèt (Ansyen ak Nouvo fòma kle yo)
+ */
 function raleToutEchanjPaKliyan() {
     const mapKliyanEchanj = {};
 
@@ -109,6 +95,7 @@ function raleToutEchanjPaKliyan() {
         const obj = localTransactions[kle];
         if (!obj) continue;
 
+        // FÒMA 1: Tranzaksyon an plase dirèkteman anba `transactions/ID_TRANSACTION`
         if (obj.uid && obj.type) {
             const tipLower = obj.type.toLowerCase();
             if (tipLower.includes("echanj") || tipLower.includes("retré") || tipLower.includes("retre")) {
@@ -136,6 +123,7 @@ function raleToutEchanjPaKliyan() {
                 }
             }
         } 
+        // FÒMA 2: Tranzaksyon an kache anndan yon node UID (Fòma nested: transactions/UID/ID_TRANSACTION)
         else if (typeof obj === "object" && !obj.uid) {
             const itilizatèUid = kle; 
             
@@ -175,6 +163,9 @@ function raleToutEchanjPaKliyan() {
     return mapKliyanEchanj;
 }
 
+/**
+ * Rann ti wonn yo nan sidebar gòch la
+ */
 function rannKliyanSidebar(db) {
     const sidebarDiv = document.getElementById('div-clients-list');
     if (!sidebarDiv) return;
@@ -219,6 +210,9 @@ function rannKliyanSidebar(db) {
     });
 }
 
+/**
+ * Desine gwo tablo a bò dwat pou kliyan an
+ */
 function rannTabloTranzaksyonKliyan(db, uid) {
     const listeEchanjDiv = document.getElementById('lis-echanj-container');
     if (!listeEchanjDiv) return;
@@ -269,6 +263,7 @@ function rannTabloTranzaksyonKliyan(db, uid) {
         } else {
             const klaseStati = (statusLower === "validé" || statusLower === "siksè" || statusLower === "valide") ? "validé" : "anile";
             
+            // Si li deja verifye (Validé/Siksè), nou ajoute bouton pou pataje resi a kòm Imaj
             const boutonPataje = (klaseStati === "validé") ? `
                 <button class="btn-pataje-resi" 
                     data-id="${t.id}" 
@@ -339,7 +334,7 @@ function rannTabloTranzaksyonKliyan(db, uid) {
 }
 
 function ekouteBoutonAksyon(db) {
-    // 1. Modifikasyon Balans Kliyan
+    // Modifikasyon Balans Kliyan an dirèkteman
     const btnEditBalans = document.getElementById('btn-edit-balans');
     if (btnEditBalans) {
         btnEditBalans.addEventListener('click', function() {
@@ -369,7 +364,7 @@ function ekouteBoutonAksyon(db) {
         });
     }
 
-    // 2. Kreyasyon Modal Pop-up pou pataje Resi
+    // Pataje resi kòm Imaj pa HTML Canvas natif
     document.querySelectorAll('.btn-pataje-resi').forEach(btn => {
         btn.addEventListener('click', function() {
             const tId = this.getAttribute('data-id');
@@ -403,7 +398,8 @@ function ekouteBoutonAksyon(db) {
 
             ctx.textAlign = "left";
             ctx.fillStyle = "#334155";
-            
+            ctx.font = "bold 14px Arial";
+
             let y = 150;
             const liy = (tit, valè, isGreen = false) => {
                 ctx.fillStyle = "#64748b";
@@ -443,57 +439,28 @@ function ekouteBoutonAksyon(db) {
             ctx.fillStyle = "#94a3b8";
             ctx.fillText("Sistèm Otomatize - Admin Panel", canvas.width / 2, canvas.height - 25);
 
-            const imgDataUrl = canvas.toDataURL('image/png');
-
-            const modalDiv = document.createElement('div');
-            modalDiv.id = "custom-resi-modal";
-            modalDiv.style = `
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.8); display: flex; flex-direction: column;
-                align-items: center; justify-content: center; z-index: 10000; padding: 15px;
-                box-sizing: border-box; font-family: Arial, sans-serif;
-            `;
-
-            const textWhatsApp = encodeURIComponent(
-                `*ECHANJ PLUS - RESI OFISYÈL*\n\n` +
-                `*ID:* ${tId}\n` +
-                `*Kliyan:* ${tClient}\n` +
-                `*Dat:* ${tDate}\n` +
-                `*Metòd:* ${tRezo}\n` +
-                `*Montan Voye:* ${tAmount}\n` +
-                `*Net Resevwa:* ${tReceive}\n` +
-                `*Stati:* VALIDÉ ✅`
-            );
-
-            modalDiv.innerHTML = `
-                <div style="background: white; border-radius: 12px; padding: 20px; max-width: 95%; width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); box-sizing: border-box;">
-                    <h4 style="margin: 0 0 5px 0; color: #1e3a8a; font-size: 16px;">Resi Pare pou Pataje</h4>
-                    <p style="font-size: 12px; color: #64748b; margin: 0 0 15px 0;">Peze liy long (Hold) sou imaj la pou w ka sove oswa kopye l dirèkteman.</p>
-                    
-                    <div style="overflow-y: auto; max-height: 380px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 6px;">
-                        <img src="${imgDataUrl}" style="width: 100%; height: auto; display: block;" />
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                        <a href="https://api.whatsapp.com/send?text=${textWhatsApp}" target="_blank" style="background: #25d366; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; text-decoration: none; font-size: 13px; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            Pataje sou WhatsApp 💬
-                        </a>
-                        <button id="btn-close-resi-modal" style="background: #ef4444; color: white; border: none; padding: 10px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            Fèmen
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            document.body.appendChild(modalDiv);
-
-            document.getElementById('btn-close-resi-modal').addEventListener('click', () => {
-                modalDiv.remove();
-            });
+            canvas.toBlob((blob) => {
+                const file = new File([blob], `Resi-${tId}.png`, { type: 'image/png' });
+                
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({
+                        files: [file],
+                        title: `Resi Echanj Plus - ${tId}`,
+                        text: `Gade resi pou tranzaksyon ${tId} sou Echanj Plus.`
+                    })
+                    .catch(err => console.log("Pataje anile oswa gen erè", err));
+                } else {
+                    const a = document.createElement('a');
+                    a.href = canvas.toDataURL('image/png');
+                    a.download = `Resi-${tId}.png`;
+                    a.click();
+                    alert("Navigatè sa a pa sipòte pataje dirèk natif, imaj resi a telechaje sou aparèy ou!");
+                }
+            }, 'image/png');
         });
     });
 
-    // 3. Bouton Validé (Ak voye Notifikasyon Push)
+    // Bouton Validé orijinal la (ENTÈGRE AK DEKLANCHMAN NOTIFIKASYON AUTOMATIK)
     document.querySelectorAll('.btn-valide').forEach(btn => {
         btn.addEventListener('click', function() {
             const transId = this.getAttribute('data-id');
@@ -524,13 +491,12 @@ function ekouteBoutonAksyon(db) {
                 .then(() => {
                     return update(ref(db), updates);
                 })
-                .then(() => {
+                .then(async () => {
                     alert("Siksè! Tranzaksyon validé, kont kliyan an kredite.");
-                    voyeNotifikasyonKliyan(
-                        clientUid, 
-                        "Echanj Validé! ✅", 
-                        `Tranzaksyon ${transId} ou a reyisi. Nou ajoute +${montanPoulResevwa} HTG sou balans ou.`
-                    );
+                    
+                    // Deklanche notifikasyon an tan reyèl bay kliyan an
+                    const mesajNotif = `Tranzaksyon ou a (${transId}) valide avèk siksè! Kont ou kredite de +${montanPoulResevwa} HTG.`;
+                    await voyeNotifikasyonKliyan(clientUid, mesajNotif);
                 })
                 .catch((error) => {
                     console.error("Erè nan validation:", error);
@@ -541,7 +507,7 @@ function ekouteBoutonAksyon(db) {
         });
     });
 
-    // 4. Bouton Anile (Ak voye Notifikasyon Push)
+    // Bouton Anile orijinal la (ENTÈGRE AK DEKLANCHMAN NOTIFIKASYON AUTOMATIK)
     document.querySelectorAll('.btn-anile').forEach(btn => {
         btn.addEventListener('click', function() {
             const transId = this.getAttribute('data-id');
@@ -559,13 +525,12 @@ function ekouteBoutonAksyon(db) {
                 updates[pathStatus] = "Anile";
 
                 update(ref(db), updates)
-                .then(() => {
+                .then(async () => {
                     alert("Tranzaksyon anile avèk siksè!");
-                    voyeNotifikasyonKliyan(
-                        clientUid, 
-                        "Tranzaksyon Anile ❌", 
-                        `Echanj ${transId} ou a anile pa admin lan. Verifye enfòmasyon yo oswa kontakte sipò a.`
-                    );
+                    
+                    // Deklanche notifikasyon pou fè kliyan an konnen sa
+                    const mesajNotif = `Tranzaksyon ou a (${transId}) anile pa sistèm nan. Kontakte sipò a pou plis detay.`;
+                    await voyeNotifikasyonKliyan(clientUid, mesajNotif);
                 })
                 .catch((error) => {
                     console.error("Erè nan anilasyon:", error);
