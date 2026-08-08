@@ -11,8 +11,55 @@ let selectedClientId = null;
 
 const IMAJ_AKEY_URL = "https://i.postimg.cc/qRS0rchG/1786118534528.png";
 
+// Konfigirasyon OneSignal - Koulye a kle a ap soti nan Netlify Environment Variables
+const ONESIGNAL_APP_ID = "33bd79df-d49e-4dfb-9bd2-c511252d6216";
+
+// Liy sa a ap chache kle a nan Netlify otomatikman depi w fin konfigirasyon an nan panèl la
+const ONESIGNAL_REST_KEY = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_ONESIGNAL_REST_KEY) 
+    || (typeof process !== 'undefined' && process.env && process.env.ONESIGNAL_REST_KEY) 
+    || ""; 
+
+/**
+ * Fonksyon ti "pon" pou voye notifikasyon push via OneSignal REST API
+ */
+function voyeNotifikasyonKliyan(clientUid, mesajTit, mesajKò) {
+    if (!ONESIGNAL_REST_KEY) {
+        console.error("Erè: Kle OneSignal REST API a manke nan Netlify. Notifikasyon an pa ka voye.");
+        return;
+    }
+
+    const url = "https://onesignal.com/api/v1/notifications";
+    const headers = {
+        "Content-Type": "application/json; charset=utf-8",
+        "Authorization": `Basic ${ONESIGNAL_REST_KEY}`
+    };
+
+    const data = {
+        app_id: ONESIGNAL_APP_ID,
+        include_aliases: {
+            external_id: [clientUid]
+        },
+        target_channel: "push",
+        headings: { en: mesajTit, fr: mesajTit, ht: mesajTit },
+        contents: { en: mesajKò, fr: mesajKò, ht: mesajKò }
+    };
+
+    fetch(url, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(resData => {
+        console.log("OneSignal Repons:", resData);
+    })
+    .catch(err => {
+        console.error("Erè pandan voye notifikasyon OneSignal:", err);
+    });
+}
+
 export function initAdminEchanj(db) {
-    console.log("Seksyon Echanj aktive: Resi an Imaj & Modifikasyon Balans pare!");
+    console.log("Seksyon Echanj aktive: Resi an Imaj & Notifikasyon OneSignal pare!");
 
     const transRef = ref(db, 'transactions');
     const usersRef = ref(db, 'users');
@@ -55,9 +102,6 @@ function rannEkranAkeyImaj(bwatDwatDiv) {
     `;
 }
 
-/**
- * Pwosesis fleksib pou rasanble tout echanj yo nèt (Ansyen ak Nouvo fòma kle yo)
- */
 function raleToutEchanjPaKliyan() {
     const mapKliyanEchanj = {};
 
@@ -65,7 +109,6 @@ function raleToutEchanjPaKliyan() {
         const obj = localTransactions[kle];
         if (!obj) continue;
 
-        // FÒMA 1: Tranzaksyon an plase dirèkteman anba `transactions/ID_TRANSACTION`
         if (obj.uid && obj.type) {
             const tipLower = obj.type.toLowerCase();
             if (tipLower.includes("echanj") || tipLower.includes("retré") || tipLower.includes("retre")) {
@@ -93,7 +136,6 @@ function raleToutEchanjPaKliyan() {
                 }
             }
         } 
-        // FÒMA 2: Tranzaksyon an kache anndan yon node UID (Fòma nested: transactions/UID/ID_TRANSACTION)
         else if (typeof obj === "object" && !obj.uid) {
             const itilizatèUid = kle; 
             
@@ -133,9 +175,6 @@ function raleToutEchanjPaKliyan() {
     return mapKliyanEchanj;
 }
 
-/**
- * Rann ti wonn yo nan sidebar gòch la
- */
 function rannKliyanSidebar(db) {
     const sidebarDiv = document.getElementById('div-clients-list');
     if (!sidebarDiv) return;
@@ -180,9 +219,6 @@ function rannKliyanSidebar(db) {
     });
 }
 
-/**
- * Desine gwo tablo a bò dwat pou kliyan an
- */
 function rannTabloTranzaksyonKliyan(db, uid) {
     const listeEchanjDiv = document.getElementById('lis-echanj-container');
     if (!listeEchanjDiv) return;
@@ -233,7 +269,6 @@ function rannTabloTranzaksyonKliyan(db, uid) {
         } else {
             const klaseStati = (statusLower === "validé" || statusLower === "siksè" || statusLower === "valide") ? "validé" : "anile";
             
-            // Si li deja verifye (Validé/Siksè), nou ajoute bouton pou pataje resi a kòm Imaj
             const boutonPataje = (klaseStati === "validé") ? `
                 <button class="btn-pataje-resi" 
                     data-id="${t.id}" 
@@ -304,7 +339,7 @@ function rannTabloTranzaksyonKliyan(db, uid) {
 }
 
 function ekouteBoutonAksyon(db) {
-    // Modifikasyon Balans Kliyan an dirèkteman
+    // 1. Modifikasyon Balans Kliyan
     const btnEditBalans = document.getElementById('btn-edit-balans');
     if (btnEditBalans) {
         btnEditBalans.addEventListener('click', function() {
@@ -334,7 +369,7 @@ function ekouteBoutonAksyon(db) {
         });
     }
 
-    // Pataje resi pa kreyasyon Modal Pop-up (Ranje pou konpatibilite WebView/Mobil 100%)
+    // 2. Kreyasyon Modal Pop-up pou pataje Resi
     document.querySelectorAll('.btn-pataje-resi').forEach(btn => {
         btn.addEventListener('click', function() {
             const tId = this.getAttribute('data-id');
@@ -344,26 +379,21 @@ function ekouteBoutonAksyon(db) {
             const tAmount = this.getAttribute('data-amount') + " HTG";
             const tReceive = this.getAttribute('data-receive') + " HTG";
 
-            // Kreye Canvas nan memwa
             const canvas = document.createElement('canvas');
             canvas.width = 500;
             canvas.height = 650;
             const ctx = canvas.getContext('2d');
 
-            // 1. Dèyè plan resi (Background)
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Kad decoration
             ctx.strokeStyle = "#1e3a8a";
             ctx.lineWidth = 10;
             ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
-            // 2. Tèt resi (Header Blue bar)
             ctx.fillStyle = "#1e3a8a";
             ctx.fillRect(5, 5, canvas.width - 10, 90);
 
-            // Tèks tèt la
             ctx.fillStyle = "#ffffff";
             ctx.font = "bold 26px Arial";
             ctx.textAlign = "center";
@@ -371,7 +401,6 @@ function ekouteBoutonAksyon(db) {
             ctx.font = "14px Arial";
             ctx.fillText("Resi Ofisyèl Tranzaksyon", canvas.width / 2, 75);
 
-            // 3. Kontni / Detay
             ctx.textAlign = "left";
             ctx.fillStyle = "#334155";
             
@@ -403,7 +432,6 @@ function ekouteBoutonAksyon(db) {
             liy("Net Resevwa:", tReceive, true);
             liy("Stati:", "VALIDÉ / SIKSÈ");
 
-            // 4. Pye resi (Footer)
             ctx.fillStyle = "#f8fafc";
             ctx.fillRect(10, canvas.height - 80, canvas.width - 20, 70);
             
@@ -415,10 +443,8 @@ function ekouteBoutonAksyon(db) {
             ctx.fillStyle = "#94a3b8";
             ctx.fillText("Sistèm Otomatize - Admin Panel", canvas.width / 2, canvas.height - 25);
 
-            // Konvèti canvas an Base64 Image string
             const imgDataUrl = canvas.toDataURL('image/png');
 
-            // Kreye yon bèl Modal Pop-up nan HTML la pou afiche imaj la san konte sou sistèm operasyon an
             const modalDiv = document.createElement('div');
             modalDiv.id = "custom-resi-modal";
             modalDiv.style = `
@@ -428,7 +454,6 @@ function ekouteBoutonAksyon(db) {
                 box-sizing: border-box; font-family: Arial, sans-serif;
             `;
 
-            // Tèks pou voye sou WhatsApp kòm fòma tèks pwòp altènatif
             const textWhatsApp = encodeURIComponent(
                 `*ECHANJ PLUS - RESI OFISYÈL*\n\n` +
                 `*ID:* ${tId}\n` +
@@ -462,14 +487,13 @@ function ekouteBoutonAksyon(db) {
 
             document.body.appendChild(modalDiv);
 
-            // Koute bouton fèmen modal la
             document.getElementById('btn-close-resi-modal').addEventListener('click', () => {
                 modalDiv.remove();
             });
         });
     });
 
-    // Bouton Validé orijinal la
+    // 3. Bouton Validé (Ak voye Notifikasyon Push)
     document.querySelectorAll('.btn-valide').forEach(btn => {
         btn.addEventListener('click', function() {
             const transId = this.getAttribute('data-id');
@@ -502,9 +526,14 @@ function ekouteBoutonAksyon(db) {
                 })
                 .then(() => {
                     alert("Siksè! Tranzaksyon validé, kont kliyan an kredite.");
+                    voyeNotifikasyonKliyan(
+                        clientUid, 
+                        "Echanj Validé! ✅", 
+                        `Tranzaksyon ${transId} ou a reyisi. Nou ajoute +${montanPoulResevwa} HTG sou balans ou.`
+                    );
                 })
                 .catch((error) => {
-                    console.error("Erè na validation:", error);
+                    console.error("Erè nan validation:", error);
                     alert("Gen yon erè ki pase. Tanpri reyezi.");
                     this.disabled = false;
                 });
@@ -512,7 +541,7 @@ function ekouteBoutonAksyon(db) {
         });
     });
 
-    // Bouton Anile orijinal la
+    // 4. Bouton Anile (Ak voye Notifikasyon Push)
     document.querySelectorAll('.btn-anile').forEach(btn => {
         btn.addEventListener('click', function() {
             const transId = this.getAttribute('data-id');
@@ -532,6 +561,11 @@ function ekouteBoutonAksyon(db) {
                 update(ref(db), updates)
                 .then(() => {
                     alert("Tranzaksyon anile avèk siksè!");
+                    voyeNotifikasyonKliyan(
+                        clientUid, 
+                        "Tranzaksyon Anile ❌", 
+                        `Echanj ${transId} ou a anile pa admin lan. Verifye enfòmasyon yo oswa kontakte sipò a.`
+                    );
                 })
                 .catch((error) => {
                     console.error("Erè nan anilasyon:", error);
