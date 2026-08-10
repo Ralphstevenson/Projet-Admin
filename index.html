@@ -221,23 +221,64 @@
     
             
             
-            <!-- SEKSYON 3: RETRÈ -->
-            <section id="sec-retre" class="admin-section hidden">
-
-    <!-- SIDEBAR A GÒCH: POU LIS AVATAR KLIYAN YO[span_1](start_span)[span_1](end_span) -->
-    <aside class="retre-sidebar">
-        <div class="retre-sidebar-title">Retrè</div>
-        <div id="div-clients-retre-list" style="display: flex; flex-direction: column; gap: 15px; width: 100%; align-items: center;">
-            <!-- Katab sa ap ranpli otomatikman ak avatar pa kòd admin-retre.js la[span_2](start_span)[span_2](end_span) -->
+                <!-- SEKSYON RETRÈ ADMIN -->
+<section id="admin-retre" class="admin-section hidden">
+    <div class="container my-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 style="color: var(--text-main); font-weight: 700;">
+                <i class="fa fa-wallet text-success me-2"></i> Kontwòl Demann Retrè
+            </h2>
+            <span class="badge bg-dark p-2" id="total-pending-badge">0 En Enstans</span>
         </div>
-    </aside>
-
-    <!-- KÒTE DWAT: VIEWPORT PWENSIPAL ZÒN RETRÈ[span_3](start_span)[span_3](end_span) -->
-    <main class="retre-main-viewport">
-        <div id="lis-retre-container">
-            <!-- Ekran akey ak Tablo retrè kliyan chwazi a ap parèt la otomatikman pa JS[span_4](start_span)[span_4](end_span) -->
+        
+        <!-- Filtè pou Triye Demann yo -->
+        <div class="mb-4 d-flex gap-2 flex-wrap">
+            <button class="btn btn-outline-primary active filter-btn" data-status="all">Tout</button>
+            <button class="btn btn-outline-warning filter-btn" data-status="pending">En Enstans (Pending)</button>
+            <button class="btn btn-outline-success filter-btn" data-status="validé">Validé</button>
+            <button class="btn btn-outline-danger filter-btn" data-status="anile">Anile</button>
         </div>
-    </main>
+
+        <!-- Tablo Done yo -->
+        <div class="card shadow-smooth border-0 bg-white rounded-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-nowrap">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Kliyan (ID)</th>
+                            <th>Mètòd & Telefòn</th>
+                            <th>Montan</th>
+                            <th>Dat Kreyasyon</th>
+                            <th>Statut</th>
+                            <th class="text-center">Aksyon Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-withdrawal-list">
+                        <tr>
+                            <td colspan="6" class="text-center text-muted p-4">Ap chaje demann retrè yo...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL POU ANILASYON (REJETE) -->
+    <div id="modal-reject-reason" class="modal-overlay hidden" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+        <div class="modal-content p-4 bg-white rounded shadow-lg" style="max-width: 400px; width: 90%;">
+            <h4 style="color: var(--text-main); margin-bottom: 15px;"><i class="fa fa-ban text-danger me-2"></i> Anile Retrè</h4>
+            <p class="text-muted small">Mete rezon ki fè w ap anile retrè sa a. Kòb la ap tounen sou kont kliyan an otomatikman.</p>
+            <div class="form-group mb-3">
+                <textarea id="reject-reason-input" class="form-control" rows="3" placeholder="Ex: Nimewo MonCash sa a pa fonksyonèl..."></textarea>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+                <button class="btn btn-secondary btn-sm" id="btn-close-reject-modal">Fèmen</button>
+                <button class="btn btn-danger btn-sm" id="btn-confirm-reject">Konfime Anilasyon</button>
+            </div>
+        </div>
+    </div>
+    </section>
+                
 
             </section>
 
