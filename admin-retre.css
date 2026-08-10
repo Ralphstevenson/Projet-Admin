@@ -1,229 +1,186 @@
 /* ============================================================
-   ECHANJ PLUS - PREMIUM ADMIN RETRÈ STYLES
+   ECHANJ PLUS - TABLO RETRÈ KASIK AK MODÈN (MOBILE OPTIMIZED)
    ============================================================ */
 
-:root {
-    --primary-green: #109121;
-    --primary-light: rgba(16, 145, 33, 0.1);
-    --bg-main: #f8f9fa;
-    --text-main: #212529;
-    --text-sub: #6c757d;
-    --border-color: rgba(0, 0, 0, 0.08);
-    --radius-smooth: 12px;
-    --shadow-premium: 0 8px 30px rgba(0, 0, 0, 0.05);
-    --transition-fast: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+/* 1. Kontenè Prensipal la */
+#sec-retre .container {
+    padding: 10px;
+    max-width: 100%;
 }
 
-/* Animasyon pou afiche seksyon an dousman */
-#sec-retre {
-    animation: fadeInSection 0.4s ease-out forwards;
-}
-
-@keyframes fadeInSection {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Kat Done yo (Card Wrapper) */
-.shadow-smooth {
-    box-shadow: var(--shadow-premium) !important;
-    border: 1px solid var(--border-color) !important;
-    background: #ffffff;
-    overflow: hidden;
-}
-
-/* Filtre Bouton Yo */
+/* 2. Filtè yo - Fè yo dous epi pa kite yo kole */
 .filter-btn {
-    border-radius: 30px !important;
-    padding: 8px 18px !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    transition: var(--transition-fast) !important;
-    border: 1px solid var(--border-color) !important;
-    background: #ffffff;
-    color: var(--text-sub) !important;
-}
-
-.filter-btn:hover {
-    background: var(--bg-main) !important;
-    color: var(--text-main) !important;
-    transform: translateY(-1px);
+    font-size: 13px !important;
+    padding: 6px 14px !important;
+    border-radius: 20px !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    font-weight: 500 !important;
+    margin-bottom: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .filter-btn.active {
-    background: var(--text-main) !important;
+    background: #0f172a !important; /* Koulè nwa klasik */
     color: #ffffff !important;
-    border-color: var(--text-main) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #0f172a !important;
 }
 
-/* Rezoud Pwoblèm Scroll ak Kase Tablo sou Mobil */
+/* 3. Kat ki gen tablo a - Bay scroll orizontal si done yo anpil */
+.shadow-smooth {
+    border-radius: 12px !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    background: #ffffff;
+    margin-top: 15px;
+}
+
 .table-responsive {
-    border: none !important;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-}
-
-.table-responsive::-webkit-scrollbar {
-    height: 5px;
-}
-.table-responsive::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.15);
-    border-radius: 10px;
-}
-
-/* Estilizasyon Tablo a */
-.table {
-    margin-bottom: 0 !important;
+    display: block;
     width: 100%;
+    overflow-x: auto; /* Sa a ap pèmèt admin lan glise tablo a a goch/a dwat sou mobil san l pa kase paj la */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 4. Konpòtman Tablo a */
+.table {
+    width: 100%;
+    margin-bottom: 0 !important;
+    border-collapse: collapse;
+}
+
+/* Tèt Tablo a (Header) */
+.table thead.table-dark {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
 }
 
 .table thead th {
-    font-size: 13px;
+    padding: 12px 16px !important;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
-    padding: 16px 20px !important;
-    border: none !important;
+    border-bottom: 2px solid #e2e8f0;
+    text-align: left;
 }
 
+/* Kò Tablo a (Rows & Cells) */
 .table tbody tr {
-    transition: var(--transition-fast);
-    border-bottom: 1px solid var(--border-color);
-}
-
-.table tbody tr:last-child {
-    border-bottom: none;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.2s ease;
 }
 
 .table tbody tr:hover {
-    background-color: rgba(0, 0, 0, 0.01) !important;
+    background-color: #f8fafc;
 }
 
 .table tbody td {
-    padding: 16px 20px !important;
-    color: var(--text-main);
+    padding: 14px 16px !important;
+    font-size: 13.5px;
+    color: #334155;
     vertical-align: middle;
+    white-space: nowrap; /* Anpeche tèks yo koupe fè plizyè liy lè yo pa dwe fè sa */
 }
 
-/* Badges pou Statut yo */
-.badge {
-    padding: 6px 12px !important;
-    font-weight: 600 !important;
-    border-radius: 6px !important;
-    font-size: 12px !important;
-    display: inline-block;
+/* Ti detay anndan selil yo (UID, Pas de numéro) */
+.table td small, 
+.table td .text-muted {
+    display: block;
+    font-size: 11px;
+    color: #94a3b8 !important;
+    margin-top: 2px;
 }
 
-.badge.bg-success {
-    background-color: var(--primary-light) !important;
-    color: var(--primary-green) !important;
-    border: 1px solid rgba(16, 145, 33, 0.2);
-}
-
-.badge.bg-warning {
-    background-color: rgba(255, 193, 7, 0.1) !important;
-    color: #ff9800 !important;
-    border: 1px solid rgba(255, 193, 7, 0.2);
-}
-
-.badge.bg-danger {
-    background-color: rgba(220, 53, 69, 0.1) !important;
-    color: #dc3545 !important;
-    border: 1px solid rgba(220, 53, 69, 0.2);
-}
-
-/* Bouton Aksyon Valide / Anile */
-.table .btn-sm {
-    padding: 6px 14px !important;
-    font-size: 13px !important;
-    border-radius: 8px !important;
-    transition: var(--transition-fast);
-    border: none;
+/* Fòma pou non metòd yo (MonCash/NatCash) */
+.table td strong {
+    color: #0f172a;
     font-weight: 600;
 }
 
+/* 5. Statut Badges (Pending, Validé, Anile) */
+.badge {
+    padding: 5px 10px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.badge.bg-dark {
+    background-color: #334155 !important;
+}
+
+/* Si ou itilize klas Bootstrap yo nan kòd la */
+.table .bg-success-light, .badge[data-status="validé"], .badge.bg-success {
+    background-color: #dcfce7 !important;
+    color: #15803d !important;
+    border: 1px solid #bbf7d0;
+}
+
+.table .bg-warning-light, .badge[data-status="pending"], .badge.bg-warning {
+    background-color: #fef9c3 !important;
+    color: #a16207 !important;
+    border: 1px solid #fef08a;
+}
+
+.table .bg-danger-light, .badge[data-status="anile"], .badge.bg-danger {
+    background-color: #fee2e2 !important;
+    color: #b91c1c !important;
+    border: 1px solid #fecaca;
+}
+
+/* 6. Bouton Aksyon yo (Pou yo pa pran twòp plas) */
+.action-btn-container {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.table .btn-sm {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    border: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
 .table .btn-success {
-    background-color: var(--primary-green) !important;
+    background-color: #16a34a !important;
     color: #ffffff !important;
 }
 .table .btn-success:hover {
-    background-color: #0e7a1c !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(16, 145, 33, 0.25);
+    background-color: #15803d !important;
 }
 
 .table .btn-danger {
-    background-color: #dc3545 !important;
+    background-color: #dc2626 !important;
     color: #ffffff !important;
 }
 .table .btn-danger:hover {
-    background-color: #bd2130 !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.25);
+    background-color: #b91c1c !important;
 }
 
-/* ============================================================
-   MODAL OVERLAY & GLASSMORPHISM EFFECT (Nivo Siprèm)
-   ============================================================ */
+/* Si yon tranzaksyon fin trete (Tèks senp "Traite") */
+.table td.text-center {
+    font-weight: 500;
+    color: #64748b;
+}
+
+/* 7. Modal Anilasyon an */
 .modal-overlay {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    background: rgba(15, 23, 42, 0.5) !important;
-    transition: opacity 0.3s ease;
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(4px);
 }
-
-.modal-overlay.hidden {
-    display: none !important;
-    opacity: 0;
-    pointer-events: none;
-}
-
 .modal-content {
-    background: #ffffff !important;
-    border: 1px solid rgba(0, 0, 0, 0.05) !important;
-    border-radius: 16px !important;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
-    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-@keyframes modalPop {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-/* Input / Textarea nan Modal la */
-.modal-content textarea.form-control {
-    border: 2px solid rgba(0, 0, 0, 0.08);
-    border-radius: 10px;
-    padding: 12px;
-    font-size: 14px;
-    transition: var(--transition-fast);
-    resize: none;
-    width: 100%;
-}
-
-.modal-content textarea.form-control:focus {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
-    outline: none;
-}
-
-/* Klas Hidden Jeneral */
-.hidden {
-    display: none !important;
-}
-
-/* Tweak Responsive pou Telefòn */
-@media (max-width: 576px) {
-    .table-responsive table {
-        font-size: 13px;
-    }
-    .table tbody td {
-        padding: 12px 14px !important;
-    }
-    .filter-btn {
-        padding: 6px 12px !important;
-        font-size: 12px !important;
-    }
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
 }
