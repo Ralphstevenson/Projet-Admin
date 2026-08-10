@@ -1,0 +1,226 @@
+/* ============================================================
+   ECHANJ PLUS - PREMIUM ADMIN RETRÈ STYLES
+   ============================================================ */
+
+:root {
+    --primary-green: #109121;
+    --primary-light: rgba(16, 145, 33, 0.1);
+    --bg-main: #f8f9fa;
+    --text-main: #212529;
+    --text-sub: #6c757d;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --radius-smooth: 12px;
+    --shadow-premium: 0 8px 30px rgba(0, 0, 0, 0.05);
+    --transition-fast: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Seksyon Veso a (Container Section) */
+.admin-section {
+    animation: fadeInSection 0.4s ease-out forwards;
+}
+
+@keyframes fadeInSection {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Kat Done yo (Card Wrapper) */
+.shadow-smooth {
+    box-shadow: var(--shadow-premium) !important;
+    border: 1px solid var(--border-color) !important;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+/* Filtre Bouton Yo - Stil avanse */
+.filter-btn {
+    border-radius: 30px !important;
+    padding: 8px 18px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    transition: var(--transition-fast) !important;
+    border: 1px solid var(--border-color) !important;
+    background: #ffffff;
+    color: var(--text-sub);
+}
+
+.filter-btn:hover {
+    background: var(--bg-main);
+    color: var(--text-main);
+    transform: translateY(-1px);
+}
+
+.filter-btn.active {
+    background: var(--text-main) !important;
+    color: #ffffff !important;
+    border-color: var(--text-main) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Rezoud Pwoblèm Tablo sou Mobil (Expensive Overflow Fix) */
+.table-responsive {
+    border: none !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.table-responsive::-webkit-scrollbar {
+    height: 5px;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+}
+
+/* Estilizasyon Tablo Admin */
+.table {
+    margin-bottom: 0 !important;
+}
+
+.table thead th {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    padding: 16px 20px !important;
+    border: none !important;
+}
+
+.table tbody tr {
+    transition: var(--transition-fast);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.01) !important;
+    transform: scale(1.001);
+}
+
+.table tbody td {
+    padding: 16px 20px !important;
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+/* Badges Metòd Peman & Statut */
+.badge {
+    padding: 6px 12px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+}
+
+.badge.bg-success {
+    background-color: var(--primary-light) !important;
+    color: var(--primary-green) !important;
+    border: 1px solid rgba(16, 145, 33, 0.2);
+}
+
+.badge.bg-warning {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+    color: #ff9800 !important;
+    border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.badge.bg-danger {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+    color: #dc3545 !important;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+/* Bouton Aksyon nan Tablo a */
+.table .btn-sm {
+    padding: 6px 14px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+    transition: var(--transition-fast);
+    border: none;
+}
+
+.table .btn-success {
+    background-color: var(--primary-green) !important;
+    color: #ffffff !important;
+}
+.table .btn-success:hover {
+    background-color: #0e7a1c !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(16, 145, 33, 0.25);
+}
+
+.table .btn-danger {
+    background-color: #dc3545 !important;
+    color: #ffffff !important;
+}
+.table .btn-danger:hover {
+    background-color: #bd2130 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.25);
+}
+
+/* ============================================================
+   MODAL OVERLAY & GLASSMORPHISM EFFECT (Nivo Siprèm)
+   ============================================================ */
+.modal-overlay {
+    backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.6) !important; /* Koulè nwa ble trè rich */
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    display: none !important;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-content {
+    background: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
+    transform: scale(0.95);
+    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modalPop {
+    to { transform: scale(1); }
+}
+
+/* Textarea pou Rezon Anilasyon an */
+.modal-content textarea.form-control {
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    transition: var(--transition-fast);
+    resize: none;
+}
+
+.modal-content textarea.form-control:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+    outline: none;
+}
+
+/* Klas pou kache eleman nan tout aplikasyon an */
+.hidden {
+    display: none !important;
+}
+
+/* Responsive Tweak pou ti ekran nèt */
+@media (max-width: 576px) {
+    .table-responsive table {
+        font-size: 13px;
+    }
+    .table tbody td {
+        padding: 12px 14px !important;
+    }
+    .filter-btn {
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+    }
+  }
+  
