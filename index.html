@@ -161,125 +161,96 @@
                 </div>
             </section>
 
-
             <!-- ============================================================ -->
-<!-- ECHANJ PLUS - SEKSYON JESYON ECHANJ AK SIDEBAR TRÈ MÈG      -->
-<!-- ============================================================ -->
-<section id="sec-echanj" class="admin-section hidden">
-    <div class="dashboard-header">
-        <h2>Jesyon Echanj Kliyan</h2>
-        <p>Gade, valide oswa anile tranzaksyon echanj yo an tan reyèl.</p>
-    </div>
-
-    <!-- Veso Prensipal la ki divize an de bò (Flexbox) -->
-    <div class="echanj-inbox-container">
-        
-        <!-- 1. BÒ GÒCH: Sidebar trè mèg (75px) pou Avatar Kliyan yo -->
-        <aside class="clients-sidebar">
-            <!-- Veso kote JavaScript la ap desine ti wonn kliyan yo dinamikman -->
-            <div id="div-clients-list" class="clients-list">
-                <!-- Ti wonn yo ap parèt isit la otomatikman atravè JS -->
-                <div class="loading-mini" style="font-size: 10px; color: #94a3b8; text-align: center; padding-top: 20px;">
-                    Chaje...
-                </div>
-            </div>
-        </aside>
-
-        <!-- 2. BÒ DWAT: Viewport Jeyan pou afiche Istwa Tranzaksyon Kliyan ki seleksyone a -->
-        <main class="transactions-viewport">
-            <!-- Veso kote JavaScript la ap depoze gwo tablo a oswa ekran akèy la -->
-            <div id="lis-echanj-container" class="transactions-list-wrapper">
-                
-                <!-- Ekran Akèy pa defo ak gwo Imaj la anvan admin nan klike sou yon kliyan -->
-                <div class="no-client-selected" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; height: 100%;">
-                    <img src="https://i.postimg.cc/qRS0rchG/1786118534528.png" alt="Echanj Plus" style="max-width: 180px; margin-bottom: 20px; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.1));" />
-                    <h3 style="color: #1e293b; margin: 0 0 8px 0; font-size: 16px;">Sistèm Jesyon Echanj</h3>
-                    <p style="color: #64748b; font-size: 13px; max-width: 300px; margin: 0;">Chwazi yon kliyan nan sidebar a gòch la pou wè, valide oswa anile demann li yo.</p>
+            <!-- SEKSYON 2: JESYON ECHANJ -->
+            <!-- ============================================================ -->
+            <section id="sec-echanj" class="admin-section hidden">
+                <div class="dashboard-header">
+                    <h2>Jesyon Echanj Kliyan</h2>
+                    <p>Gade, valide oswa anile tranzaksyon echanj yo an tan reyèl.</p>
                 </div>
 
-            </div>
-        </main>
+                <div class="echanj-inbox-container">
+                    <!-- BÒ GÒCH: Sidebar Kliyan -->
+                    <aside class="clients-sidebar">
+                        <div id="div-clients-list" class="clients-list">
+                            <div class="loading-mini" style="font-size: 10px; color: #94a3b8; text-align: center; padding-top: 20px;">
+                                Chaje...
+                            </div>
+                        </div>
+                    </aside>
 
-    </div>
-</section>
-
-<!-- Ti animasyon CSS rapid pou eleman loading si sa nesesè -->
-<style>
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-.spinner-mini {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #e2e8f0;
-    border-top-color: #2563eb;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto;
-}
-</style>
-    
+                    <!-- BÒ DWAT: Viewport Tranzaksyon -->
+                    <main class="transactions-viewport">
+                        <div id="lis-echanj-container" class="transactions-list-wrapper">
+                            <div class="no-client-selected" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; height: 100%;">
+                                <img src="https://i.postimg.cc/qRS0rchG/1786118534528.png" alt="Echanj Plus" style="max-width: 180px; margin-bottom: 20px; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.1));" />
+                                <h3 style="color: #1e293b; margin: 0 0 8px 0; font-size: 16px;">Sistèm Jesyon Echanj</h3>
+                                <p style="color: #64748b; font-size: 13px; max-width: 300px; margin: 0;">Chwazi yon kliyan nan sidebar a gòch la pou wè, valide oswa anile demann li yo.</p>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </section>
             
-            
-                <!-- SEKSYON RETRÈ ADMIN -->
-<section id="admin-retre" class="admin-section hidden">
-    <div class="container my-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 style="color: var(--text-main); font-weight: 700;">
-                <i class="fa fa-wallet text-success me-2"></i> Kontwòl Demann Retrè
-            </h2>
-            <span class="badge bg-dark p-2" id="total-pending-badge">0 En Enstans</span>
-        </div>
-        
-        <!-- Filtè pou Triye Demann yo -->
-        <div class="mb-4 d-flex gap-2 flex-wrap">
-            <button class="btn btn-outline-primary active filter-btn" data-status="all">Tout</button>
-            <button class="btn btn-outline-warning filter-btn" data-status="pending">En Enstans (Pending)</button>
-            <button class="btn btn-outline-success filter-btn" data-status="validé">Validé</button>
-            <button class="btn btn-outline-danger filter-btn" data-status="anile">Anile</button>
-        </div>
+            <!-- ============================================================ -->
+            <!-- SEKSYON 3: KONTWÒL DEMANN RETRÈ (ID METE AJOU) -->
+            <!-- ============================================================ -->
+            <section id="sec-retre" class="admin-section hidden">
+                <div class="container my-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 style="color: var(--text-main); font-weight: 700;">
+                            <i class="fa fa-wallet text-success me-2"></i> Kontwòl Demann Retrè
+                        </h2>
+                        <span class="badge bg-dark p-2" id="total-pending-badge">0 En Enstans</span>
+                    </div>
+                    
+                    <!-- Filtè pou Triye Demann yo -->
+                    <div class="mb-4 d-flex gap-2 flex-wrap">
+                        <button class="btn btn-outline-primary active filter-btn" data-status="all">Tout</button>
+                        <button class="btn btn-outline-warning filter-btn" data-status="pending">En Enstans (Pending)</button>
+                        <button class="btn btn-outline-success filter-btn" data-status="validé">Validé</button>
+                        <button class="btn btn-outline-danger filter-btn" data-status="anile">Anile</button>
+                    </div>
 
-        <!-- Tablo Done yo -->
-        <div class="card shadow-smooth border-0 bg-white rounded-3">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 text-nowrap">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Kliyan (ID)</th>
-                            <th>Mètòd & Telefòn</th>
-                            <th>Montan</th>
-                            <th>Dat Kreyasyon</th>
-                            <th>Statut</th>
-                            <th class="text-center">Aksyon Admin</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-withdrawal-list">
-                        <tr>
-                            <td colspan="6" class="text-center text-muted p-4">Ap chaje demann retrè yo...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+                    <!-- Tablo Done yo -->
+                    <div class="card shadow-smooth border-0 bg-white rounded-3">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 text-nowrap">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Kliyan (ID)</th>
+                                        <th>Mètòd & Telefòn</th>
+                                        <th>Montan</th>
+                                        <th>Dat Kreyasyon</th>
+                                        <th>Statut</th>
+                                        <th class="text-center">Aksyon Admin</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-withdrawal-list">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted p-4">Ap chaje demann retrè yo...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- MODAL POU ANILASYON (REJETE) -->
-    <div id="modal-reject-reason" class="modal-overlay hidden" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;">
-        <div class="modal-content p-4 bg-white rounded shadow-lg" style="max-width: 400px; width: 90%;">
-            <h4 style="color: var(--text-main); margin-bottom: 15px;"><i class="fa fa-ban text-danger me-2"></i> Anile Retrè</h4>
-            <p class="text-muted small">Mete rezon ki fè w ap anile retrè sa a. Kòb la ap tounen sou kont kliyan an otomatikman.</p>
-            <div class="form-group mb-3">
-                <textarea id="reject-reason-input" class="form-control" rows="3" placeholder="Ex: Nimewo MonCash sa a pa fonksyonèl..."></textarea>
-            </div>
-            <div class="d-flex justify-content-end gap-2">
-                <button class="btn btn-secondary btn-sm" id="btn-close-reject-modal">Fèmen</button>
-                <button class="btn btn-danger btn-sm" id="btn-confirm-reject">Konfime Anilasyon</button>
-            </div>
-        </div>
-    </div>
-    </section>
-                
-
+                <!-- MODAL POU ANILASYON (REJETE) -->
+                <div id="modal-reject-reason" class="modal-overlay hidden" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+                    <div class="modal-content p-4 bg-white rounded shadow-lg" style="max-width: 400px; width: 90%;">
+                        <h4 style="color: var(--text-main); margin-bottom: 15px;"><i class="fa fa-ban text-danger me-2"></i> Anile Retrè</h4>
+                        <p class="text-muted small">Mete rezon ki fè w ap anile retrè sa a. Kòb la ap tounen sou kont kliyan an otomatikman.</p>
+                        <div class="form-group mb-3">
+                            <textarea id="reject-reason-input" class="form-control" rows="3" placeholder="Ex: Nimewo MonCash sa a pa fonksyonèl..."></textarea>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button class="btn btn-secondary btn-sm" id="btn-close-reject-modal">Fèmen</button>
+                            <button class="btn btn-danger btn-sm" id="btn-confirm-reject">Konfime Anilasyon</button>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- SEKSYON 4: ISTORIK -->
@@ -322,6 +293,22 @@
 
     </div>
 
+    <!-- STYLES POU LOADING SPINNER MINI AN -->
+    <style>
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    .spinner-mini {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #e2e8f0;
+        border-top-color: #2563eb;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+    </style>
+
     <!-- SCRIPTS JS PRENSIPAL YO -->
     <script type="module" src="admin.js"></script>
     <script type="module" src="./script.js"></script>
@@ -329,5 +316,5 @@
     <script type="module" src="./admin-echanj.js"></script>
     <script type="module" src="./admin-retre.js"></script>
 </body>
-                                                   </html>
+    </html>
     
