@@ -14,8 +14,8 @@
     --transition-fast: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Seksyon Veso a (Container Section) */
-.admin-section {
+/* Animasyon pou afiche seksyon an dousman */
+#sec-retre {
     animation: fadeInSection 0.4s ease-out forwards;
 }
 
@@ -32,7 +32,7 @@
     overflow: hidden;
 }
 
-/* Filtre Bouton Yo - Stil avanse */
+/* Filtre Bouton Yo */
 .filter-btn {
     border-radius: 30px !important;
     padding: 8px 18px !important;
@@ -41,12 +41,12 @@
     transition: var(--transition-fast) !important;
     border: 1px solid var(--border-color) !important;
     background: #ffffff;
-    color: var(--text-sub);
+    color: var(--text-sub) !important;
 }
 
 .filter-btn:hover {
-    background: var(--bg-main);
-    color: var(--text-main);
+    background: var(--bg-main) !important;
+    color: var(--text-main) !important;
     transform: translateY(-1px);
 }
 
@@ -57,7 +57,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Rezoud Pwoblèm Tablo sou Mobil (Expensive Overflow Fix) */
+/* Rezoud Pwoblèm Scroll ak Kase Tablo sou Mobil */
 .table-responsive {
     border: none !important;
     scrollbar-width: thin;
@@ -72,9 +72,10 @@
     border-radius: 10px;
 }
 
-/* Estilizasyon Tablo Admin */
+/* Estilizasyon Tablo a */
 .table {
     margin-bottom: 0 !important;
+    width: 100%;
 }
 
 .table thead th {
@@ -97,7 +98,6 @@
 
 .table tbody tr:hover {
     background-color: rgba(0, 0, 0, 0.01) !important;
-    transform: scale(1.001);
 }
 
 .table tbody td {
@@ -106,12 +106,13 @@
     vertical-align: middle;
 }
 
-/* Badges Metòd Peman & Statut */
+/* Badges pou Statut yo */
 .badge {
     padding: 6px 12px !important;
     font-weight: 600 !important;
     border-radius: 6px !important;
     font-size: 12px !important;
+    display: inline-block;
 }
 
 .badge.bg-success {
@@ -132,13 +133,14 @@
     border: 1px solid rgba(220, 53, 69, 0.2);
 }
 
-/* Bouton Aksyon nan Tablo a */
+/* Bouton Aksyon Valide / Anile */
 .table .btn-sm {
     padding: 6px 14px !important;
     font-size: 13px !important;
     border-radius: 8px !important;
     transition: var(--transition-fast);
     border: none;
+    font-weight: 600;
 }
 
 .table .btn-success {
@@ -166,7 +168,8 @@
    ============================================================ */
 .modal-overlay {
     backdrop-filter: blur(8px);
-    background: rgba(15, 23, 42, 0.6) !important; /* Koulè nwa ble trè rich */
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.5) !important;
     transition: opacity 0.3s ease;
 }
 
@@ -178,25 +181,26 @@
 
 .modal-content {
     background: #ffffff !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
     border-radius: 16px !important;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2) !important;
-    transform: scale(0.95);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
     animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 @keyframes modalPop {
-    to { transform: scale(1); }
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
-/* Textarea pou Rezon Anilasyon an */
+/* Input / Textarea nan Modal la */
 .modal-content textarea.form-control {
-    border: 2px solid var(--border-color);
+    border: 2px solid rgba(0, 0, 0, 0.08);
     border-radius: 10px;
     padding: 12px;
     font-size: 14px;
     transition: var(--transition-fast);
     resize: none;
+    width: 100%;
 }
 
 .modal-content textarea.form-control:focus {
@@ -205,12 +209,12 @@
     outline: none;
 }
 
-/* Klas pou kache eleman nan tout aplikasyon an */
+/* Klas Hidden Jeneral */
 .hidden {
     display: none !important;
 }
 
-/* Responsive Tweak pou ti ekran nèt */
+/* Tweak Responsive pou Telefòn */
 @media (max-width: 576px) {
     .table-responsive table {
         font-size: 13px;
@@ -222,5 +226,4 @@
         padding: 6px 12px !important;
         font-size: 12px !important;
     }
-  }
-  
+}
