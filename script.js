@@ -145,4 +145,15 @@ async function initAdminApp() {
     } catch (e) {
         console.error("Erè nan chajman admin-echanj.js:", e);
     }
-                                                                                 }
+
+    // 3. Chaje Seksyon Kontwòl Retrè Admin (Mizajou)
+    try {
+        const { initAdminRetre } = await import("./admin-retre.js");
+        if (typeof initAdminRetre === "function") {
+            initAdminRetre(db);
+        }
+    } catch (e) {
+        console.error("Erè nan chajman admin-retre.js:", e);
+    }
+            }
+            
