@@ -1,101 +1,520 @@
-here/* ============================================================
-   ECHANJ PLUS - ADMIN RETRÈ MODULE STYLES
+/* ============================================================
+   ECHANJ PLUS - ADMIN GLOBAL & INTERFACE STYLE
    ============================================================ */
 
-/* Layout dous pou kat yo */
-.shadow-smooth {
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
-    border: 1px solid rgba(15, 23, 42, 0.05) !important;
+/* 1. RESET & JENERAL */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* Sidebar Kliyan yo */
-.clients-list-wrapper {
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 #f8fafc;
+body {
+    background-color: #f4f6f9;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
 }
 
-.clients-list-wrapper::-webkit-scrollbar {
-    width: 6px;
+.hidden {
+    display: none !important;
 }
 
-.clients-list-wrapper::-webkit-scrollbar-track {
-    background: #f8fafc;
+/* 2. EKRAN KONEKSYON (AUTH SCREEN) */
+#auth-screen {
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
 }
 
-.clients-list-wrapper::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 10px;
+.auth-container {
+    background: #ffffff;
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
 }
 
-/* Atik nan lis kliyan an */
-.user-sidebar-item {
-    transition: all 0.2s ease-in-out;
+.auth-logo h2 {
+    color: #0f172a;
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.auth-logo span {
+    color: #22c55e;
+}
+
+.auth-container p {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    text-align: left;
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
     border-radius: 8px;
-    margin-bottom: 4px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    border-color: #0f172a;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 10px;
+}
+
+.btn-login:hover {
+    background: #1e293b;
+}
+
+.btn-login:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+}
+
+.error-msg {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 15px;
+    font-weight: 500;
+    border-left: 4px solid #dc2626;
+}
+
+/* 3. HEADER & PANEL ADMIN JERAL */
+#admin-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+}
+
+.admin-header {
+    background: #0f172a;
+    color: #ffffff;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.header-title h1 {
+    font-size: 20px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-title span {
+    color: #22c55e;
+}
+
+.badge-admin {
+    background: #22c55e;
+    color: #fff;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.btn-logout-class {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* 4. LAYOUT AK KONTNI PRINSIPAL */
+.admin-main-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 70px; /* Pou evite Navigasyon anba a kache kontni */
+    position: relative;
+    width: 100%;
+}
+
+.admin-section {
+    width: 100%;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 5. INTERFACE DÈDÈS (RETRE LAYOUT) */
+.retrè-split-container {
+    display: flex;
+    width: 100%;
+    height: calc(100vh - 125px);
+}
+
+/* Sidebar Kliyan yo (Gòch) */
+.clients-sidebar {
+    width: 320px;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.sidebar-search-box {
+    padding: 12px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.sidebar-search-box input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.clients-list-scroll {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.user-sidebar-item {
+    transition: background 0.2s;
 }
 
 .user-sidebar-item:hover {
-    background-color: #f1f5f9 !important;
-    transform: translateX(2px);
-}
-
-/* Lè yon kliyan seleksyone pou istorik li */
-.active-user-item {
-    background-color: #e2e8f0 !important;
-    border-left: 4px solid #3b82f6 !important;
-}
-
-/* Animasyon pou badj alèt k ap bat la (Pulse Effect) */
-@keyframes pulse {
-    0% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-    }
-    70% {
-        transform: scale(1);
-        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
-    }
-    100% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-    }
-}
-
-/* Bouton kopye rapid la */
-.btn-outline-secondary {
-    transition: all 0.15s ease-in-out;
-}
-.btn-outline-secondary:hover {
-    background-color: #f8fafc !important;
-    color: #334155 !important;
-    border-color: #94a3b8 !important;
-}
-
-/* Tèks ti kras italik pou sa ki trete deja */
-.text-center-traite {
-    font-size: 12px;
-    font-weight: 600;
-    color: #64748b;
     background: #f1f5f9;
-    padding: 4px 10px;
-    border-radius: 20px;
-    display: inline-block;
 }
 
-/* Kontenè pou bouton aksyon yo pa deplase */
+.active-user-item {
+    background: #e2e8f0 !important;
+    border-left: 4px solid #0f172a;
+}
+
+/* Zòn Tablo Santral la (Dwa) */
+.table-dashboard-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f4f6f9;
+}
+
+.control-top-bar {
+    background: #fff;
+    padding: 15px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.search-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.search-wrapper-uid {
+    display: flex;
+    gap: 5px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.search-wrapper-uid input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.search-wrapper-uid button {
+    padding: 8px 15px;
+    background: #0f172a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.filter-buttons-group {
+    display: flex;
+    gap: 5px;
+}
+
+.filter-btn {
+    padding: 6px 12px;
+    background: #e2e8f0;
+    border: none;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #475569;
+    transition: all 0.2s;
+}
+
+.filter-btn.active {
+    background: #0f172a;
+    color: #fff;
+}
+
+/* 6. ESTIL TABLO RETRÈ AK ISTORIK */
+.table-responsive-box {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.custom-admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.custom-admin-table th {
+    background: #0f172a;
+    color: #ffffff;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.custom-admin-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13.5px;
+    vertical-align: middle;
+}
+
+.custom-admin-table tr:hover {
+    background: #f8fafc;
+}
+
+/* Bouton Aksyon nan Tablo */
 .action-btn-container {
     display: flex;
     gap: 6px;
     justify-content: center;
 }
 
-/* Modal Overlay Fix */
-.modal-overlay {
-    backdrop-filter: blur(4px);
-    transition: opacity 0.3s ease;
+.action-btn-container .btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    color: #fff;
 }
 
-/* Klas pou kache eleman (si w pa t genyen l) */
-.hidden {
-    display: none !important;
+.text-center-traite {
+    color: #64748b;
+    font-weight: 700;
+    font-size: 12.5px;
+}
+
+/* 7. MODAL (BWAT DYALÒG ANILASYON) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.modal-card {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    animation: scaleUp 0.2s ease-out;
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+    background: #dc2626;
+    color: white;
+    padding: 15px;
+    font-weight: 700;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-body label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #334155;
+}
+
+.modal-body textarea {
+    width: 100%;
+    height: 90px;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    resize: none;
+    outline: none;
+}
+
+.modal-footer {
+    padding: 12px 20px;
+    background: #f8fafc;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* 8. BAR NAVIGASYON ANBA (BOTTOM NAV BAR) */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: #0f172a;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid #1e293b;
+    z-index: 999;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    flex: 1;
+    height: 100%;
+    transition: color 0.2s;
+}
+
+.nav-item i {
+    font-size: 18px;
+    margin-bottom: 3px;
+}
+
+.nav-item.active {
+    color: #22c55e;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* 9. RESPONSIVE DESIGN POU TELEFÒN */
+@media (max-width: 768px) {
+    .retrè-split-container {
+        flex-direction: column;
+    }
+    
+    .clients-sidebar {
+        width: 100%;
+        height: 180px;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .table-dashboard-area {
+        height: calc(100% - 180px);
+    }
+    
+    .search-filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-buttons-group {
+        justify-content: space-between;
+    }
+    
+    .custom-admin-table th:nth-child(4),
+    .custom-admin-table td:nth-child(4) {
+        display: none; /* Kache dat la sou telefòn pou evite debòde */
+    }
+}
+
+/* Pulse animasyon pou alèt ki gen enstans */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
