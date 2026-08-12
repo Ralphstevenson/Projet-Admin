@@ -1,357 +1,194 @@
 /* ============================================================
-   ECHANJ PLUS - ADMIN GLOBAL & INTERFACE STYLE
+   ECHANJ PLUS - CSS RETRÈ AK JESYON KLIYAN (PROFESYONÈL)
    ============================================================ */
 
-/* 1. RESET & JENERAL */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    -webkit-tap-highlight-color: transparent;
+/* ROOT VARIABLES POU KOULÈ KLASIK SEYÈ A */
+:root {
+    --bg-main: #f8fafc;
+    --text-main: #0f172a;
+    --primary-color: #1e293b;
+    --accent-color: #22c55e;
+    --border-color: #e2e8f0;
+    --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --shadow-smooth: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
 }
 
-body {
-    background-color: #f4f6f9;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
+/* SECTION AN JE LAL */
+.admin-section {
+    background-color: var(--bg-main);
+    min-height: calc(100vh - 60px);
+    padding-bottom: 80px;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 .hidden {
     display: none !important;
 }
 
-/* 2. EKRAN KONEKSYON (AUTH SCREEN) */
-#auth-screen {
-    width: 100%;
-    height: 100vh;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 9999;
+/* SHADOW GOUSH EXTENSION */
+.shadow-smooth {
+    box-shadow: var(--shadow-smooth) !important;
+    border: 1px solid var(--border-color) !important;
 }
 
-.auth-container {
-    background: #ffffff;
-    width: 100%;
-    max-width: 400px;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    text-align: center;
+/* BWAT RECHÈCH AK INPUTS YO */
+.input-group {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
 }
 
-.auth-logo h2 {
-    color: #0f172a;
-    font-size: 26px;
-    font-weight: 800;
-    margin-bottom: 5px;
-}
-
-.auth-logo span {
-    color: #22c55e;
-}
-
-.auth-container p {
-    color: #64748b;
+.input-group .form-control {
+    border: none;
+    padding: 10px 14px;
     font-size: 14px;
-    margin-bottom: 25px;
-}
-
-.form-group {
-    text-align: left;
-    margin-bottom: 18px;
-}
-
-.form-group label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
     color: #334155;
-    margin-bottom: 6px;
 }
 
-.form-group input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 15px;
-    outline: none;
-    transition: border-color 0.2s;
+.input-group .form-control:focus {
+    box-shadow: none;
+    background-color: #fff;
 }
 
-.form-group input:focus {
-    border-color: #0f172a;
-}
-
-.btn-login {
-    width: 100%;
-    padding: 12px;
-    background: #0f172a;
-    color: #ffffff;
+.input-group-text {
+    background-color: #fff;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s;
-    margin-top: 10px;
+    color: #94a3b8;
 }
 
-.btn-login:hover {
-    background: #1e293b;
+/* FILTÈ BOUTON YO */
+.filter-btn {
+    border-radius: 20px !important;
+    padding: 6px 16px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease-in-out;
 }
 
-.btn-login:disabled {
-    background: #94a3b8;
-    cursor: not-allowed;
+/* LIS KLIYAN (SIDEBAR A GÒCH - MENM JAN AK SCREENSHOT LA) */
+.clients-list-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
 }
 
-.error-msg {
-    background: #fee2e2;
-    color: #dc2626;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 13px;
-    margin-bottom: 15px;
-    font-weight: 500;
-    border-left: 4px solid #dc2626;
+.clients-list-wrapper::-webkit-scrollbar {
+    width: 5px;
 }
 
-/* 3. HEADER & PANEL ADMIN JERAL */
-#admin-panel {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    width: 100%;
+.clients-list-wrapper::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
 }
 
-.admin-header {
-    background: #0f172a;
-    color: #ffffff;
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.header-title h1 {
-    font-size: 20px;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.header-title span {
-    color: #22c55e;
-}
-
-.badge-admin {
-    background: #22c55e;
-    color: #fff;
-    font-size: 11px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-weight: bold;
-}
-
-.btn-logout-class {
-    background: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-/* 4. LAYOUT AK KONTNI PRINSIPAL */
-.admin-main-content {
-    flex: 1;
-    overflow-y: auto;
-    padding-bottom: 70px; /* Pou evite Navigasyon anba a kache kontni */
-    position: relative;
-    width: 100%;
-}
-
-.admin-section {
-    width: 100%;
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* 5. INTERFACE DÈDÈS (RETRE LAYOUT) */
-.retrè-split-container {
-    display: flex;
-    width: 100%;
-    height: calc(100vh - 125px);
-}
-
-/* Sidebar Kliyan yo (Gòch) */
-.clients-sidebar {
-    width: 320px;
-    background: #ffffff;
-    border-right: 1px solid #e2e8f0;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.sidebar-search-box {
-    padding: 12px;
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.sidebar-search-box input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    font-size: 13px;
-}
-
-.clients-list-scroll {
-    flex: 1;
-    overflow-y: auto;
-}
-
+/* Stil chak atik kliyan nan sidebar a */
 .user-sidebar-item {
-    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    background-color: #fff;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
 }
 
 .user-sidebar-item:hover {
-    background: #f1f5f9;
+    background-color: #f1f5f9;
+    transform: translateY(-1px);
 }
 
+/* Lè yon kliyan seleksyone */
 .active-user-item {
-    background: #e2e8f0 !important;
-    border-left: 4px solid #0f172a;
+    background-color: #f1f5f9 !important;
+    border: 1px solid var(--text-main) !important;
 }
 
-/* Zòn Tablo Santral la (Dwa) */
-.table-dashboard-area {
-    flex: 1;
+/* Ti wonn avatar inisyal yo (Blue nèt) */
+.user-avatar {
+    width: 42px;
+    height: 42px;
+    background: #3b82f6 !important; /* Bèl ble */
+    color: #ffffff !important;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 50%;
     display: flex;
-    flex-direction: column;
-    height: 100%;
-    background: #f4f6f9;
-}
-
-.control-top-bar {
-    background: #fff;
-    padding: 15px;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.search-filter-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
-.search-wrapper-uid {
-    display: flex;
-    gap: 5px;
-    max-width: 400px;
-    width: 100%;
+/* Badj Notifikasyon wouj sou tèt avatar a (Alèt En Enstans) */
+.user-sidebar-item .badge.bg-danger {
+    position: absolute;
+    top: 8px;
+    left: 42px;
+    background-color: #ef4444 !important;
+    color: white !important;
+    font-size: 10px !important;
+    font-weight: 700;
+    padding: 3px 6px !important;
+    border: 2px solid #ffffff;
+    border-radius: 50% !important;
+    animation: pulseAlert 2s infinite;
+    z-index: 10;
 }
 
-.search-wrapper-uid input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    font-size: 13px;
-}
-
-.search-wrapper-uid button {
-    padding: 8px 15px;
-    background: #0f172a;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-.filter-buttons-group {
-    display: flex;
-    gap: 5px;
-}
-
-.filter-btn {
-    padding: 6px 12px;
-    background: #e2e8f0;
-    border: none;
-    border-radius: 6px;
-    font-size: 12.5px;
-    font-weight: 600;
-    cursor: pointer;
-    color: #475569;
-    transition: all 0.2s;
-}
-
-.filter-btn.active {
-    background: #0f172a;
-    color: #fff;
-}
-
-/* 6. ESTIL TABLO RETRÈ AK ISTORIK */
-.table-responsive-box {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-}
-
-.custom-admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #ffffff;
-    border-radius: 8px;
+/* TABLO PRINSIPAL LA (VIEWPORT DWAT) */
+.table-responsive {
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-.custom-admin-table th {
-    background: #0f172a;
-    color: #ffffff;
-    padding: 12px;
+.table {
+    margin-bottom: 0 !important;
+}
+
+.table-dark {
+    background-color: var(--text-main) !important;
+    color: #fff !important;
+}
+
+.table-dark th {
+    padding: 14px;
     font-size: 13px;
     font-weight: 600;
-    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
 }
 
-.custom-admin-table td {
-    padding: 12px;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 13.5px;
-    vertical-align: middle;
+.table tbody tr {
+    transition: background-color 0.15s ease;
 }
 
-.custom-admin-table tr:hover {
-    background: #f8fafc;
+.table tbody td {
+    padding: 14px 12px;
+    font-size: 14px;
+    color: #334155;
+    border-bottom: 1px solid var(--border-color);
 }
 
-/* Bouton Aksyon nan Tablo */
+/* BOUTON KOPYE KÒD LA GENYEN ANNDAN TABLO A */
+.table .btn-outline-secondary {
+    border: 1px solid #cbd5e1 !important;
+    color: #475569 !important;
+    background: #ffffff !important;
+    padding: 3px 8px !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    transition: all 0.15s ease;
+}
+
+.table .btn-outline-secondary:hover {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
+}
+
+/* BOUTON AKSYON YO (VALIDE / ANILE) */
 .action-btn-container {
     display: flex;
     gap: 6px;
@@ -359,162 +196,103 @@ body {
 }
 
 .action-btn-container .btn {
-    padding: 6px 10px;
-    font-size: 12px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    color: #fff;
+    padding: 5px 12px !important;
+    font-size: 12px !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
 }
 
 .text-center-traite {
-    color: #64748b;
-    font-weight: 700;
-    font-size: 12.5px;
-}
-
-/* 7. MODAL (BWAT DYALÒG ANILASYON) */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-}
-
-.modal-card {
-    background: white;
-    width: 100%;
-    max-width: 450px;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    animation: scaleUp 0.2s ease-out;
-}
-
-@keyframes scaleUp {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-.modal-header {
-    background: #dc2626;
-    color: white;
-    padding: 15px;
-    font-weight: 700;
-}
-
-.modal-body {
-    padding: 20px;
-}
-
-.modal-body label {
-    display: block;
     font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #334155;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
 }
 
-.modal-body textarea {
-    width: 100%;
-    height: 90px;
+/* MODAL OVERLAY (ANILASYON) */
+.modal-overlay {
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+}
+
+.modal-content {
+    border: none !important;
+    border-radius: 14px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    animation: slideUp 0.25s ease-out;
+}
+
+.modal-content h4 {
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.modal-content textarea {
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
     padding: 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    resize: none;
+    font-size: 14px;
+}
+
+.modal-content textarea:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
     outline: none;
 }
 
-.modal-footer {
-    padding: 12px 20px;
-    background: #f8fafc;
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    border-top: 1px solid #e2e8f0;
+/* ANIMASYON YO */
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
-/* 8. BAR NAVIGASYON ANBA (BOTTOM NAV BAR) */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    background: #0f172a;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    border-top: 1px solid #1e293b;
-    z-index: 999;
+@keyframes pulseAlert {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #94a3b8;
-    font-size: 11px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    flex: 1;
-    height: 100%;
-    transition: color 0.2s;
-}
-
-.nav-item i {
-    font-size: 18px;
-    margin-bottom: 3px;
-}
-
-.nav-item.active {
-    color: #22c55e;
-    background: rgba(255, 255, 255, 0.03);
-}
-
-/* 9. RESPONSIVE DESIGN POU TELEFÒN */
-@media (max-width: 768px) {
-    .retrè-split-container {
+/* RESPONSIVE DESIGN POU MOBIL MESH */
+@media (max-width: 767.98px) {
+    .row.g-3 {
+        display: flex;
         flex-direction: column;
     }
     
-    .clients-sidebar {
-        width: 100%;
-        height: 180px;
-        border-right: none;
-        border-bottom: 1px solid #e2e8f0;
+    /* Sou telefòn, fè lis la tounen yon ranje orizontal scrollable dous */
+    .clients-list-wrapper {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 10px;
+        overflow-x: auto !important;
+        max-height: none !important;
+        padding-bottom: 5px;
     }
     
-    .table-dashboard-area {
-        height: calc(100% - 180px);
-    }
-    
-    .search-filter-row {
+    .user-sidebar-item {
         flex-direction: column;
-        align-items: stretch;
+        min-width: 90px;
+        text-align: center;
+        padding: 10px 6px;
     }
     
-    .filter-buttons-group {
-        justify-content: space-between;
+    .user-sidebar-item .user-avatar {
+        margin-right: 0 !important;
+        margin-bottom: 6px;
     }
     
-    .custom-admin-table th:nth-child(4),
-    .custom-admin-table td:nth-child(4) {
-        display: none; /* Kache dat la sou telefòn pou evite debòde */
+    .user-sidebar-item div:nth-child(2) {
+        display: none; /* Kache non ak sol anba ti wonn yo sou ti mobil pou evite sal */
     }
-}
-
-/* Pulse animasyon pou alèt ki gen enstans */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+    
+    .user-sidebar-item .badge.bg-danger {
+        top: 4px;
+        left: 28px;
+    }
+    
+    /* Kache kolòn dat la sou mobil pou tablo a pa depase */
+    .table th:nth-child(4), 
+    .table td:nth-child(4) {
+        display: none !important;
+    }
 }
