@@ -1,10 +1,10 @@
-here/* ============================================================ */
+/* ============================================================ */
 /* 1. RESET AK CONFIGURATION JENERAL (SANTRE TOUT BAGAY) */
 /* ============================================================ */
 * {
     margin: 0;
     padding: 0;
-    box-shadow: border-box;
+    box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -14,7 +14,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center; /* Santre orizontal */
-    justify-content: center; /* Santre vètilkal si sa nesesè */
     min-height: 100vh;
     width: 100%;
     overflow-x: hidden;
@@ -23,12 +22,12 @@ body {
 /* Santre gwo veso aplikasyon an */
 .auth-container, .app-container {
     width: 100%;
-    max-width: 1200px; /* Limit pou ekran yo pa twò laj */
+    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Santre kontni ki anndan yo */
+    align-items: center; /* Santre kontni anndan an */
     text-align: center;
 }
 
@@ -71,7 +70,7 @@ body {
 /* ============================================================ */
 .input-group {
     margin-bottom: 20px;
-    text-align: left; /* Kenbe tèks jaden yo lizib */
+    text-align: left;
     width: 100%;
 }
 
@@ -89,14 +88,13 @@ body {
     background-color: #0b0c10; /* Fon Nwa */
     border: 2px solid #1f2833;
     border-radius: 8px;
-    color: #ffffff; /* Lèt blan nan fon nwa */
+    color: #ffffff;
     font-size: 15px;
     transition: all 0.3s ease;
 }
 
-/* Lè w klike nan yon fòm (Focus) */
 .input-group input:focus, .form-group textarea:focus {
-    border-color: #28a745; /* Chanje an Vèt */
+    border-color: #28a745; /* Chanje an Vèt lè w ap tape */
     outline: none;
     box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
 }
@@ -135,25 +133,25 @@ button, .btn {
     transform: translateY(-2px);
 }
 
-/* Bouton Wouj (Anile, Dekonekte, Rejete) */
-.btn-logout-icon, .btn-danger, #btn-confirm-reject {
+/* Bouton Wouj (Anile, Dekonekte) */
+.btn-logout-icon, .btn-danger {
     background-color: #dc3545;
     color: #ffffff;
 }
-.btn-logout-icon:hover, .btn-danger:hover, #btn-confirm-reject:hover {
+.btn-logout-icon:hover, .btn-danger:hover {
     background-color: #c82333;
     transform: translateY(-2px);
 }
 
 /* Bouton Nwa / Gri Fonse (Chache, Fèmen, Filtre) */
-.btn-dark, .btn-secondary, #btn-search-tx, #btn-close-reject-modal {
+.btn-dark, .btn-secondary, #btn-search-tx {
     background-color: #1f2833;
-    color: #28a745; /* Lèt Vèt sou bouton Nwa */
+    color: #28a745; /* Lèt Vèt sou fon nwa */
     border: 1px solid #28a745;
 }
 .btn-dark:hover, .btn-secondary:hover {
     background-color: #0b0c10;
-    color: #dc3545; /* Chanje an wouj lè w pase sou li */
+    color: #dc3545; /* Vin wouj lè w pase sou li */
 }
 
 /* ============================================================ */
@@ -166,7 +164,7 @@ button, .btn {
     align-items: center;
     background-color: #1f2833;
     padding: 15px 30px;
-    border-bottom: 3px solid #28a745; /* Liy vèt anba header a */
+    border-bottom: 3px solid #28a745;
     border-radius: 8px;
     margin-bottom: 30px;
 }
@@ -186,9 +184,10 @@ button, .btn {
 /* ============================================================ */
 .dashboard-header {
     margin-bottom: 25px;
+    text-align: center;
 }
 .dashboard-header h2 {
-    color: #28a745; /* Tit Vèt */
+    color: #28a745;
     margin-bottom: 5px;
 }
 .dashboard-header p {
@@ -215,7 +214,7 @@ button, .btn {
     text-align: left;
 }
 
-/* Kat Benefis lan ki gen fòma espesyal (Wouj/Vèt) */
+/* Kat Benefis espesyal (16.5%) */
 .stat-card.highlight {
     border-left: 5px solid #dc3545; /* Liy Wouj pou Benefis */
     background: #251618; /* Nwa ki rale sou wouj */
@@ -247,7 +246,7 @@ button, .btn {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-    justify-content: center; /* Santre switch yo */
+    justify-content: center; /* Santre Bouton switch yo */
     margin: 25px 0;
 }
 
@@ -266,7 +265,6 @@ button, .btn {
     color: #ffffff;
 }
 
-/* Pozisyon bouton switch la */
 .toggle-switch {
     position: relative;
     display: inline-block;
@@ -301,20 +299,29 @@ input:checked + .slider:before {
 }
 
 /* ============================================================ */
-/* 8. SIDEBAR KLIYAN AK POP-UP MODAL (AKÈY) */
+/* 8. SIDEBAR KLIYAN AK POP-UP MODAL (AKÈY & ECHANJ) */
 /* ============================================================ */
-.sidebar-akey-container {
+.akey-grid-layout {
+    width: 100%;
+    justify-content: center;
+}
+
+.sidebar-akey-container, .clients-sidebar {
     background: #1f2833;
     border: 1px solid #28a745;
     border-radius: 8px;
     overflow: hidden;
+    text-align: left;
 }
+
 .sidebar-header-akey {
     background: #0b0c10;
     padding: 15px;
     color: #28a745;
     border-bottom: 1px solid #28a745;
+    text-align: center;
 }
+
 .client-sidebar-item {
     display: flex;
     align-items: center;
@@ -330,6 +337,7 @@ input:checked + .slider:before {
     border-left-color: #28a745;
     background: #1f2833;
 }
+
 .client-avatar-mini {
     width: 30px; height: 30px;
     background: #28a745; color: #fff;
@@ -338,12 +346,12 @@ input:checked + .slider:before {
     font-weight: bold; margin-right: 10px;
 }
 
-/* OVERLAY MODAL LA */
+/* OVERLAY MODAL FIXE LAN */
 .modal-fixed-overlay {
     position: fixed;
     z-index: 9999;
     left: 0; top: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.85); /* Nwa fonse dèyè */
+    background-color: rgba(0, 0, 0, 0.85);
     display: flex; align-items: center; justify-content: center;
 }
 .modal-card-content {
@@ -361,14 +369,13 @@ input:checked + .slider:before {
 }
 .close-modal-x:hover { color: #ffffff; }
 
-/* BADGES YO */
+/* BADGES */
 .badge { padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; }
-.badge-moncash { background-color: #dc3545; color: #fff; } /* Wouj */
-.badge-natcash { background-color: #007bff; color: #fff; } /* Ble */
-.badge-egal { background-color: #6c757d; color: #fff; }
+.badge-moncash { background-color: #dc3545; color: #fff; }
+.badge-natcash { background-color: #007bff; color: #fff; }
 
 /* ============================================================ */
-/* 9. TABLO DONE YO (TABLES) */
+/* 9. TABLO DONE YO (TABLES) - SANTRE TOUT TRANZAKSYON */
 /* ============================================================ */
 .table-scroll-wrapper, .table-responsive {
     width: 100%;
@@ -383,12 +390,12 @@ table, .table {
     border-collapse: collapse;
     background-color: #1f2833;
     color: #ffffff;
-    text-align: center; /* Santre tèks anndan tablo a */
+    text-align: center; /* Santre tèks andan tablo yo */
 }
 
 table th, .table th {
     background-color: #0b0c10;
-    color: #28a745; /* Tèt tablo a an Vèt */
+    color: #28a745; /* Tèt tablo Vèt */
     padding: 12px;
     font-weight: bold;
     border-bottom: 2px solid #28a745;
@@ -401,7 +408,24 @@ table td, .table td {
 }
 
 table tbody tr:hover {
-    background-color: #131a22; /* Efè hover nwa sou liy yo */
+    background-color: #131a22;
+}
+
+/* Seksyon Echanj layout */
+.echanj-inbox-container {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.transactions-viewport {
+    flex: 2;
+    min-width: 300px;
+    background: #1f2833;
+    border-radius: 8px;
+    padding: 20px;
 }
 
 /* ============================================================ */
@@ -411,7 +435,7 @@ table tbody tr:hover {
     position: fixed;
     bottom: 0; left: 0; width: 100%;
     height: 65px;
-    background-color: #0b0c10; /* Fon Nwa */
+    background-color: #0b0c10;
     border-top: 2px solid #1f2833;
     display: flex;
     justify-content: space-around;
@@ -423,16 +447,15 @@ table tbody tr:hover {
     background: none; border: none;
     display: flex; flex-direction: column;
     align-items: center; gap: 4px;
-    color: #94a3b8; /* Gri par défaut */
+    color: #94a3b8;
     font-size: 12px; padding: 5px;
 }
 
 .nav-item i { font-size: 20px; }
 
-/* Atik ki aktif lan ap vin Vèt */
 .nav-item.active {
-    color: #28a745;
+    color: #28a745; /* Atik aktif lan parèt Vèt */
 }
 .nav-item:hover {
-    color: #dc3545; /* Vin wouj si w pase sou li */
+    color: #dc3545; /* Pase sou li li vin Wouj */
 }
