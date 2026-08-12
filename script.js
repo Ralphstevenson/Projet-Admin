@@ -1,5 +1,5 @@
 // ============================================================
-// ECHANJ PLUS - ADMIN CORE JS (admin.js)
+// ECHANJ PLUS - ADMIN CORE JS (script.js)
 // ============================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -10,9 +10,6 @@ import {
     signOut 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-// ENPÒTASYON DIREK POU EVITE BLOKAJ DINAMIK
-import { initAdminRetre } from "./admin-retre.js";
 
 // FIREBASE CONFIGURATION
 const firebaseConfig = {
@@ -49,7 +46,7 @@ onAuthStateChanged(auth, async (user) => {
             if (authScreen) authScreen.classList.add('hidden');
             if (adminPanel) adminPanel.classList.remove('hidden');
             
-            // DEMARE SÈVIS YO
+            // DEMARE SÈVIS YO APRE KONEKSYON AN REYISI
             initAdminApp();
         } else {
             showError("Aksè Refize! Kont sa a pa gen pèmisyon Admin.");
@@ -125,23 +122,25 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
     });
 });
 
-// INITIALISATION DEKOPLE (Chak modil mache pou kò l)
+// INITIALISATION AVANSE
 async function initAdminApp() {
     console.log("Sistèm Admin Echanj Plus Pare!");
 
-    // 1. Lanse Retrè Admin Menm Kote A (San Tann Lòt Yo)
+    // Chaje Retrè Admin san li pa kase anyen si l gen pwoblèm
     try {
-        if (typeof initAdminRetre === "function") {
-            initAdminRetre(db);
-            console.log("Modil Retrè konekte ak db.");
-        } else {
-            console.error("initAdminRetre pa jwenn kòm fonksyon!");
+        const moduleRetre = await import("./admin-retre.js");
+        if (moduleRetre && typeof moduleRetre.initAdminRetre === "function") {
+            moduleRetre.initAdminRetre(db);
+            console.log("Modil Retrè konekte ak siksè.");
+        } else if (moduleRetre && typeof moduleRetre.default === "function") {
+            moduleRetre.default(db);
+            console.log("Modil Retrè (default) konekte ak siksè.");
         }
     } catch (e) {
-        console.error("Erè nan ekzekisyon initAdminRetre:", e);
+        console.error("Erè nan chajman admin-retre.js:", e);
     }
 
-    // 2. Chaje Akèy
+    // Chaje Akèy
     try {
         const { initAkeySection } = await import("./akey.js");
         if (typeof initAkeySection === "function") {
@@ -151,7 +150,7 @@ async function initAdminApp() {
         console.error("Erè nan chajman akey.js:", e);
     }
 
-    // 3. Chaje Echanj
+    // Chaje Echanj
     try {
         const { initAdminEchanj } = await import("./admin-echanj.js");
         if (typeof initAdminEchanj === "function") {
