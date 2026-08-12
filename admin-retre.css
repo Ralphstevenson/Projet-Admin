@@ -1,272 +1,101 @@
-/* ============================================================
-   ECHANJ PLUS - TABLO RETRÈ PREMIUM (TÈM: VÈT, ROUJ, NWA)
+here/* ============================================================
+   ECHANJ PLUS - ADMIN RETRÈ MODULE STYLES
    ============================================================ */
 
-/* Animasyon pou afiche seksyon an dousman */
-#sec-retre {
-    animation: fadeInSection 0.4s ease-out forwards;
-    background-color: #f8fafc;
-}
-
-@keyframes fadeInSection {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* 1. Kontenè Prensipal la */
-#sec-retre .container {
-    padding: 15px;
-    max-width: 100%;
-}
-
-/* 2. Filtè Bouton yo (Nwa ak Koulè lè yo aktif) */
-.filter-btn {
-    font-size: 13px !important;
-    padding: 8px 16px !important;
-    border-radius: 30px !important;
-    border: 2px solid #e2e8f0 !important;
-    background: #ffffff !important;
-    color: #0f172a !important; /* Tèks Nwa */
-    font-weight: 600 !important;
-    transition: all 0.25s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-
-.filter-btn:hover {
-    border-color: #0f172a !important;
-    background: #f1f5f9 !important;
-}
-
-/* Koulè dinamik pou bouton ki aktif yo */
-.filter-btn[data-status="all"].active {
-    background: #0f172a !important; /* Nwa */
-    color: #ffffff !important;
-    border-color: #0f172a !important;
-}
-
-.filter-btn[data-status="pending"].active {
-    background: #ea580c !important; /* Zoranj/Jòn Fò */
-    color: #ffffff !important;
-    border-color: #ea580c !important;
-}
-
-.filter-btn[data-status="validé"].active {
-    background: #16a34a !important; /* Vèt */
-    color: #ffffff !important;
-    border-color: #16a34a !important;
-}
-
-.filter-btn[data-status="anile"].active {
-    background: #dc2626 !important; /* Rouj */
-    color: #ffffff !important;
-    border-color: #dc2626 !important;
-}
-
-/* 3. Kat ki gen tablo a (Card Wrapper) */
+/* Layout dous pou kat yo */
 .shadow-smooth {
-    border-radius: 16px !important;
-    border: 2px solid #0f172a !important; /* Bord nwa pwofesyonèl */
-    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1) !important;
-    background: #ffffff;
-    overflow: hidden;
-    margin-top: 20px;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+    border: 1px solid rgba(15, 23, 42, 0.05) !important;
 }
 
-/* responsive glise pou mobil */
-.table-responsive {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+/* Sidebar Kliyan yo */
+.clients-list-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
 }
 
-/* 4. Tablo a nèt */
-.table {
-    width: 100%;
-    margin-bottom: 0 !important;
-    border-collapse: collapse;
+.clients-list-wrapper::-webkit-scrollbar {
+    width: 6px;
 }
 
-/* Tèt Tablo a (Header NWA PURE) */
-.table thead.table-dark {
-    background-color: #0f172a !important;
-    color: #ffffff !important;
+.clients-list-wrapper::-webkit-scrollbar-track {
+    background: #f8fafc;
 }
 
-.table thead th {
-    padding: 16px 20px !important;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-    font-weight: 700;
-    border: none !important;
-    color: #ffffff !important;
+.clients-list-wrapper::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
 }
 
-/* Kò Tablo a (Liy yo) */
-.table tbody tr {
-    border-bottom: 1px solid #e2e8f0;
-    transition: background 0.2s ease;
+/* Atik nan lis kliyan an */
+.user-sidebar-item {
+    transition: all 0.2s ease-in-out;
+    border-radius: 8px;
+    margin-bottom: 4px;
 }
 
-/* Altènasyon koulè sou liy yo pou lekti a pi fasil */
-.table tbody tr:nth-child(even) {
-    background-color: #f8fafc;
-}
-
-.table tbody tr:hover {
+.user-sidebar-item:hover {
     background-color: #f1f5f9 !important;
+    transform: translateX(2px);
 }
 
-.table tbody td {
-    padding: 16px 20px !important;
-    font-size: 14px;
-    color: #1e293b;
-    vertical-align: middle;
-    white-space: nowrap;
+/* Lè yon kliyan seleksyone pou istorik li */
+.active-user-item {
+    background-color: #e2e8f0 !important;
+    border-left: 4px solid #3b82f6 !important;
 }
 
-/* Detay Kliyan ak ID */
-.table td strong {
-    color: #0f172a; /* Non an Nwa solid */
+/* Animasyon pou badj alèt k ap bat la (Pulse Effect) */
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+/* Bouton kopye rapid la */
+.btn-outline-secondary {
+    transition: all 0.15s ease-in-out;
+}
+.btn-outline-secondary:hover {
+    background-color: #f8fafc !important;
+    color: #334155 !important;
+    border-color: #94a3b8 !important;
+}
+
+/* Tèks ti kras italik pou sa ki trete deja */
+.text-center-traite {
+    font-size: 12px;
     font-weight: 600;
-}
-
-.table td small {
-    display: block;
-    font-size: 11px;
-    color: #64748b !important;
-    margin-top: 3px;
-    font-family: monospace;
-}
-
-/* Metòd Peman (MonCash / NatCash) */
-.table td .method-badge {
-    color: #0f172a;
-    font-weight: 700;
-}
-
-/* 5. Badges Statut ak Koulè Vanyan (Vèt ak Rouj byen trete) */
-.badge {
-    padding: 6px 14px !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    border-radius: 8px !important;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 20px;
     display: inline-block;
 }
 
-/* Statut: Validé (VÈT FLASH) */
-.table .bg-success-light, .badge.bg-success, [data-status="validé"] {
-    background-color: #dcfce7 !important;
-    color: #15803d !important;
-    border: 2px solid #bbf7d0 !important;
-}
-
-/* Statut: Pending (ZORANJ/JÒN) */
-.table .bg-warning-light, .badge.bg-warning, [data-status="pending"] {
-    background-color: #fff7ed !important;
-    color: #c2410c !important;
-    border: 2px solid #ffedd5 !important;
-}
-
-/* Statut: Anile (ROUJ VIF) */
-.table .bg-danger-light, .badge.bg-danger, [data-status="anile"] {
-    background-color: #fee2e2 !important;
-    color: #b91c1c !important;
-    border: 2px solid #fecaca !important;
-}
-
-/* 6. Bouton Aksyon nan Tablo a (Solid Vèt ak Rouj) */
+/* Kontenè pou bouton aksyon yo pa deplase */
 .action-btn-container {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     justify-content: center;
 }
 
-.table .btn-sm {
-    padding: 8px 14px !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-    border-radius: 8px !important;
-    border: none !important;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-/* Bouton Valide -> VÈT */
-.table .btn-success {
-    background-color: #16a34a !important;
-    color: #ffffff !important;
-}
-.table .btn-success:hover {
-    background-color: #15803d !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
-}
-
-/* Bouton Anile -> ROUJ */
-.table .btn-danger {
-    background-color: #dc2626 !important;
-    color: #ffffff !important;
-}
-.table .btn-danger:hover {
-    background-color: #b91c1c !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-}
-
-/* Tèks lè li fin "Traite" */
-.table td.text-center-traite {
-    font-weight: 700;
-    color: #64748b;
-    text-transform: uppercase;
-    font-size: 12px;
-}
-
-/* 7. Modal Reyeksyon (Tèm Nwa & Rouj) */
+/* Modal Overlay Fix */
 .modal-overlay {
-    background: rgba(15, 23, 42, 0.7) !important;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(4px);
+    transition: opacity 0.3s ease;
 }
 
-.modal-content {
-    border: 2px solid #0f172a !important;
-    border-radius: 16px !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-}
-
-.modal-content h4 {
-    color: #0f172a;
-    font-weight: 700;
-}
-
-.modal-content textarea.form-control {
-    border: 2px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 10px;
-}
-
-.modal-content textarea.form-control:focus {
-    border-color: #dc2626;
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
-    outline: none;
-}
-
-/* Tweak pou ti ekran */
-@media (max-width: 576px) {
-    .table tbody td {
-        padding: 12px 14px !important;
-        font-size: 13px;
-    }
-    .badge {
-        padding: 4px 8px !important;
-    }
+/* Klas pou kache eleman (si w pa t genyen l) */
+.hidden {
+    display: none !important;
 }
