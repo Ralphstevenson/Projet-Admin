@@ -8,49 +8,53 @@ let allWithdrawalsData = {};
 let allUsersData = {};
 let targetRejectId = null;
 let targetRejectData = null;
-let selectedUserUid = null; // Pou konnen kilès ki louvri nan istorik la
+let selectedUserUid = null; 
 
 export function initAdminRetre(db) {
     console.log("Modil Retrè Admin Avanse Lanse!");
     
     const withdrawalListElem = document.getElementById("admin-withdrawal-list");
     const totalPendingBadge = document.getElementById("total-pending-badge");
-    const userListContainer = document.getElementById("div-clients-list"); // Asire w ID sa nan HTML sidebar la
+    const userListContainer = document.getElementById("div-clients-list"); 
     
     const dbWithdrawalsRef = ref(db, "withdrawals");
     const dbUsersRef = ref(db, "users");
 
     // --------------------------------------------------------
-    // 1. LISTENERS REALTIME (Koute Done yo an tan reyèl)
+    // 1. LISTENERS REALTIME ENDEPANDAN (Pou evite blokaj)
     // --------------------------------------------------------
     
-    // Koute Itilizatè yo pou jere Lis a gòch la ak Alèt Demand yo
+    // Koute demand retrè yo (Sa a pap janm bloke menm si users vid)
+    onValue(dbWithdrawalsRef, (withdrawalSnapshot) => {
+        allWithdrawalsData = withdrawalSnapshot.exists() ? withdrawalSnapshot.val() : {};
+        console.log("Demand retrè yo chaje:", allWithdrawalsData);
+        
+        // Rekalkile alèt yo epi mete tablo jeneral la ajou
+        calculateUserPendingAlerts();
+        renderWithdrawalsTable(withdrawalListElem, totalPendingBadge);
+        renderUsersSidebar(userListContainer);
+        
+        if (selectedUserUid) {
+            renderUserHistory(selectedUserUid);
+        }
+    }, (error) => {
+        console.error("Erè Realtime withdrawals:", error);
+    });
+
+    // Koute itilizatè yo separeman
     onValue(dbUsersRef, (userSnapshot) => {
         allUsersData = userSnapshot.exists() ? userSnapshot.val() : {};
+        console.log("Itilizatè yo chaje:", allUsersData);
         
-        // Koute demand yo tou pou nou ka mare Alèt yo ansanm
-        onValue(dbWithdrawalsRef, (withdrawalSnapshot) => {
-            allWithdrawalsData = withdrawalSnapshot.exists() ? withdrawalSnapshot.val() : {};
-            
-            // Kalkile konbyen demand "pending" chak itilizatè genyen
-            calculateUserPendingAlerts();
-            
-            // Afiche Tablo jeneral la ak Lis Itilizatè yo nan Sidebar a
-            renderWithdrawalsTable(withdrawalListElem, totalPendingBadge);
-            renderUsersSidebar(userListContainer);
-            
-            // Si admin lan te deja klike sou yon itilizatè pou wè istorik li, mete istorik la ajou tou
-            if (selectedUserUid) {
-                renderUserHistory(selectedUserUid);
-            }
-        });
+        calculateUserPendingAlerts();
+        renderUsersSidebar(userListContainer);
+    }, (error) => {
+        console.error("Erè Realtime users:", error);
     });
 
     // --------------------------------------------------------
-    // 2. SISTÈM RECHÈCH DIRÈK NAN FIREBASE (REALTIME QUERIES)
+    // 2. SISTÈM RECHÈCH
     // --------------------------------------------------------
-    
-    // Rechèch Itilizatè nan Sidebar a (Pa Non oswa Telefòn)
     const userSearchInput = document.getElementById("user-search-input");
     if (userSearchInput) {
         userSearchInput.addEventListener("input", (e) => {
@@ -59,8 +63,6 @@ export function initAdminRetre(db) {
                 renderUsersSidebar(userListContainer);
                 return;
             }
-            
-            // N ap filtre nan done lokal yo ki deja senkronize pou rechèch rapid nan lis la
             const filteredUsers = {};
             Object.keys(allUsersData).forEach(uid => {
                 const u = allUsersData[uid];
@@ -74,7 +76,6 @@ export function initAdminRetre(db) {
         });
     }
 
-    // Rechèch Tranzaksyon dirèk nan Tablo a (Query Firebase pa UID oswa Status)
     const txSearchInput = document.getElementById("tx-search-input");
     const btnSearchTx = document.getElementById("btn-search-tx");
     
@@ -82,7 +83,6 @@ export function initAdminRetre(db) {
         btnSearchTx.addEventListener("click", () => {
             const term = txSearchInput.value.trim();
             if (!term) {
-                // Si bwat la vid, nou tounen nan lis jeneral la
                 onValue(dbWithdrawalsRef, (snap) => {
                     allWithdrawalsData = snap.exists() ? snap.val() : {};
                     renderWithdrawalsTable(withdrawalListElem, totalPendingBadge);
@@ -90,20 +90,18 @@ export function initAdminRetre(db) {
                 return;
             }
 
-            // Egzekite yon Query Firebase dirèk sou "uid"
             const txQuery = query(ref(db, "withdrawals"), orderByChild("uid"), equalTo(term));
             get(txQuery).then((snapshot) => {
                 if (snapshot.exists()) {
                     allWithdrawalsData = snapshot.val();
                     renderWithdrawalsTable(withdrawalListElem, totalPendingBadge);
                 } else {
-                    withdrawalListElem.innerHTML = `<tr><td colspan="6" class="text-center text-danger p-4">Pa gen okenn tranzaksyon ki jwenn pou UID sa a nan Firebase.</td></tr>`;
+                    withdrawalListElem.innerHTML = `<tr><td colspan="6" class="text-center text-danger p-4">Pa gen okenn tranzaksyon ki jwenn pou UID sa a.</td></tr>`;
                 }
-            }).catch(err => alert("Erè nan rechèch Firebase: " + err.message));
+            }).catch(err => alert("Erè nan rechèch: " + err.message));
         });
     }
 
-    // Filtre Tablo Jeneral la nan klike sou bouton statut yo
     document.querySelectorAll(".filter-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
             document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
@@ -113,7 +111,6 @@ export function initAdminRetre(db) {
         });
     });
 
-    // Modal Bouton fèmen ak Konfime
     document.getElementById("btn-close-reject-modal").addEventListener("click", closeRejectModal);
     document.getElementById("btn-confirm-reject").addEventListener("click", () => {
         const reason = document.getElementById("reject-reason-input").value.trim();
@@ -124,9 +121,7 @@ export function initAdminRetre(db) {
         executeReject(db, targetRejectId, targetRejectData, reason);
     });
 
-    // --------------------------------------------------------
-    // 3. EKSPOZE FONKSYON YO SOU WINDOWS (GLOBAL)
-    // --------------------------------------------------------
+    // Globals
     window.processApprove = (id) => { executeApprove(db, id); };
     window.openRejectModal = (id, uid, amount) => {
         targetRejectId = id;
@@ -135,39 +130,25 @@ export function initAdminRetre(db) {
         document.getElementById("modal-reject-reason").classList.remove("hidden");
     };
     
-    // Fonksyon pou kopye nimewo nan yon sèl klik
     window.copyToClipboard = (text, btnElement) => {
         if (!text || text === "Pas de numéro") return;
         navigator.clipboard.writeText(text).then(() => {
             const originalHTML = btnElement.innerHTML;
             btnElement.innerHTML = `<i class="fa fa-check text-success"></i> Kopye!`;
-            btnElement.style.borderColor = "#16a34a";
-            setTimeout(() => {
-                btnElement.innerHTML = originalHTML;
-                btnElement.style.borderColor = "";
-            }, 1500);
+            setTimeout(() => { btnElement.innerHTML = originalHTML; }, 1500);
         }).catch(err => console.error("Erè nan kopye:", err));
     };
 
-    // Klike sou yon itilizatè nan sidebar a pou louvri Istorik li
     window.selectUserForHistory = (uid) => {
         selectedUserUid = uid;
         renderUserHistory(uid);
     };
 }
 
-// --------------------------------------------------------
-// KÒ PWOSEDIDIL AK RENDERING
-// --------------------------------------------------------
-
-// Kalkile konbyen demand ki "pending" pou chak itilizatè
 function calculateUserPendingAlerts() {
-    // Rele tout itilizatè yo pou mete alèt yo sou 0 anvan
     Object.keys(allUsersData).forEach(uid => {
         allUsersData[uid].pendingCount = 0;
     });
-
-    // Pakouri tout demand retrè yo pou n ogmante konte a si li "pending"
     Object.keys(allWithdrawalsData).forEach(key => {
         const tx = allWithdrawalsData[key];
         if (tx.status === "pending" && allUsersData[tx.uid]) {
@@ -176,7 +157,6 @@ function calculateUserPendingAlerts() {
     });
 }
 
-// Ranpli Sidebar Itilizatè yo ak sistèm Alèt la
 function renderUsersSidebar(container, filteredData = null) {
     if (!container) return;
     container.innerHTML = "";
@@ -185,38 +165,33 @@ function renderUsersSidebar(container, filteredData = null) {
     const uids = Object.keys(dataToRender);
 
     if (uids.length === 0) {
-        container.innerHTML = `<div class="p-3 text-center text-muted small">Pa gen kliyan ki jwenn.</div>`;
+        container.innerHTML = `<div class="p-3 text-center text-muted small">Pa gen kliyan nan baz la.</div>`;
         return;
     }
 
     uids.forEach(uid => {
         const user = dataToRender[uid];
         const alertCount = user.pendingCount || 0;
-        
-        // Kreyasyon badj Alèt wouj la (L ap rete la depi gen demand pending, menmsi admin an fin gade l)
         const alertBadge = alertCount > 0 
             ? `<span class="badge bg-danger text-white rounded-circle ms-auto px-2" style="font-size: 11px; animation: pulse 1.5s infinite;">${alertCount}</span>` 
             : '';
-
         const activeClass = selectedUserUid === uid ? "active-user-item" : "";
 
-        const userRow = `
+        container.innerHTML += `
             <div class="user-sidebar-item ${activeClass} d-flex align-items-center p-3 border-bottom" style="cursor:pointer;" onclick="selectUserForHistory('${uid}')">
                 <div class="user-avatar me-2 bg-dark text-white rounded-circle d-flex align-items-center justify-content-center" style="width:35px; height:35px; font-weight:700;">
                     ${(user.name || "U").charAt(0).toUpperCase()}
                 </div>
                 <div style="flex: 1; min-width: 0;">
-                    <h6 class="mb-0 text-truncate fw-bold" style="font-size: 13.5px; color:#0f172a;">${user.name || "Itilizatè san non"}</h6>
+                    <h6 class="mb-0 text-truncate fw-bold" style="font-size: 13.5px;">${user.name || "Kliyan San Non"}</h6>
                     <small class="text-muted text-truncate d-block" style="font-size: 11px;">Sol: ${(user.balance || 0).toFixed(2)} HTG</small>
                 </div>
                 ${alertBadge}
             </div>
         `;
-        container.innerHTML += userRow;
     });
 }
 
-// Afiche tablo jeneral retrè yo
 function renderWithdrawalsTable(listElem, badgeElem) {
     if (!listElem) return;
     listElem.innerHTML = "";
@@ -235,23 +210,24 @@ function renderWithdrawalsTable(listElem, badgeElem) {
         if (currentFilter !== "all" && status !== currentFilter) return;
         hasRows = true;
 
-        const numMoun lan = item.phone || item.accountDetails || "Pas de numéro";
+        const numMounLan = item.phone || item.accountDetails || "Pas de numéro";
+        const montanKòb = item.amount ? parseFloat(item.amount).toFixed(2) : "0.00";
 
-        const row = `
+        listElem.innerHTML += `
             <tr>
                 <td>
                     <span class="fw-bold">${item.name || "Reseptè Enkoni"}</span><br>
                     <small class="text-muted">UID: ${item.uid}</small>
                 </td>
                 <td>
-                    <span class="badge bg-dark text-white mb-1">${item.method}</span><br>
+                    <span class="badge bg-dark text-white mb-1">${item.method || "MonCash"}</span><br>
                     <button class="btn btn-sm btn-outline-secondary border px-2 py-1 d-flex align-items-center gap-1" 
-                            style="font-size:12px; border-radius:6px; background:#fff;" 
-                            onclick="copyToClipboard('${numMoun lan}', this)" title="Klike pou kopye nimewo a">
-                        <i class="fa fa-copy text-muted"></i> <strong>${numMoun lan}</strong>
+                            style="font-size:12px; background:#fff;" 
+                            onclick="copyToClipboard('${numMounLan}', this)">
+                        <i class="fa fa-copy text-muted"></i> <strong>${numMounLan}</strong>
                     </button>
                 </td>
-                <td><span class="text-success fw-bold">${parseFloat(item.amount).toFixed(2)} HTG</span></td>
+                <td><span class="text-success fw-bold">${montanKòb} HTG</span></td>
                 <td><small class="text-muted">${item.date || "---"}</small></td>
                 <td><span class="badge bg-${status === 'validé' ? 'success' : (status === 'anile' ? 'danger' : 'warning')}">${status.toUpperCase()}</span></td>
                 <td class="text-center">
@@ -260,7 +236,7 @@ function renderWithdrawalsTable(listElem, badgeElem) {
                             <button class="btn btn-success btn-sm fw-bold" onclick="processApprove('${key}')">
                                 <i class="fa fa-check"></i> Valide
                             </button>
-                            <button class="btn btn-danger btn-sm fw-bold" onclick="openRejectModal('${key}', '${item.uid}', ${item.amount})">
+                            <button class="btn btn-danger btn-sm fw-bold" onclick="openRejectModal('${key}', '${item.uid}', ${item.amount || 0})">
                                 <i class="fa fa-ban"></i> Anile
                             </button>
                         </div>
@@ -270,7 +246,6 @@ function renderWithdrawalsTable(listElem, badgeElem) {
                 </td>
             </tr>
         `;
-        listElem.innerHTML += row;
     });
 
     if (badgeElem) badgeElem.innerText = `${pendingCount} En Enstans`;
@@ -279,19 +254,16 @@ function renderWithdrawalsTable(listElem, badgeElem) {
     }
 }
 
-// Rann Istorik pèsonalize yon sèl itilizatè ki klike
 function renderUserHistory(uid) {
-    const historyContainer = document.getElementById("lis-echanj-container"); // Bò dwat viewport a
+    const historyContainer = document.getElementById("lis-echanj-container");
     if (!historyContainer) return;
 
     const user = allUsersData[uid] || {};
-    
-    // Filtre tout tranzaksyon ki pou itilizatè sa a sèlman
     const userTxKeys = Object.keys(allWithdrawalsData).filter(key => allWithdrawalsData[key].uid === uid);
 
     let txRowsHTML = "";
     if (userTxKeys.length === 0) {
-        txRowsHTML = `<tr><td colspan="5" class="text-center text-muted py-3">Itilizatè sa a pa gen okenn istorik retrè.</td></tr>`;
+        txRowsHTML = `<tr><td colspan="5" class="text-center text-muted py-3">Itilizatè sa a pa gen okenn istorik.</td></tr>`;
     } else {
         userTxKeys.sort((a,b) => new Date(allWithdrawalsData[b].date || 0) - new Date(allWithdrawalsData[a].date || 0)).forEach(key => {
             const tx = allWithdrawalsData[key];
@@ -299,13 +271,13 @@ function renderUserHistory(uid) {
             txRowsHTML += `
                 <tr>
                     <td><small>${tx.date || "---"}</small></td>
-                    <td><span class="badge bg-secondary">${tx.method}</span><br><small>${num}</small></td>
-                    <td class="fw-bold text-success">${parseFloat(tx.amount).toFixed(2)} HTG</td>
+                    <td><span class="badge bg-secondary">${tx.method || "Retrè"}</span><br><small>${num}</small></td>
+                    <td class="fw-bold text-success">${parseFloat(tx.amount || 0).toFixed(2)} HTG</td>
                     <td><span class="badge bg-${tx.status === 'validé' ? 'success' : (tx.status === 'anile' ? 'danger' : 'warning')}">${(tx.status || 'pending').toUpperCase()}</span></td>
                     <td>
                         ${tx.status === 'pending' ? `
-                            <button class="btn btn-success btn-sm p-1" onclick="processApprove('${key}')" title="Valide"><i class="fa fa-check"></i></button>
-                            <button class="btn btn-danger btn-sm p-1" onclick="openRejectModal('${key}', '${tx.uid}', ${tx.amount})" title="Anile"><i class="fa fa-ban"></i></button>
+                            <button class="btn btn-success btn-sm p-1" onclick="processApprove('${key}')"><i class="fa fa-check"></i></button>
+                            <button class="btn btn-danger btn-sm p-1" onclick="openRejectModal('${key}', '${tx.uid}', ${tx.amount || 0})"><i class="fa fa-ban"></i></button>
                         ` : `<small class="text-muted">${tx.status === 'validé' ? 'Peye' : 'Ranbouse'}</small>`}
                     </td>
                 </tr>
@@ -313,25 +285,23 @@ function renderUserHistory(uid) {
         });
     }
 
-    // Ranplase Viewport dwat la ak bèl estrikti sa a
     historyContainer.innerHTML = `
         <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
             <div>
                 <h5 class="mb-0 fw-bold text-dark"><i class="fa fa-user text-primary me-2"></i> Istorik: ${user.name || 'Kliyan'}</h5>
-                <small class="text-muted">UID: ${uid} | Imèl: ${user.email || 'Pas d\'email'}</small>
+                <small class="text-muted">UID: ${uid}</small>
             </div>
             <div class="text-end">
-                <span class="badge bg-dark p-2">Sol aktyèl: ${(user.balance || 0).toFixed(2)} HTG</span>
+                <span class="badge bg-dark p-2">Sol: ${(user.balance || 0).toFixed(2)} HTG</span>
             </div>
         </div>
         <div class="p-3">
-            <h6 class="fw-bold text-secondary mb-3"><i class="fa fa-history me-1"></i> Tout Tranzaksyon Retrè Moun Sa A</h6>
             <div class="table-responsive bg-white rounded shadow-sm border">
                 <table class="table table-sm table-hover align-middle mb-0">
                     <thead class="table-dark" style="font-size:11px;">
                         <tr>
                             <th>Dat</th>
-                            <th>Metòd & Nimewo</th>
+                            <th>Metòd</th>
                             <th>Montan</th>
                             <th>Statut</th>
                             <th>Aksyon</th>
@@ -346,25 +316,16 @@ function renderUserHistory(uid) {
     `;
 }
 
-// --------------------------------------------------------
-// FONKSYON AKSYON FIREBASE (APPROVE / REJECT)
-// --------------------------------------------------------
-
 function executeApprove(db, id) {
     if (!confirm("Èske ou sèten ou peye retrè sa a deja epi ou vle valide li?")) return;
-
     const updates = {};
     updates[`/withdrawals/${id}/status`] = "validé";
     updates[`/withdrawals/${id}/processedAt`] = new Date().toLocaleString();
-
-    update(ref(db), updates)
-        .then(() => alert("Retrè a valide avèk siksè!"))
-        .catch(err => alert("Erè: " + err.message));
+    update(ref(db), updates).catch(err => alert("Erè: " + err.message));
 }
 
 function executeReject(db, id, requestData, reason) {
     const userBalanceRef = ref(db, `users/${requestData.uid}/balance`);
-
     runTransaction(userBalanceRef, (currentBalance) => {
         return (currentBalance || 0) + requestData.amount;
     }).then((result) => {
@@ -373,16 +334,9 @@ function executeReject(db, id, requestData, reason) {
             updates[`/withdrawals/${id}/status`] = "anile";
             updates[`/withdrawals/${id}/rejectReason`] = reason;
             updates[`/withdrawals/${id}/processedAt`] = new Date().toLocaleString();
-
-            update(ref(db), updates).then(() => {
-                alert("Retrè a anile! Kòb la tounen sou kont kliyan an otomatikman.");
-                closeRejectModal();
-            });
+            update(ref(db), updates).then(() => { closeRejectModal(); });
         }
-    }).catch((error) => {
-        console.error("Erè nan ranbousman:", error);
-        alert("Pwoblèm nan ranbousman: " + error.message);
-    });
+    }).catch((error) => { alert("Pwoblèm: " + error.message); });
 }
 
 function closeRejectModal() {
