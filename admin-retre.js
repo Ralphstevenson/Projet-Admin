@@ -1,4 +1,4 @@
-here// ============================================================
+// ============================================================
 // ECHANJ PLUS - ADMIN RETRÈ MODULE (admin-retre.js)
 // ============================================================
 import { ref, onValue, update, runTransaction, query, orderByChild, equalTo, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -21,21 +21,24 @@ export function initAdminRetre(db) {
     const dbUsersRef = ref(db, "users");
 
     // --------------------------------------------------------
-    // 1. LISTENERS REALTIME ENDEPANDAN (Pou evite blokaj)
+    // 1. LISTENERS REALTIME ENDEPANDAN (Pou evite okenn blokaj)
     // --------------------------------------------------------
     
-    // Koute demand retrè yo (Sa a pap janm bloke menm si users vid)
+    // Koute demand retrè yo
     onValue(dbWithdrawalsRef, (withdrawalSnapshot) => {
-        allWithdrawalsData = withdrawalSnapshot.exists() ? withdrawalSnapshot.val() : {};
-        console.log("Demand retrè yo chaje:", allWithdrawalsData);
-        
-        // Rekalkile alèt yo epi mete tablo jeneral la ajou
-        calculateUserPendingAlerts();
-        renderWithdrawalsTable(withdrawalListElem, totalPendingBadge);
-        renderUsersSidebar(userListContainer);
-        
-        if (selectedUserUid) {
-            renderUserHistory(selectedUserUid);
+        try {
+            allWithdrawalsData = withdrawalSnapshot.exists() ? withdrawalSnapshot.val() : {};
+            console.log("Demand retrè yo chaje:", allWithdrawalsData);
+            
+            calculateUserPendingAlerts();
+            renderWithdrawalsTable(withdrawalListElem, totalPendingBadge);
+            renderUsersSidebar(userListContainer);
+            
+            if (selectedUserUid) {
+                renderUserHistory(selectedUserUid);
+            }
+        } catch (err) {
+            console.error("Erè nan pwosesis withdrawals snapshot:", err);
         }
     }, (error) => {
         console.error("Erè Realtime withdrawals:", error);
@@ -43,17 +46,21 @@ export function initAdminRetre(db) {
 
     // Koute itilizatè yo separeman
     onValue(dbUsersRef, (userSnapshot) => {
-        allUsersData = userSnapshot.exists() ? userSnapshot.val() : {};
-        console.log("Itilizatè yo chaje:", allUsersData);
-        
-        calculateUserPendingAlerts();
-        renderUsersSidebar(userListContainer);
+        try {
+            allUsersData = userSnapshot.exists() ? userSnapshot.val() : {};
+            console.log("Itilizatè yo chaje:", allUsersData);
+            
+            calculateUserPendingAlerts();
+            renderUsersSidebar(userListContainer);
+        } catch (err) {
+            console.error("Erè nan pwosesis users snapshot:", err);
+        }
     }, (error) => {
         console.error("Erè Realtime users:", error);
     });
 
     // --------------------------------------------------------
-    // 2. SISTÈM RECHÈCH
+    // 2. SISTÈM RECHÈCH KLIYAN
     // --------------------------------------------------------
     const userSearchInput = document.getElementById("user-search-input");
     if (userSearchInput) {
@@ -65,7 +72,7 @@ export function initAdminRetre(db) {
             }
             const filteredUsers = {};
             Object.keys(allUsersData).forEach(uid => {
-                const u = allUsersData[uid];
+                const u = allUsersData[uid] || {};
                 const name = (u.name || "").toLowerCase();
                 const phone = (u.phone || "").toLowerCase();
                 if (name.includes(searchValue) || phone.includes(searchValue)) {
@@ -76,58 +83,75 @@ export function initAdminRetre(db) {
         });
     }
 
+    // --------------------------------------------------------
+    // 3. RECHÈCH TRANZAKSYON PA UID (Sistèm Chache a)
+    // --------------------------------------------------------
     const txSearchInput = document.getElementById("tx-search-input");
-    const btnSearchTx = document.getElementById("btn-search-tx");
+    const btnSearchTx = document.getElementById("btn-search-tx") || document.querySelector("button[onclick*='Chache']");
     
+    // Si w gen yon bouton rechèch nan HTML la
     if (btnSearchTx && txSearchInput) {
         btnSearchTx.addEventListener("click", () => {
             const term = txSearchInput.value.trim();
             if (!term) {
-                onValue(dbWithdrawalsRef, (snap) => {
-                    allWithdrawalsData = snap.exists() ? snap.val() : {};
-                    renderWithdrawalsTable(withdrawalListElem, totalPendingBadge);
-                }, { onlyOnce: true });
+                renderWithdrawalsTable(withdrawalListElem, totalPendingBadge);
                 return;
             }
 
-            const txQuery = query(ref(db, "withdrawals"), orderByChild("uid"), equalTo(term));
-            get(txQuery).then((snapshot) => {
-                if (snapshot.exists()) {
-                    allWithdrawalsData = snapshot.val();
-                    renderWithdrawalsTable(withdrawalListElem, totalPendingBadge);
-                } else {
+            const filtered = {};
+            Object.keys(allWithdrawalsData).forEach(key => {
+                const tx = allWithdrawalsData[key] || {};
+                if (tx.uid === term || key === term) {
+                    filtered[key] = tx;
+                }
+            });
+
+            if (Object.keys(filtered).length > 0) {
+                renderWithdrawalsTable(withdrawalListElem, totalPendingBadge, filtered);
+            } else {
+                if (withdrawalListElem) {
                     withdrawalListElem.innerHTML = `<tr><td colspan="6" class="text-center text-danger p-4">Pa gen okenn tranzaksyon ki jwenn pou UID sa a.</td></tr>`;
                 }
-            }).catch(err => alert("Erè nan rechèch: " + err.message));
+            }
         });
     }
 
+    // Filtre bouton yo (Tout, En Enstans, Validé, Anile)
     document.querySelectorAll(".filter-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
             document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
             e.target.classList.add("active");
-            currentFilter = e.target.getAttribute("data-status");
+            currentFilter = e.target.getAttribute("data-status") || "all";
             renderWithdrawalsTable(withdrawalListElem, totalPendingBadge);
         });
     });
 
-    document.getElementById("btn-close-reject-modal").addEventListener("click", closeRejectModal);
-    document.getElementById("btn-confirm-reject").addEventListener("click", () => {
-        const reason = document.getElementById("reject-reason-input").value.trim();
-        if (!reason) {
-            alert("Silvouplè, mete yon rezon pou anilasyon an!");
-            return;
-        }
-        executeReject(db, targetRejectId, targetRejectData, reason);
-    });
+    // Modal Anilasyon koute klike
+    const btnCloseReject = document.getElementById("btn-close-reject-modal");
+    if (btnCloseReject) btnCloseReject.addEventListener("click", closeRejectModal);
+    
+    const btnConfirmReject = document.getElementById("btn-confirm-reject");
+    if (btnConfirmReject) {
+        btnConfirmReject.addEventListener("click", () => {
+            const reasonInput = document.getElementById("reject-reason-input");
+            const reason = reasonInput ? reasonInput.value.trim() : "";
+            if (!reason) {
+                alert("Silvouplè, mete yon rezon pou anilasyon an!");
+                return;
+            }
+            executeReject(db, targetRejectId, targetRejectData, reason);
+        });
+    }
 
-    // Globals
+    // Ekspoze fonksyon yo nan window pou bouton HTML yo ka jwenn yo
     window.processApprove = (id) => { executeApprove(db, id); };
     window.openRejectModal = (id, uid, amount) => {
         targetRejectId = id;
-        targetRejectData = { uid, amount: parseFloat(amount) };
-        document.getElementById("reject-reason-input").value = "";
-        document.getElementById("modal-reject-reason").classList.remove("hidden");
+        targetRejectData = { uid, amount: parseFloat(amount) || 0 };
+        const reasonInput = document.getElementById("reject-reason-input");
+        if (reasonInput) reasonInput.value = "";
+        const modal = document.getElementById("modal-reject-reason");
+        if (modal) modal.classList.remove("hidden");
     };
     
     window.copyToClipboard = (text, btnElement) => {
@@ -146,15 +170,19 @@ export function initAdminRetre(db) {
 }
 
 function calculateUserPendingAlerts() {
-    Object.keys(allUsersData).forEach(uid => {
-        allUsersData[uid].pendingCount = 0;
-    });
-    Object.keys(allWithdrawalsData).forEach(key => {
-        const tx = allWithdrawalsData[key];
-        if (tx.status === "pending" && allUsersData[tx.uid]) {
-            allUsersData[tx.uid].pendingCount += 1;
-        }
-    });
+    try {
+        Object.keys(allUsersData).forEach(uid => {
+            if (allUsersData[uid]) allUsersData[uid].pendingCount = 0;
+        });
+        Object.keys(allWithdrawalsData).forEach(key => {
+            const tx = allWithdrawalsData[key] || {};
+            if (tx.status === "pending" && allUsersData[tx.uid]) {
+                allUsersData[tx.uid].pendingCount = (allUsersData[tx.uid].pendingCount || 0) + 1;
+            }
+        });
+    } catch (e) {
+        console.error("Erè nan kalkil alèt:", e);
+    }
 }
 
 function renderUsersSidebar(container, filteredData = null) {
@@ -165,17 +193,18 @@ function renderUsersSidebar(container, filteredData = null) {
     const uids = Object.keys(dataToRender);
 
     if (uids.length === 0) {
-        container.innerHTML = `<div class="p-3 text-center text-muted small">Pa gen kliyan nan baz la.</div>`;
+        container.innerHTML = `<div class="p-3 text-center text-muted small">Pa gen kliyan nan lis la.</div>`;
         return;
     }
 
     uids.forEach(uid => {
-        const user = dataToRender[uid];
+        const user = dataToRender[uid] || {};
         const alertCount = user.pendingCount || 0;
         const alertBadge = alertCount > 0 
-            ? `<span class="badge bg-danger text-white rounded-circle ms-auto px-2" style="font-size: 11px; animation: pulse 1.5s infinite;">${alertCount}</span>` 
+            ? `<span class="badge bg-danger text-white rounded-circle ms-auto px-2" style="font-size: 11px;">${alertCount}</span>` 
             : '';
         const activeClass = selectedUserUid === uid ? "active-user-item" : "";
+        const userBalance = typeof user.balance === "number" ? user.balance.toFixed(2) : parseFloat(user.balance || 0).toFixed(2);
 
         container.innerHTML += `
             <div class="user-sidebar-item ${activeClass} d-flex align-items-center p-3 border-bottom" style="cursor:pointer;" onclick="selectUserForHistory('${uid}')">
@@ -184,7 +213,7 @@ function renderUsersSidebar(container, filteredData = null) {
                 </div>
                 <div style="flex: 1; min-width: 0;">
                     <h6 class="mb-0 text-truncate fw-bold" style="font-size: 13.5px;">${user.name || "Kliyan San Non"}</h6>
-                    <small class="text-muted text-truncate d-block" style="font-size: 11px;">Sol: ${(user.balance || 0).toFixed(2)} HTG</small>
+                    <small class="text-muted text-truncate d-block" style="font-size: 11px;">Sol: ${userBalance} HTG</small>
                 </div>
                 ${alertBadge}
             </div>
@@ -192,32 +221,37 @@ function renderUsersSidebar(container, filteredData = null) {
     });
 }
 
-function renderWithdrawalsTable(listElem, badgeElem) {
+function renderWithdrawalsTable(listElem, badgeElem, customSource = null) {
     if (!listElem) return;
     listElem.innerHTML = "";
     let pendingCount = 0;
     let hasRows = false;
 
-    const sortedKeys = Object.keys(allWithdrawalsData).sort((a, b) => {
-        return new Date(allWithdrawalsData[b].date || 0) - new Date(allWithdrawalsData[a].date || 0);
+    const dataSource = customSource || allWithdrawalsData;
+    const sortedKeys = Object.keys(dataSource).sort((a, b) => {
+        const dateA = dataSource[a]?.date ? new Date(dataSource[a].date) : 0;
+        const dateB = dataSource[b]?.date ? new Date(dataSource[b].date) : 0;
+        return dateB - dateA;
     });
 
     sortedKeys.forEach(key => {
-        const item = allWithdrawalsData[key];
+        const item = dataSource[key];
+        if (!item) return;
+        
         const status = item.status || "pending";
 
         if (status === "pending") pendingCount++;
-        if (currentFilter !== "all" && status !== currentFilter) return;
+        if (!customSource && currentFilter !== "all" && status !== currentFilter) return;
         hasRows = true;
 
         const numMounLan = item.phone || item.accountDetails || "Pas de numéro";
-        const montanKòb = item.amount ? parseFloat(item.amount).toFixed(2) : "0.00";
+        const montanKòb = typeof item.amount === "number" ? item.amount.toFixed(2) : parseFloat(item.amount || 0).toFixed(2);
 
         listElem.innerHTML += `
             <tr>
                 <td>
                     <span class="fw-bold">${item.name || "Reseptè Enkoni"}</span><br>
-                    <small class="text-muted">UID: ${item.uid}</small>
+                    <small class="text-muted">UID: ${item.uid || "---"}</small>
                 </td>
                 <td>
                     <span class="badge bg-dark text-white mb-1">${item.method || "MonCash"}</span><br>
@@ -241,7 +275,7 @@ function renderWithdrawalsTable(listElem, badgeElem) {
                             </button>
                         </div>
                     ` : `
-                        <span class="text-center-traite">${status === 'validé' ? 'Traite' : 'Anile'}</span>
+                        <span class="text-center-traite fw-bold text-muted">${status === 'validé' ? 'Validé' : 'Anile'}</span>
                     `}
                 </td>
             </tr>
@@ -250,7 +284,7 @@ function renderWithdrawalsTable(listElem, badgeElem) {
 
     if (badgeElem) badgeElem.innerText = `${pendingCount} En Enstans`;
     if (!hasRows) {
-        listElem.innerHTML = `<tr><td colspan="6" class="text-center text-muted p-4">Pa gen demann ki koresponn.</td></tr>`;
+        listElem.innerHTML = `<tr><td colspan="6" class="text-center text-muted p-4">Pa gen demann retrè ki disponib.</td></tr>`;
     }
 }
 
@@ -259,20 +293,27 @@ function renderUserHistory(uid) {
     if (!historyContainer) return;
 
     const user = allUsersData[uid] || {};
-    const userTxKeys = Object.keys(allWithdrawalsData).filter(key => allWithdrawalsData[key].uid === uid);
+    const userTxKeys = Object.keys(allWithdrawalsData).filter(key => allWithdrawalsData[key] && allWithdrawalsData[key].uid === uid);
 
     let txRowsHTML = "";
     if (userTxKeys.length === 0) {
         txRowsHTML = `<tr><td colspan="5" class="text-center text-muted py-3">Itilizatè sa a pa gen okenn istorik.</td></tr>`;
     } else {
-        userTxKeys.sort((a,b) => new Date(allWithdrawalsData[b].date || 0) - new Date(allWithdrawalsData[a].date || 0)).forEach(key => {
+        userTxKeys.sort((a,b) => {
+            const dateA = allWithdrawalsData[a]?.date ? new Date(allWithdrawalsData[a].date) : 0;
+            const dateB = allWithdrawalsData[b]?.date ? new Date(allWithdrawalsData[b].date) : 0;
+            return dateB - dateA;
+        }).forEach(key => {
             const tx = allWithdrawalsData[key];
+            if (!tx) return;
             const num = tx.phone || tx.accountDetails || "Pas de numéro";
+            const txAmount = typeof tx.amount === "number" ? tx.amount.toFixed(2) : parseFloat(tx.amount || 0).toFixed(2);
+            
             txRowsHTML += `
                 <tr>
                     <td><small>${tx.date || "---"}</small></td>
                     <td><span class="badge bg-secondary">${tx.method || "Retrè"}</span><br><small>${num}</small></td>
-                    <td class="fw-bold text-success">${parseFloat(tx.amount || 0).toFixed(2)} HTG</td>
+                    <td class="fw-bold text-success">${txAmount} HTG</td>
                     <td><span class="badge bg-${tx.status === 'validé' ? 'success' : (tx.status === 'anile' ? 'danger' : 'warning')}">${(tx.status || 'pending').toUpperCase()}</span></td>
                     <td>
                         ${tx.status === 'pending' ? `
@@ -285,6 +326,8 @@ function renderUserHistory(uid) {
         });
     }
 
+    const userBalance = typeof user.balance === "number" ? user.balance.toFixed(2) : parseFloat(user.balance || 0).toFixed(2);
+
     historyContainer.innerHTML = `
         <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
             <div>
@@ -292,7 +335,7 @@ function renderUserHistory(uid) {
                 <small class="text-muted">UID: ${uid}</small>
             </div>
             <div class="text-end">
-                <span class="badge bg-dark p-2">Sol: ${(user.balance || 0).toFixed(2)} HTG</span>
+                <span class="badge bg-dark p-2">Sol: ${userBalance} HTG</span>
             </div>
         </div>
         <div class="p-3">
@@ -321,10 +364,11 @@ function executeApprove(db, id) {
     const updates = {};
     updates[`/withdrawals/${id}/status`] = "validé";
     updates[`/withdrawals/${id}/processedAt`] = new Date().toLocaleString();
-    update(ref(db), updates).catch(err => alert("Erè: " + err.message));
+    update(ref(db), updates).catch(err => alert("Erè nan validasyon: " + err.message));
 }
 
 function executeReject(db, id, requestData, reason) {
+    if (!requestData || !requestData.uid) return;
     const userBalanceRef = ref(db, `users/${requestData.uid}/balance`);
     runTransaction(userBalanceRef, (currentBalance) => {
         return (currentBalance || 0) + requestData.amount;
@@ -336,11 +380,12 @@ function executeReject(db, id, requestData, reason) {
             updates[`/withdrawals/${id}/processedAt`] = new Date().toLocaleString();
             update(ref(db), updates).then(() => { closeRejectModal(); });
         }
-    }).catch((error) => { alert("Pwoblèm: " + error.message); });
+    }).catch((error) => { alert("Pwoblèm nan ranbousman: " + error.message); });
 }
 
 function closeRejectModal() {
-    document.getElementById("modal-reject-reason").classList.add("hidden");
+    const modal = document.getElementById("modal-reject-reason");
+    if (modal) modal.classList.add("hidden");
     targetRejectId = null;
     targetRejectData = null;
 }
