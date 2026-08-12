@@ -11,6 +11,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+// ENPÒTASYON DIREK POU EVITE BLOKAJ DINAMIK
+import { initAdminRetre } from "./admin-retre.js";
+
 // FIREBASE CONFIGURATION
 const firebaseConfig = {
   apiKey: "AIzaSyB1VTPakleoggsbLdpm_HS7nSb3A7A99Qw",
@@ -43,10 +46,10 @@ onAuthStateChanged(auth, async (user) => {
         const isCorrectEmail = user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
         if (isCorrectUid || isCorrectEmail) {
-            authScreen.classList.add('hidden');
-            adminPanel.classList.remove('hidden');
+            if (authScreen) authScreen.classList.add('hidden');
+            if (adminPanel) adminPanel.classList.remove('hidden');
             
-            // DEMARE SÈVIS YO AN SEKIRITE
+            // DEMARE SÈVIS YO
             initAdminApp();
         } else {
             showError("Aksè Refize! Kont sa a pa gen pèmisyon Admin.");
@@ -122,11 +125,23 @@ document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
     });
 });
 
-// INITIALISATION - Ak Dynamic Import pou evite okenn blokaj sou Auth la
+// INITIALISATION DEKOPLE (Chak modil mache pou kò l)
 async function initAdminApp() {
     console.log("Sistèm Admin Echanj Plus Pare!");
 
-    // 1. Chaje Akèy
+    // 1. Lanse Retrè Admin Menm Kote A (San Tann Lòt Yo)
+    try {
+        if (typeof initAdminRetre === "function") {
+            initAdminRetre(db);
+            console.log("Modil Retrè konekte ak db.");
+        } else {
+            console.error("initAdminRetre pa jwenn kòm fonksyon!");
+        }
+    } catch (e) {
+        console.error("Erè nan ekzekisyon initAdminRetre:", e);
+    }
+
+    // 2. Chaje Akèy
     try {
         const { initAkeySection } = await import("./akey.js");
         if (typeof initAkeySection === "function") {
@@ -136,7 +151,7 @@ async function initAdminApp() {
         console.error("Erè nan chajman akey.js:", e);
     }
 
-    // 2. Chaje Echanj
+    // 3. Chaje Echanj
     try {
         const { initAdminEchanj } = await import("./admin-echanj.js");
         if (typeof initAdminEchanj === "function") {
@@ -145,15 +160,4 @@ async function initAdminApp() {
     } catch (e) {
         console.error("Erè nan chajman admin-echanj.js:", e);
     }
-
-    // 3. Chaje Seksyon Kontwòl Retrè Admin (Mizajou)
-    try {
-        const { initAdminRetre } = await import("./admin-retre.js");
-        if (typeof initAdminRetre === "function") {
-            initAdminRetre(db);
-        }
-    } catch (e) {
-        console.error("Erè nan chajman admin-retre.js:", e);
-    }
-            }
-            
+}
