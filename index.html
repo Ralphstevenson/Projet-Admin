@@ -63,7 +63,69 @@
 
         <!-- KONTENI DINAMIK APARÈY LA (MAIN VIEWPORT) -->
         <main class="admin-main">
-            
+
+            <!-- ========================================== -->
+<!-- SIDEBAR DINAMIK (A gòch nan paj Akey la)   -->
+<!-- ========================================== -->
+<div class="sidebar-akey-container">
+    <div class="sidebar-header-akey">
+        <h3><i class="fa fa-users"></i> Kliyan ki Enskri</h3>
+    </div>
+    
+    <!-- Lis sa a ap chaje depi nan akey.js otomatikman -->
+    <div id="admin-clients-sidebar-list" class="clients-sidebar-list">
+        <p class="loading-text">Ap chaje lis kliyan yo...</p>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- POP-UP MODAL (Mete l nan fon HTML a)       -->
+<!-- ========================================== -->
+<div id="client-details-modal" class="modal-fixed-overlay" style="display: none;">
+    <div class="modal-card-content">
+        <!-- Bouton pou fèmen modal la -->
+        <span class="close-modal-x" onclick="fèmenModalKliyan()">&times;</span>
+        
+        <!-- Pwofil Kliyan an -->
+        <div class="modal-profile-header">
+            <div id="modal-client-avatar" class="client-avatar-large"></div>
+            <h2 id="modal-client-name">---</h2>
+            <p class="uid-text">UID: <span id="modal-client-uid">---</span></p>
+        </div>
+        
+        <div class="divider-line"></div>
+        
+        <!-- Analiz Abitid Kliyan an -->
+        <div class="modal-analytics-box">
+            <h4><i class="fa fa-pie-chart"></i> Analiz Abitid Kliyan</h4>
+            <p>Rezo li pi itilize: <span id="modal-client-rezo-badge" class="badge">---</span></p>
+        </div>
+        
+        <div class="divider-line"></div>
+        
+        <!-- Tablo Istorik Tranzaksyon ak Retrè -->
+        <div class="modal-history-box">
+            <h4><i class="fa fa-history"></i> Istorik Tranzaksyon & Retrè</h4>
+            <div class="table-scroll-wrapper">
+                <table class="custom-admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Kalite</th>
+                            <th>Montan</th>
+                            <th>Rezo</th>
+                            <th>Estati</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modal-client-transactions-table">
+                        <!-- Done yo ap parèt la -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
             <!-- SEKSYON 1: AKÈY -->
             <section id="sec-akey" class="admin-section">
                 <div class="dashboard-header">
