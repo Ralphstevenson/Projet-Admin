@@ -302,6 +302,60 @@
                 <!-- Lojik Chat ap rantre la -->
             </section>
 
+
+
+            <!-- Kòd pou mete nan Sidebar Admin lan -->
+<div class="sidebar-section">
+    <h3><i class="fa fa-users"></i> Kliyan ki Enskri</h3>
+    <div id="admin-clients-sidebar-list" class="clients-list-container">
+        <!-- Lis kliyan yo ap chaje la otomatikman depi nan Firebase -->
+    </div>
+</div>
+
+<!-- Pop-up Modal pou montre detay yon Kliyan (Mete l nan fon paj HTML la) -->
+<div id="client-details-modal" class="modal-hidden">
+    <div class="modal-content">
+        <span class="close-modal-btn" onclick="fèmenModalKliyan()">&times;</span>
+        
+        <div class="client-header-profile">
+            <div id="modal-client-avatar" class="client-avatar-large">R</div>
+            <h2 id="modal-client-name">Non Kliyan An</h2>
+            <p><strong>UID:</strong> <span id="modal-client-uid">---</span></p>
+        </div>
+        
+        <hr>
+        
+        <!-- Analiz sou abitid kliyan an -->
+        <div class="client-analytics-section">
+            <h3>Analis Abitid Kliyan</h3>
+            <p>Rezo li pi itilize: <span id="modal-client-rezo-badge" class="badge">---</span></p>
+        </div>
+        
+        <hr>
+        
+        <!-- Tablo Istorik Tranzaksyon Kliyan an -->
+        <h3>Istorik Tranzaksyon & Retrè</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Kalite</th>
+                        <th>Montan</th>
+                        <th>Rezo</th>
+                        <th>Estati</th>
+                    </tr>
+                </thead>
+                <tbody id="modal-client-transactions-table">
+                    <!-- Tranzaksyon kliyan sa a ap parèt la -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+            
         </main>
 
         <!-- ============================================================ -->
