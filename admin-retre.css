@@ -5,9 +5,11 @@
 /* ROOT VARIABLES POU KOULÈ KLASIK SEYÈ A */
 :root {
     --bg-main: #f8fafc;
-    --text-main: #0f172a;
-    --primary-color: #1e293b;
-    --accent-color: #22c55e;
+    --text-main: #0f172a;       /* Nwa Fonse */
+    --primary-color: #1e293b;   /* Nwa Segondè */
+    --accent-success: #22c55e;  /* Vèt */
+    --accent-danger: #ef4444;   /* Wouj */
+    --accent-warning: #eab308;  /* Jòn */
     --border-color: #e2e8f0;
     --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     --shadow-smooth: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
@@ -56,7 +58,7 @@
     color: #94a3b8;
 }
 
-/* FILTÈ BOUTON YO */
+/* FILTÈ BOUTON YO (Koulè Vèt, Wouj, Nwa, Jòn) */
 .filter-btn {
     border-radius: 20px !important;
     padding: 6px 16px !important;
@@ -65,7 +67,7 @@
     transition: all 0.2s ease-in-out;
 }
 
-/* LIS KLIYAN (SIDEBAR A GÒCH - MENM JAN AK SCREENSHOT LA) */
+/* LIS KLIYAN (SIDEBAR A GÒCH) */
 .clients-list-wrapper {
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 transparent;
@@ -98,17 +100,17 @@
     transform: translateY(-1px);
 }
 
-/* Lè yon kliyan seleksyone */
+/* Lè yon kliyan seleksyone - Liy nwa solid */
 .active-user-item {
     background-color: #f1f5f9 !important;
     border: 1px solid var(--text-main) !important;
 }
 
-/* Ti wonn avatar inisyal yo (Blue nèt) */
+/* Ti wonn avatar inisyal yo (Bèl Ble pwofesyonèl) */
 .user-avatar {
     width: 42px;
     height: 42px;
-    background: #3b82f6 !important; /* Bèl ble */
+    background: #3b82f6 !important;
     color: #ffffff !important;
     font-size: 16px;
     font-weight: 700;
@@ -121,12 +123,12 @@
     box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
-/* Badj Notifikasyon wouj sou tèt avatar a (Alèt En Enstans) */
+/* Badj Notifikasyon wouj sou tèt avatar a */
 .user-sidebar-item .badge.bg-danger {
     position: absolute;
     top: 8px;
     left: 42px;
-    background-color: #ef4444 !important;
+    background-color: var(--accent-danger) !important;
     color: white !important;
     font-size: 10px !important;
     font-weight: 700;
@@ -137,18 +139,23 @@
     z-index: 10;
 }
 
-/* TABLO PRINSIPAL LA (VIEWPORT DWAT) */
+/* TABLO PRINSIPAL LA - SOLISYON GLISE (SCROLL) OBIZONTAL */
 .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto !important; /* Pèmèt glise de gòch a dwat */
+    -webkit-overflow-scrolling: touch; /* Glisman dous sou iOS */
     border-radius: 12px;
-    overflow: hidden;
 }
 
 .table {
     margin-bottom: 0 !important;
+    width: 100%;
+    min-width: 750px; /* Fòse tablo a gen espas pou l ka glise sou mobil san l pa kwense */
 }
 
 .table-dark {
-    background-color: var(--text-main) !important;
+    background-color: var(--text-main) !important; /* Nwa */
     color: #fff !important;
 }
 
@@ -172,7 +179,7 @@
     border-bottom: 1px solid var(--border-color);
 }
 
-/* BOUTON KOPYE KÒD LA GENYEN ANNDAN TABLO A */
+/* BOUTON KOPYE KI ANNDAN TABLO A */
 .table .btn-outline-secondary {
     border: 1px solid #cbd5e1 !important;
     color: #475569 !important;
@@ -186,6 +193,22 @@
 .table .btn-outline-secondary:hover {
     background: #f8fafc !important;
     border-color: #94a3b8 !important;
+}
+
+/* KOULÈ RETE BADJ STATUT YO NAN TABLO A */
+.table .badge.bg-success {
+    background-color: var(--accent-success) !important; /* Vèt */
+    color: #fff !important;
+}
+
+.table .badge.bg-danger {
+    background-color: var(--accent-danger) !important;   /* Wouj */
+    color: #fff !important;
+}
+
+.table .badge.bg-warning {
+    background-color: var(--accent-warning) !important;  /* Jòn */
+    color: #000 !important; /* Tèks nwa sou fon jòn pou l parèt byen */
 }
 
 /* BOUTON AKSYON YO (VALIDE / ANILE) */
@@ -202,13 +225,23 @@
     font-weight: 600 !important;
 }
 
+.action-btn-container .btn-success {
+    background-color: var(--accent-success) !important;
+    border-color: var(--accent-success) !important;
+}
+
+.action-btn-container .btn-danger {
+    background-color: var(--accent-danger) !important;
+    border-color: var(--accent-danger) !important;
+}
+
 .text-center-traite {
     font-size: 13px;
     color: #94a3b8;
     letter-spacing: 0.5px;
 }
 
-/* MODAL OVERLAY (ANILASYON) */
+/* MODAL OVERLAY (ANILASYON - TÈKS ROUJ AK BOUTON REZON) */
 .modal-overlay {
     background: rgba(15, 23, 42, 0.6) !important;
     backdrop-filter: blur(4px);
@@ -235,7 +268,7 @@
 }
 
 .modal-content textarea:focus {
-    border-color: #ef4444;
+    border-color: var(--accent-danger);
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
     outline: none;
 }
@@ -288,11 +321,5 @@
     .user-sidebar-item .badge.bg-danger {
         top: 4px;
         left: 28px;
-    }
-    
-    /* Kache kolòn dat la sou mobil pou tablo a pa depase */
-    .table th:nth-child(4), 
-    .table td:nth-child(4) {
-        display: none !important;
     }
 }
